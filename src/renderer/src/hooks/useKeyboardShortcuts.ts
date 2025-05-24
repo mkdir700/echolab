@@ -62,11 +62,9 @@ export function useKeyboardShortcuts({
             Math.max(VOLUME_SETTINGS.MIN, currentVolume - VOLUME_SETTINGS.KEYBOARD_STEP)
           )
           break
-        case KEYBOARD_SHORTCUTS.KEY_S:
-          if (e.ctrlKey || e.metaKey) {
-            e.preventDefault()
-            onToggleSingleLoop?.()
-          }
+        case KEYBOARD_SHORTCUTS.KEY_R:
+          e.preventDefault()
+          onToggleSingleLoop?.()
           break
         case KEYBOARD_SHORTCUTS.KEY_P:
           if (e.ctrlKey || e.metaKey) {
@@ -74,11 +72,11 @@ export function useKeyboardShortcuts({
             onToggleAutoPause?.()
           }
           break
-        case KEYBOARD_SHORTCUTS.KEY_J:
+        case KEYBOARD_SHORTCUTS.KEY_H:
           e.preventDefault()
           onGoToPreviousSubtitle?.()
           break
-        case KEYBOARD_SHORTCUTS.KEY_K:
+        case KEYBOARD_SHORTCUTS.KEY_L:
           e.preventDefault()
           onGoToNextSubtitle?.()
           break

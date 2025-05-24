@@ -189,7 +189,7 @@ function App(): React.JSX.Element {
         {/* 快捷键提示 */}
         <div className="shortcuts-hint">
           <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 | J/K-上一句/下一句
+            💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 | H/L-上一句/下一句
             | Ctrl+S-单句循环 | Ctrl+P-自动暂停
           </Text>
         </div>

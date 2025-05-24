@@ -17,13 +17,12 @@ export const KEYBOARD_SHORTCUTS = {
   ARROW_RIGHT: 'ArrowRight',
   ARROW_UP: 'ArrowUp',
   ARROW_DOWN: 'ArrowDown',
-  KEY_R: 'KeyR',
-  KEY_H: 'KeyH',
+  KEY_R: 'KeyR', // 单句循环
   KEY_M: 'KeyM',
-  KEY_S: 'KeyS', // 单句循环
+  KEY_S: 'KeyS',
   KEY_P: 'KeyP', // 自动暂停
-  KEY_J: 'KeyJ', // 上一句
-  KEY_K: 'KeyK' // 下一句
+  KEY_H: 'KeyH', // 上一句
+  KEY_L: 'KeyL' // 下一句
 } as const
 
 export const PLAYBACK_RATES = {
