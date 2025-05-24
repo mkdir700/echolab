@@ -217,18 +217,20 @@ export function CurrentSubtitleDisplay({
 
   return (
     <div className="current-subtitle-display">
-      <div className="subtitle-display-header">
-        <div className="subtitle-mode-indicator">
+      <div className="subtitle-display-content">
+        {/* 浮动控制按钮 */}
+        <div className="subtitle-display-controls-floating" ref={controlsRef}>
           <Space size="small">
-            {currentModeConfig.icon}
-            <Text style={{ color: currentModeConfig.color, fontWeight: 500 }}>
-              {currentModeConfig.label}
-            </Text>
-          </Space>
-        </div>
+            {/* 模式指示器 - 仅显示图标 */}
+            <Tooltip title={`当前模式: ${currentModeConfig.label}`}>
+              <Button
+                type="text"
+                size="small"
+                icon={currentModeConfig.icon}
+                style={{ color: currentModeConfig.color }}
+              />
+            </Tooltip>
 
-        <div className="subtitle-display-controls" ref={controlsRef}>
-          <Space size="small">
             {/* 快速切换按钮 */}
             <Tooltip title="快速切换显示模式 (Ctrl+M)">
               <Button
@@ -282,9 +284,10 @@ export function CurrentSubtitleDisplay({
             </div>
           )}
         </div>
-      </div>
 
-      <div className="subtitle-display-content">{renderSubtitleContent}</div>
+        {/* 字幕内容 */}
+        <div className="subtitle-content-wrapper">{renderSubtitleContent}</div>
+      </div>
     </div>
   )
 }
