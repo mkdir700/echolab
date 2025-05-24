@@ -3,12 +3,12 @@ import type { SubtitleItem } from '../types/shared'
 
 interface SubtitleControlState {
   isSingleLoop: boolean // 是否开启单句循环
-  isAutoLoop: boolean // 是否开启自动循环
+  isAutoPause: boolean // 是否开启自动暂停
 }
 
 interface UseSubtitleControlReturn extends SubtitleControlState {
   toggleSingleLoop: () => void
-  toggleAutoLoop: () => void
+  toggleAutoPause: () => void
   goToNextSubtitle: () => void
   goToPreviousSubtitle: () => void
 }
@@ -20,6 +20,7 @@ interface UseSubtitleControlParams {
   isPlaying: boolean
   isVideoLoaded: boolean
   onSeek: (time: number) => void
+  onPause: () => void // 添加暂停回调
 }
 
 export function useSubtitleControl({
@@ -28,11 +29,12 @@ export function useSubtitleControl({
   currentTime,
   isPlaying,
   isVideoLoaded,
-  onSeek
+  onSeek,
+  onPause
 }: UseSubtitleControlParams): UseSubtitleControlReturn {
   const [state, setState] = useState<SubtitleControlState>({
     isSingleLoop: false,
-    isAutoLoop: false
+    isAutoPause: false
   })
 
   // 用于单句循环的固定字幕索引和字幕对象
@@ -41,6 +43,10 @@ export function useSubtitleControl({
   const isLoopingRef = useRef<boolean>(false)
   // 记录上次跳转的时间戳，用于去重
   const lastLoopTimeRef = useRef<number>(0)
+
+  // 用于自动暂停的状态
+  const lastSubtitleIndexRef = useRef<number>(-1)
+  const shouldPauseRef = useRef<boolean>(false)
 
   // 切换单句循环
   const toggleSingleLoop = useCallback((): void => {
@@ -69,13 +75,27 @@ export function useSubtitleControl({
     })
   }, [currentSubtitleIndex, subtitles])
 
-  // 切换自动循环
-  const toggleAutoLoop = useCallback((): void => {
-    setState((prev) => ({
-      ...prev,
-      isAutoLoop: !prev.isAutoLoop
-    }))
-  }, [])
+  // 切换自动暂停
+  const toggleAutoPause = useCallback((): void => {
+    setState((prev) => {
+      const newAutoPause = !prev.isAutoPause
+      if (newAutoPause) {
+        console.log('⏸️ 开启自动暂停')
+        // 重置自动暂停状态
+        lastSubtitleIndexRef.current = currentSubtitleIndex
+        shouldPauseRef.current = false
+      } else {
+        console.log('⏸️ 关闭自动暂停')
+        // 清理自动暂停状态
+        lastSubtitleIndexRef.current = -1
+        shouldPauseRef.current = false
+      }
+      return {
+        ...prev,
+        isAutoPause: newAutoPause
+      }
+    })
+  }, [currentSubtitleIndex])
 
   // 跳转到下一句字幕
   const goToNextSubtitle = useCallback((): void => {
@@ -85,11 +105,13 @@ export function useSubtitleControl({
     if (nextIndex < subtitles.length) {
       const nextSubtitle = subtitles[nextIndex]
       onSeek(nextSubtitle.startTime)
-    } else if (state.isAutoLoop) {
-      // 如果开启自动循环，跳转到第一句
-      onSeek(subtitles[0].startTime)
+      // 重置自动暂停状态，因为用户手动切换了字幕
+      if (state.isAutoPause) {
+        lastSubtitleIndexRef.current = nextIndex
+        shouldPauseRef.current = false
+      }
     }
-  }, [isVideoLoaded, subtitles, currentSubtitleIndex, state.isAutoLoop, onSeek])
+  }, [isVideoLoaded, subtitles, currentSubtitleIndex, onSeek, state.isAutoPause])
 
   // 跳转到上一句字幕
   const goToPreviousSubtitle = useCallback((): void => {
@@ -99,11 +121,13 @@ export function useSubtitleControl({
     if (prevIndex >= 0) {
       const prevSubtitle = subtitles[prevIndex]
       onSeek(prevSubtitle.startTime)
-    } else if (state.isAutoLoop) {
-      // 如果开启自动循环，跳转到最后一句
-      onSeek(subtitles[subtitles.length - 1].startTime)
+      // 重置自动暂停状态，因为用户手动切换了字幕
+      if (state.isAutoPause) {
+        lastSubtitleIndexRef.current = prevIndex
+        shouldPauseRef.current = false
+      }
     }
-  }, [isVideoLoaded, subtitles, currentSubtitleIndex, state.isAutoLoop, onSeek])
+  }, [isVideoLoaded, subtitles, currentSubtitleIndex, onSeek, state.isAutoPause])
 
   // 处理单句循环逻辑
   useEffect(() => {
@@ -142,25 +166,62 @@ export function useSubtitleControl({
     }
   }, [state.isSingleLoop, isVideoLoaded, isPlaying, currentTime, onSeek])
 
-  // 处理自动循环逻辑 - 当视频播放到最后一句字幕结束时
+  // 处理自动暂停逻辑 - 监听字幕索引变化
   useEffect(() => {
-    if (!state.isAutoLoop || !isVideoLoaded || subtitles.length === 0) {
+    if (!state.isAutoPause || !isVideoLoaded || !isPlaying) {
       return
     }
 
-    const lastSubtitle = subtitles[subtitles.length - 1]
-    if (!lastSubtitle) return
+    const prevIndex = lastSubtitleIndexRef.current
 
-    // 如果当前时间超过了最后一句字幕的结束时间，且视频正在播放，则跳回第一句
-    if (currentTime > lastSubtitle.endTime && isPlaying) {
-      onSeek(subtitles[0].startTime)
+    // 字幕索引发生变化
+    if (prevIndex !== currentSubtitleIndex) {
+      // 如果从一个有效字幕切换到另一个有效字幕，或者从有效字幕切换到无字幕状态
+      if (prevIndex >= 0 && prevIndex < subtitles.length) {
+        const prevSubtitle = subtitles[prevIndex]
+
+        // 检查是否已经超过了前一个字幕的结束时间
+        if (currentTime >= prevSubtitle.endTime) {
+          console.log('⏸️ 自动暂停触发：字幕切换', {
+            fromIndex: prevIndex,
+            toIndex: currentSubtitleIndex,
+            prevSubtitle: prevSubtitle.text,
+            currentTime,
+            prevEndTime: prevSubtitle.endTime
+          })
+
+          // 触发暂停
+          shouldPauseRef.current = true
+          onPause()
+        }
+      }
+
+      // 更新记录的索引
+      lastSubtitleIndexRef.current = currentSubtitleIndex
     }
-  }, [state.isAutoLoop, isVideoLoaded, subtitles, currentTime, isPlaying, onSeek])
+  }, [
+    state.isAutoPause,
+    isVideoLoaded,
+    isPlaying,
+    currentSubtitleIndex,
+    currentTime,
+    subtitles,
+    onPause
+  ])
+
+  // 监听播放状态变化，重置自动暂停标记
+  useEffect(() => {
+    if (isPlaying && shouldPauseRef.current) {
+      // 如果视频重新开始播放，重置自动暂停标记
+      shouldPauseRef.current = false
+      console.log('⏸️ 视频重新播放，重置自动暂停标记')
+    }
+  }, [isPlaying])
 
   return {
     ...state,
     toggleSingleLoop,
-    toggleAutoLoop,
+    toggleAutoPause,
     goToNextSubtitle,
     goToPreviousSubtitle
   }

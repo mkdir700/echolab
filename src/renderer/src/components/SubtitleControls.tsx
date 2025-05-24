@@ -4,27 +4,27 @@ import {
   StepBackwardOutlined,
   StepForwardOutlined,
   ReloadOutlined,
-  SyncOutlined
+  PauseCircleOutlined
 } from '@ant-design/icons'
 
 interface SubtitleControlsProps {
   isSingleLoop: boolean
-  isAutoLoop: boolean
+  isAutoPause: boolean
   isVideoLoaded: boolean
   subtitlesLength: number
   onToggleSingleLoop: () => void
-  onToggleAutoLoop: () => void
+  onToggleAutoPause: () => void
   onGoToPrevious: () => void
   onGoToNext: () => void
 }
 
 export function SubtitleControls({
   isSingleLoop,
-  isAutoLoop,
+  isAutoPause,
   isVideoLoaded,
   subtitlesLength,
   onToggleSingleLoop,
-  onToggleAutoLoop,
+  onToggleAutoPause,
   onGoToPrevious,
   onGoToNext
 }: SubtitleControlsProps): React.JSX.Element {
@@ -53,13 +53,13 @@ export function SubtitleControls({
             </div>
 
             <div className="control-item">
-              <Tooltip title="开启后，所有字幕播放完毕会从第一句重新开始">
+              <Tooltip title="开启后，每句字幕播放完毕会自动暂停视频">
                 <Space align="center" size="small">
-                  <SyncOutlined style={{ color: isAutoLoop ? '#1890ff' : '#8c8c8c' }} />
-                  <span className="control-label">自动循环</span>
+                  <PauseCircleOutlined style={{ color: isAutoPause ? '#1890ff' : '#8c8c8c' }} />
+                  <span className="control-label">自动暂停</span>
                   <Switch
-                    checked={isAutoLoop}
-                    onChange={onToggleAutoLoop}
+                    checked={isAutoPause}
+                    onChange={onToggleAutoPause}
                     disabled={isDisabled}
                     size="small"
                   />

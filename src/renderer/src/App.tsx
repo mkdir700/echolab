@@ -45,7 +45,8 @@ function App(): React.JSX.Element {
     currentTime: videoPlayer.currentTime,
     isPlaying: videoPlayer.isPlaying,
     isVideoLoaded: videoPlayer.isVideoLoaded,
-    onSeek: videoPlayer.handleSeek
+    onSeek: videoPlayer.handleSeek,
+    onPause: videoPlayer.handlePlayPause
   })
 
   // 自动滚动 Hook
@@ -72,7 +73,7 @@ function App(): React.JSX.Element {
     onVolumeChange: videoPlayer.handleVolumeChange,
     currentVolume: videoPlayer.volume,
     onToggleSingleLoop: subtitleControl.toggleSingleLoop,
-    onToggleAutoLoop: subtitleControl.toggleAutoLoop,
+    onToggleAutoPause: subtitleControl.toggleAutoPause,
     onGoToPreviousSubtitle: subtitleControl.goToPreviousSubtitle,
     onGoToNextSubtitle: subtitleControl.goToNextSubtitle
   })
@@ -144,11 +145,11 @@ function App(): React.JSX.Element {
             {/* 字幕控制区域 */}
             <SubtitleControls
               isSingleLoop={subtitleControl.isSingleLoop}
-              isAutoLoop={subtitleControl.isAutoLoop}
+              isAutoPause={subtitleControl.isAutoPause}
               isVideoLoaded={videoPlayer.isVideoLoaded}
               subtitlesLength={subtitles.subtitles.length}
               onToggleSingleLoop={subtitleControl.toggleSingleLoop}
-              onToggleAutoLoop={subtitleControl.toggleAutoLoop}
+              onToggleAutoPause={subtitleControl.toggleAutoPause}
               onGoToPrevious={subtitleControl.goToPreviousSubtitle}
               onGoToNext={subtitleControl.goToNextSubtitle}
             />
@@ -189,7 +190,7 @@ function App(): React.JSX.Element {
         <div className="shortcuts-hint">
           <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
             💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 | J/K-上一句/下一句
-            | Ctrl+S-单句循环 | Ctrl+A-自动循环
+            | Ctrl+S-单句循环 | Ctrl+P-自动暂停
           </Text>
         </div>
       </Content>

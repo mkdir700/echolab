@@ -9,7 +9,7 @@ interface UseKeyboardShortcutsProps {
   onVolumeChange: (volume: number) => void
   currentVolume: number
   onToggleSingleLoop?: () => void
-  onToggleAutoLoop?: () => void
+  onToggleAutoPause?: () => void
   onGoToPreviousSubtitle?: () => void
   onGoToNextSubtitle?: () => void
 }
@@ -22,7 +22,7 @@ export function useKeyboardShortcuts({
   onVolumeChange,
   currentVolume,
   onToggleSingleLoop,
-  onToggleAutoLoop,
+  onToggleAutoPause,
   onGoToPreviousSubtitle,
   onGoToNextSubtitle
 }: UseKeyboardShortcutsProps): void {
@@ -68,10 +68,10 @@ export function useKeyboardShortcuts({
             onToggleSingleLoop?.()
           }
           break
-        case KEYBOARD_SHORTCUTS.KEY_A:
+        case KEYBOARD_SHORTCUTS.KEY_P:
           if (e.ctrlKey || e.metaKey) {
             e.preventDefault()
-            onToggleAutoLoop?.()
+            onToggleAutoPause?.()
           }
           break
         case KEYBOARD_SHORTCUTS.KEY_J:
@@ -95,7 +95,7 @@ export function useKeyboardShortcuts({
     onVolumeChange,
     currentVolume,
     onToggleSingleLoop,
-    onToggleAutoLoop,
+    onToggleAutoPause,
     onGoToPreviousSubtitle,
     onGoToNextSubtitle
   ])

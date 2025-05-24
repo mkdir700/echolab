@@ -21,7 +21,7 @@ export const KEYBOARD_SHORTCUTS = {
   KEY_H: 'KeyH',
   KEY_M: 'KeyM',
   KEY_S: 'KeyS', // 单句循环
-  KEY_A: 'KeyA', // 自动循环
+  KEY_P: 'KeyP', // 自动暂停
   KEY_J: 'KeyJ', // 上一句
   KEY_K: 'KeyK' // 下一句
 } as const
