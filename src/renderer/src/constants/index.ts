@@ -19,7 +19,11 @@ export const KEYBOARD_SHORTCUTS = {
   ARROW_DOWN: 'ArrowDown',
   KEY_R: 'KeyR',
   KEY_H: 'KeyH',
-  KEY_M: 'KeyM'
+  KEY_M: 'KeyM',
+  KEY_S: 'KeyS', // 单句循环
+  KEY_A: 'KeyA', // 自动循环
+  KEY_J: 'KeyJ', // 上一句
+  KEY_K: 'KeyK' // 下一句
 } as const
 
 export const PLAYBACK_RATES = {

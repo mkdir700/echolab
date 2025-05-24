@@ -9,10 +9,12 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useAutoScroll } from './hooks/useAutoScroll'
 import { useSidebarResize } from './hooks/useSidebarResize'
 import { useSubtitleDisplayMode } from './hooks/useSubtitleDisplayMode'
+import { useSubtitleControl } from './hooks/useSubtitleControl'
 
 // 导入组件
 import { AppHeader } from './components/AppHeader'
 import { VideoSection } from './components/VideoSection'
+import { SubtitleControls } from './components/SubtitleControls'
 import { CurrentSubtitleDisplay } from './components/CurrentSubtitleDisplay'
 import { SidebarSection } from './components/SidebarSection'
 
@@ -36,6 +38,16 @@ function App(): React.JSX.Element {
     return subtitles.getCurrentSubtitleIndex(videoPlayer.currentTime)
   }, [subtitles.getCurrentSubtitleIndex, videoPlayer.currentTime])
 
+  // 字幕控制 Hook
+  const subtitleControl = useSubtitleControl({
+    subtitles: subtitles.subtitles,
+    currentSubtitleIndex: currentSubtitleIndexMemo,
+    currentTime: videoPlayer.currentTime,
+    isPlaying: videoPlayer.isPlaying,
+    isVideoLoaded: videoPlayer.isVideoLoaded,
+    onSeek: videoPlayer.handleSeek
+  })
+
   // 自动滚动 Hook
   const autoScroll = useAutoScroll({
     currentSubtitleIndex: currentSubtitleIndexMemo,
@@ -58,7 +70,11 @@ function App(): React.JSX.Element {
     onStepForward: videoPlayer.handleStepForward,
     onToggleSubtitleMode: subtitleDisplayMode.toggleDisplayMode,
     onVolumeChange: videoPlayer.handleVolumeChange,
-    currentVolume: videoPlayer.volume
+    currentVolume: videoPlayer.volume,
+    onToggleSingleLoop: subtitleControl.toggleSingleLoop,
+    onToggleAutoLoop: subtitleControl.toggleAutoLoop,
+    onGoToPreviousSubtitle: subtitleControl.goToPreviousSubtitle,
+    onGoToNextSubtitle: subtitleControl.goToNextSubtitle
   })
 
   // 组合视频上传和状态重置
@@ -125,6 +141,18 @@ function App(): React.JSX.Element {
               onVolumeChange={videoPlayer.handleVolumeChange}
             />
 
+            {/* 字幕控制区域 */}
+            <SubtitleControls
+              isSingleLoop={subtitleControl.isSingleLoop}
+              isAutoLoop={subtitleControl.isAutoLoop}
+              isVideoLoaded={videoPlayer.isVideoLoaded}
+              subtitlesLength={subtitles.subtitles.length}
+              onToggleSingleLoop={subtitleControl.toggleSingleLoop}
+              onToggleAutoLoop={subtitleControl.toggleAutoLoop}
+              onGoToPrevious={subtitleControl.goToPreviousSubtitle}
+              onGoToNext={subtitleControl.goToNextSubtitle}
+            />
+
             {/* 下部：当前字幕展示区域 */}
             <CurrentSubtitleDisplay
               currentSubtitle={subtitles.getCurrentSubtitle(videoPlayer.currentTime)}
@@ -160,7 +188,8 @@ function App(): React.JSX.Element {
         {/* 快捷键提示 */}
         <div className="shortcuts-hint">
           <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式
+            💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 | J/K-上一句/下一句
+            | Ctrl+S-单句循环 | Ctrl+A-自动循环
           </Text>
         </div>
       </Content>

@@ -126,16 +126,17 @@ body {
   justify-content: center;
   padding: 24px 24px 12px 24px;
   min-width: 0;
-  flex: 2; /* 占据2/3的空间 */
+  flex: 3; /* 占据约60%的空间 */
   width: 100%; /* 使用100%宽度 */
+  min-height: 200px; /* 设置最小高度避免过小 */
 }
 
 /* 当前字幕展示区域 */
 .current-subtitle-display {
-  flex: 1; /* 占据1/3的空间 */
+  flex: 1; /* 占据约20%的空间 */
   padding: 12px 24px 24px 24px;
   min-height: 120px;
-  max-height: 200px;
+  max-height: none; /* 移除最大高度限制，让flex控制 */
   display: flex;
   flex-direction: column;
   width: 100%; /* 使用100%宽度 */
@@ -857,13 +858,22 @@ body {
 
   .video-section {
     padding: 16px 16px 8px 16px;
-    flex: 1;
+    flex: 2; /* 移动端视频区域占2份 */
+    min-height: 150px;
+  }
+  
+  .subtitle-controls {
+    margin: 4px 16px;
+    padding: 8px 16px;
+    height: 50px; /* 移动端减小高度 */
+    flex: 0 0 auto; /* 保持固定高度不伸缩 */
   }
   
   .current-subtitle-display {
     padding: 8px 16px 16px 16px;
+    flex: 1; /* 移动端字幕展示区域占1份 */
     min-height: 80px;
-    max-height: 120px;
+    max-height: none; /* 让flex控制高度 */
     width: 100% !important;
   }
 
@@ -1112,12 +1122,155 @@ body {
 }
 
 @keyframes fadeInDown {
-  0% {
+  from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translate3d(0, -100%, 0);
   }
-  100% {
+
+  to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
+  }
+}
+
+/* 字幕控制组件样式 */
+.subtitle-controls {
+  padding: 10px 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  margin: 6px 24px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
+  transition: var(--transition);
+  flex: 0 0 auto; /* 使用固定高度，不伸缩 */
+  height: 60px; /* 设置固定高度 */
+  display: flex;
+  align-items: center;
+}
+
+.subtitle-controls:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.subtitle-controls-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.subtitle-controls .loop-controls {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.subtitle-controls .control-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.subtitle-controls .control-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  min-width: 55px;
+  user-select: none;
+}
+
+.subtitle-controls .navigation-controls {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.subtitle-controls .ant-btn {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text-primary) !important;
+  transition: var(--transition);
+  height: 28px;
+  font-size: 12px;
+}
+
+.subtitle-controls .ant-btn:hover {
+  background: var(--accent-color-light) !important;
+  border-color: var(--accent-color) !important;
+  color: var(--accent-color) !important;
+  transform: translateY(-1px);
+}
+
+.subtitle-controls .ant-btn:active {
+  transform: translateY(0);
+}
+
+.subtitle-controls .ant-btn:disabled {
+  background: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+  color: var(--text-muted) !important;
+  opacity: 0.5;
+}
+
+.subtitle-controls .ant-switch {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.subtitle-controls .ant-switch-checked {
+  background-color: var(--accent-color) !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .subtitle-controls {
+    margin: 4px 16px;
+    padding: 8px 16px;
+    height: 50px; /* 移动端减小高度 */
+    flex: 0 0 auto; /* 保持固定高度不伸缩 */
+  }
+  
+  .subtitle-controls-content {
+    flex-direction: column;
+    gap: 8px; /* 减小间距 */
+    align-items: stretch;
+  }
+  
+  .subtitle-controls .loop-controls {
+    justify-content: center;
+  }
+  
+  .subtitle-controls .loop-controls .ant-space {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .subtitle-controls .control-item {
+    justify-content: space-between;
+    min-width: 140px;
+  }
+  
+  .subtitle-controls .navigation-controls {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .subtitle-controls .control-label {
+    min-width: auto;
+    font-size: 12px;
+  }
+  
+  .subtitle-controls .ant-btn {
+    height: 26px;
+    font-size: 11px;
+  }
+  
+  .subtitle-controls-content {
+    gap: 8px;
+  }
+  
+  .subtitle-controls .loop-controls .ant-space {
+    gap: 12px;
   }
 } 

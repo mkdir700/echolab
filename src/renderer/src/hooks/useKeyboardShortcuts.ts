@@ -8,6 +8,10 @@ interface UseKeyboardShortcutsProps {
   onToggleSubtitleMode?: () => void
   onVolumeChange: (volume: number) => void
   currentVolume: number
+  onToggleSingleLoop?: () => void
+  onToggleAutoLoop?: () => void
+  onGoToPreviousSubtitle?: () => void
+  onGoToNextSubtitle?: () => void
 }
 
 export function useKeyboardShortcuts({
@@ -16,7 +20,11 @@ export function useKeyboardShortcuts({
   onStepForward,
   onToggleSubtitleMode,
   onVolumeChange,
-  currentVolume
+  currentVolume,
+  onToggleSingleLoop,
+  onToggleAutoLoop,
+  onGoToPreviousSubtitle,
+  onGoToNextSubtitle
 }: UseKeyboardShortcutsProps): void {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent): void => {
@@ -54,6 +62,26 @@ export function useKeyboardShortcuts({
             Math.max(VOLUME_SETTINGS.MIN, currentVolume - VOLUME_SETTINGS.KEYBOARD_STEP)
           )
           break
+        case KEYBOARD_SHORTCUTS.KEY_S:
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault()
+            onToggleSingleLoop?.()
+          }
+          break
+        case KEYBOARD_SHORTCUTS.KEY_A:
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault()
+            onToggleAutoLoop?.()
+          }
+          break
+        case KEYBOARD_SHORTCUTS.KEY_J:
+          e.preventDefault()
+          onGoToPreviousSubtitle?.()
+          break
+        case KEYBOARD_SHORTCUTS.KEY_K:
+          e.preventDefault()
+          onGoToNextSubtitle?.()
+          break
       }
     }
 
@@ -65,6 +93,10 @@ export function useKeyboardShortcuts({
     onStepForward,
     onToggleSubtitleMode,
     onVolumeChange,
-    currentVolume
+    currentVolume,
+    onToggleSingleLoop,
+    onToggleAutoLoop,
+    onGoToPreviousSubtitle,
+    onGoToNextSubtitle
   ])
 }
