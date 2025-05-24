@@ -8,10 +8,12 @@ import { useFileUpload } from './hooks/useFileUpload'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useAutoScroll } from './hooks/useAutoScroll'
 import { useSidebarResize } from './hooks/useSidebarResize'
+import { useSubtitleDisplayMode } from './hooks/useSubtitleDisplayMode'
 
 // 导入组件
 import { AppHeader } from './components/AppHeader'
 import { VideoSection } from './components/VideoSection'
+import { CurrentSubtitleDisplay } from './components/CurrentSubtitleDisplay'
 import { SidebarSection } from './components/SidebarSection'
 
 import './App.css'
@@ -27,6 +29,7 @@ function App(): React.JSX.Element {
   const subtitles = useSubtitles()
   const fileUpload = useFileUpload()
   const sidebarResize = useSidebarResize(containerRef)
+  const subtitleDisplayMode = useSubtitleDisplayMode()
 
   // 计算当前字幕索引
   const currentSubtitleIndexMemo = useMemo(() => {
@@ -53,8 +56,7 @@ function App(): React.JSX.Element {
     onPlayPause: videoPlayer.handlePlayPause,
     onStepBackward: videoPlayer.handleStepBackward,
     onStepForward: videoPlayer.handleStepForward,
-    onRestart: videoPlayer.handleRestart,
-    onToggleSubtitles: subtitles.toggleSubtitles,
+    onToggleSubtitleMode: subtitleDisplayMode.toggleDisplayMode,
     onVolumeChange: videoPlayer.handleVolumeChange,
     currentVolume: videoPlayer.volume
   })
@@ -68,6 +70,22 @@ function App(): React.JSX.Element {
     [fileUpload.handleVideoUpload, videoPlayer.resetVideoState]
   )
 
+  // 处理字幕单词hover时的暂停功能
+  const handleWordHover = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (_isHovering: boolean) => {
+      // 这里可以添加其他hover效果，比如改变视觉状态
+      // 暂时不需要处理hover状态，但保留接口用于未来扩展
+    },
+    []
+  )
+
+  const handlePauseOnHover = useCallback(() => {
+    if (videoPlayer.isPlaying) {
+      videoPlayer.handlePlayPause()
+    }
+  }, [videoPlayer.isPlaying, videoPlayer.handlePlayPause])
+
   return (
     <Layout className="app-layout">
       <AppHeader
@@ -80,32 +98,44 @@ function App(): React.JSX.Element {
 
       <Content className="app-content">
         <div className="main-container" ref={containerRef}>
-          {/* 左侧：视频播放区域 */}
-          <VideoSection
-            sidebarWidth={sidebarResize.sidebarWidth}
-            videoFile={fileUpload.videoFile}
-            playerRef={videoPlayer.playerRef}
-            isPlaying={videoPlayer.isPlaying}
-            volume={videoPlayer.volume}
-            playbackRate={videoPlayer.playbackRate}
-            currentTime={videoPlayer.currentTime}
-            duration={videoPlayer.duration}
-            isVideoLoaded={videoPlayer.isVideoLoaded}
-            videoError={videoPlayer.videoError}
-            showSubtitles={subtitles.showSubtitles}
-            onProgress={videoPlayer.handleProgress}
-            onDuration={videoPlayer.handleVideoDuration}
-            onReady={videoPlayer.handleVideoReady}
-            onError={videoPlayer.handleVideoError}
-            onSeek={videoPlayer.handleSeek}
-            onStepBackward={videoPlayer.handleStepBackward}
-            onPlayPause={videoPlayer.handlePlayPause}
-            onStepForward={videoPlayer.handleStepForward}
-            onRestart={videoPlayer.handleRestart}
-            onPlaybackRateChange={videoPlayer.handlePlaybackRateChange}
-            onVolumeChange={videoPlayer.handleVolumeChange}
-            onToggleSubtitles={subtitles.toggleSubtitles}
-          />
+          <div
+            className="left-section"
+            style={{ width: `calc(100% - ${sidebarResize.sidebarWidth}px)` }}
+          >
+            {/* 上部：视频播放区域 */}
+            <VideoSection
+              videoFile={fileUpload.videoFile}
+              playerRef={videoPlayer.playerRef}
+              isPlaying={videoPlayer.isPlaying}
+              volume={videoPlayer.volume}
+              playbackRate={videoPlayer.playbackRate}
+              currentTime={videoPlayer.currentTime}
+              duration={videoPlayer.duration}
+              isVideoLoaded={videoPlayer.isVideoLoaded}
+              videoError={videoPlayer.videoError}
+              onProgress={videoPlayer.handleProgress}
+              onDuration={videoPlayer.handleVideoDuration}
+              onReady={videoPlayer.handleVideoReady}
+              onError={videoPlayer.handleVideoError}
+              onSeek={videoPlayer.handleSeek}
+              onStepBackward={videoPlayer.handleStepBackward}
+              onPlayPause={videoPlayer.handlePlayPause}
+              onStepForward={videoPlayer.handleStepForward}
+              onPlaybackRateChange={videoPlayer.handlePlaybackRateChange}
+              onVolumeChange={videoPlayer.handleVolumeChange}
+            />
+
+            {/* 下部：当前字幕展示区域 */}
+            <CurrentSubtitleDisplay
+              currentSubtitle={subtitles.getCurrentSubtitle(videoPlayer.currentTime)}
+              isPlaying={videoPlayer.isPlaying}
+              displayMode={subtitleDisplayMode.displayMode}
+              onDisplayModeChange={subtitleDisplayMode.setDisplayMode}
+              onToggleDisplayMode={subtitleDisplayMode.toggleDisplayMode}
+              onWordHover={handleWordHover}
+              onPauseOnHover={handlePauseOnHover}
+            />
+          </div>
 
           {/* 拖拽分割线 */}
           <div
@@ -130,7 +160,7 @@ function App(): React.JSX.Element {
         {/* 快捷键提示 */}
         <div className="shortcuts-hint">
           <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+H-字幕切换
+            💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式
           </Text>
         </div>
       </Content>

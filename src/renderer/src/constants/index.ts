@@ -18,7 +18,8 @@ export const KEYBOARD_SHORTCUTS = {
   ARROW_UP: 'ArrowUp',
   ARROW_DOWN: 'ArrowDown',
   KEY_R: 'KeyR',
-  KEY_H: 'KeyH'
+  KEY_H: 'KeyH',
+  KEY_M: 'KeyM'
 } as const
 
 export const PLAYBACK_RATES = {

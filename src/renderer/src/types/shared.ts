@@ -2,4 +2,6 @@ export interface SubtitleItem {
   startTime: number
   endTime: number
   text: string
+  englishText?: string
+  chineseText?: string
 }

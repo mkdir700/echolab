@@ -2,11 +2,13 @@ import { useState, useCallback } from 'react'
 import { message } from 'antd'
 import { parseSubtitles } from '../utils/subtitleParser'
 import { SubtitleState } from '../types'
+import type { SubtitleItem } from '../types/shared'
 
 interface UseSubtitlesReturn extends SubtitleState {
   handleSubtitleUpload: (file: File) => boolean
   toggleSubtitles: () => void
   getCurrentSubtitleIndex: (currentTime: number) => number
+  getCurrentSubtitle: (currentTime: number) => SubtitleItem | null
   setAutoScrollEnabled: (enabled: boolean) => void
   setCurrentSubtitleIndex: (index: number) => void
 }
@@ -61,6 +63,15 @@ export function useSubtitles(): UseSubtitlesReturn {
     [state.subtitles]
   )
 
+  // 获取当前字幕对象
+  const getCurrentSubtitle = useCallback(
+    (currentTime: number): SubtitleItem | null => {
+      const index = getCurrentSubtitleIndex(currentTime)
+      return index >= 0 ? state.subtitles[index] : null
+    },
+    [getCurrentSubtitleIndex, state.subtitles]
+  )
+
   // 设置自动滚动状态
   const setAutoScrollEnabled = useCallback((enabled: boolean): void => {
     setState((prev) => ({
@@ -82,6 +93,7 @@ export function useSubtitles(): UseSubtitlesReturn {
     handleSubtitleUpload,
     toggleSubtitles,
     getCurrentSubtitleIndex,
+    getCurrentSubtitle,
     setAutoScrollEnabled,
     setCurrentSubtitleIndex
   }

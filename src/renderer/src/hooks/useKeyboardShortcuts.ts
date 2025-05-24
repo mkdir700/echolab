@@ -5,8 +5,7 @@ interface UseKeyboardShortcutsProps {
   onPlayPause: () => void
   onStepBackward: () => void
   onStepForward: () => void
-  onRestart: () => void
-  onToggleSubtitles: () => void
+  onToggleSubtitleMode?: () => void
   onVolumeChange: (volume: number) => void
   currentVolume: number
 }
@@ -15,8 +14,7 @@ export function useKeyboardShortcuts({
   onPlayPause,
   onStepBackward,
   onStepForward,
-  onRestart,
-  onToggleSubtitles,
+  onToggleSubtitleMode,
   onVolumeChange,
   currentVolume
 }: UseKeyboardShortcutsProps): void {
@@ -38,16 +36,10 @@ export function useKeyboardShortcuts({
           e.preventDefault()
           onStepForward()
           break
-        case KEYBOARD_SHORTCUTS.KEY_R:
+        case KEYBOARD_SHORTCUTS.KEY_M:
           if (e.ctrlKey || e.metaKey) {
             e.preventDefault()
-            onRestart()
-          }
-          break
-        case KEYBOARD_SHORTCUTS.KEY_H:
-          if (e.ctrlKey || e.metaKey) {
-            e.preventDefault()
-            onToggleSubtitles()
+            onToggleSubtitleMode?.()
           }
           break
         case KEYBOARD_SHORTCUTS.ARROW_UP:
@@ -71,8 +63,7 @@ export function useKeyboardShortcuts({
     onPlayPause,
     onStepBackward,
     onStepForward,
-    onRestart,
-    onToggleSubtitles,
+    onToggleSubtitleMode,
     onVolumeChange,
     currentVolume
   ])

@@ -6,7 +6,6 @@ import { ErrorIndicator } from './ErrorIndicator'
 import { VideoControls } from './VideoControls'
 
 interface VideoSectionProps {
-  sidebarWidth: number
   videoFile: string | null
   playerRef: React.RefObject<ReactPlayer | null>
   isPlaying: boolean
@@ -16,7 +15,6 @@ interface VideoSectionProps {
   duration: number
   isVideoLoaded: boolean
   videoError: string | null
-  showSubtitles: boolean
   onProgress: (state: {
     played: number
     playedSeconds: number
@@ -30,14 +28,11 @@ interface VideoSectionProps {
   onStepBackward: () => void
   onPlayPause: () => void
   onStepForward: () => void
-  onRestart: () => void
   onPlaybackRateChange: (value: number) => void
   onVolumeChange: (value: number) => void
-  onToggleSubtitles: () => void
 }
 
 export function VideoSection({
-  sidebarWidth,
   videoFile,
   playerRef,
   isPlaying,
@@ -47,7 +42,6 @@ export function VideoSection({
   duration,
   isVideoLoaded,
   videoError,
-  showSubtitles,
   onProgress,
   onDuration,
   onReady,
@@ -56,15 +50,13 @@ export function VideoSection({
   onStepBackward,
   onPlayPause,
   onStepForward,
-  onRestart,
   onPlaybackRateChange,
-  onVolumeChange,
-  onToggleSubtitles
+  onVolumeChange
 }: VideoSectionProps): React.JSX.Element {
   const [showControls, setShowControls] = useState(false)
 
   return (
-    <div className="video-section" style={{ width: `calc(100% - ${sidebarWidth}px)` }}>
+    <div className="video-section">
       <div
         className="video-container"
         onMouseEnter={() => setShowControls(true)}
@@ -108,7 +100,7 @@ export function VideoSection({
             {/* 错误状态提示 */}
             {videoError && <ErrorIndicator error={videoError} />}
 
-            {/* 悬浮控制条 */}
+            {/* 视频控制条 */}
             <VideoControls
               showControls={showControls}
               duration={duration}
@@ -118,15 +110,12 @@ export function VideoSection({
               videoError={videoError}
               playbackRate={playbackRate}
               volume={volume}
-              showSubtitles={showSubtitles}
               onSeek={onSeek}
               onStepBackward={onStepBackward}
               onPlayPause={onPlayPause}
               onStepForward={onStepForward}
-              onRestart={onRestart}
               onPlaybackRateChange={onPlaybackRateChange}
               onVolumeChange={onVolumeChange}
-              onToggleSubtitles={onToggleSubtitles}
             />
           </>
         ) : (

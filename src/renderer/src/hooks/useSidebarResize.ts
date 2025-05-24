@@ -42,6 +42,7 @@ export function useSidebarResize(
         document.removeEventListener('mouseup', handleMouseUp)
       }
     }
+    return undefined
   }, [isDragging, handleMouseMove, handleMouseUp])
 
   const handleMouseDown = useCallback((e: React.MouseEvent): void => {

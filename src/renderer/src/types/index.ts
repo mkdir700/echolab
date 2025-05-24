@@ -42,17 +42,14 @@ export interface VideoControlsProps {
   duration: number
   playbackRate: number
   volume: number
-  showSubtitles: boolean
   isVideoLoaded: boolean
   videoError: string | null
   onPlayPause: () => void
   onSeek: (time: number) => void
   onStepBackward: () => void
   onStepForward: () => void
-  onRestart: () => void
   onPlaybackRateChange: (rate: number) => void
   onVolumeChange: (volume: number) => void
-  onToggleSubtitles: () => void
   formatTime: (time: number) => string
 }
 
