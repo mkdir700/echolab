@@ -76,7 +76,9 @@ function App(): React.JSX.Element {
     onSeek: videoPlayer.handleSeek,
     onPause: videoPlayer.handlePlayPause,
     // 传递获取字幕的函数而不是整个数组
-    getSubtitle
+    getSubtitle,
+    // 传递获取所有字幕的函数，用于时间查找
+    getAllSubtitles: () => subtitles.subtitles
   })
 
   // 自动滚动 Hook

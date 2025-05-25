@@ -24,6 +24,8 @@ interface UseSubtitleControlParams {
   isVideoLoaded: boolean
   onSeek: (time: number) => void
   onPause: () => void // 添加暂停回调
+  // 新增：获取所有字幕的函数，用于时间查找
+  getAllSubtitles: () => SubtitleItem[]
 }
 
 export function useSubtitleControl({
@@ -34,7 +36,8 @@ export function useSubtitleControl({
   isPlaying,
   isVideoLoaded,
   onSeek,
-  onPause
+  onPause,
+  getAllSubtitles
 }: UseSubtitleControlParams): UseSubtitleControlReturn {
   const [state, setState] = useState<SubtitleControlState>({
     isSingleLoop: false,
@@ -58,6 +61,8 @@ export function useSubtitleControl({
   const getSubtitleRef = useRef(getSubtitle)
   const currentSubtitleIndexRef = useRef(currentSubtitleIndex)
   const isVideoLoadedRef = useRef(isVideoLoaded)
+  const currentTimeRef = useRef(currentTime)
+  const getAllSubtitlesRef = useRef(getAllSubtitles)
 
   // 更新refs
   useEffect(() => {
@@ -79,6 +84,14 @@ export function useSubtitleControl({
   useEffect(() => {
     isVideoLoadedRef.current = isVideoLoaded
   }, [isVideoLoaded])
+
+  useEffect(() => {
+    currentTimeRef.current = currentTime
+  }, [currentTime])
+
+  useEffect(() => {
+    getAllSubtitlesRef.current = getAllSubtitles
+  }, [getAllSubtitles])
 
   // 切换单句循环 - 移除不必要的依赖
   const toggleSingleLoop = useCallback((): void => {
@@ -150,7 +163,23 @@ export function useSubtitleControl({
 
     if (!videoLoaded || currentLength === 0) return
 
-    const nextIndex = currentIndex + 1
+    let nextIndex: number
+
+    // 如果当前没有字幕在播放（currentIndex为-1），根据当前时间查找下一句字幕
+    if (currentIndex === -1) {
+      const allSubtitles = getAllSubtitlesRef.current()
+      const currentTimeValue = currentTimeRef.current
+      // 找到第一个开始时间大于当前时间的字幕
+      nextIndex = allSubtitles.findIndex((sub) => sub.startTime > currentTimeValue)
+      // 如果没找到，说明当前时间已经超过了所有字幕，跳转到最后一句
+      if (nextIndex === -1) {
+        nextIndex = currentLength - 1
+      }
+    } else {
+      // 如果当前有字幕在播放，跳转到下一句
+      nextIndex = currentIndex + 1
+    }
+
     if (nextIndex < currentLength) {
       const nextSubtitle = getSubtitleFn(nextIndex)
       if (nextSubtitle) {
@@ -186,7 +215,29 @@ export function useSubtitleControl({
 
     if (!videoLoaded || currentLength === 0) return
 
-    const prevIndex = currentIndex - 1
+    let prevIndex: number
+
+    // 如果当前没有字幕在播放（currentIndex为-1），根据当前时间查找上一句字幕
+    if (currentIndex === -1) {
+      const allSubtitles = getAllSubtitlesRef.current()
+      const currentTimeValue = currentTimeRef.current
+      // 找到最后一个结束时间小于当前时间的字幕
+      prevIndex = -1
+      for (let i = allSubtitles.length - 1; i >= 0; i--) {
+        if (allSubtitles[i].endTime < currentTimeValue) {
+          prevIndex = i
+          break
+        }
+      }
+      // 如果没找到，说明当前时间在第一句字幕之前，跳转到第一句
+      if (prevIndex === -1) {
+        prevIndex = 0
+      }
+    } else {
+      // 如果当前有字幕在播放，跳转到上一句
+      prevIndex = currentIndex - 1
+    }
+
     if (prevIndex >= 0) {
       const prevSubtitle = getSubtitleFn(prevIndex)
       if (prevSubtitle) {
