@@ -382,9 +382,9 @@ export function ThirdPartyServicesSection({
             </div>
 
             <div className={styles.inputGroup}>
-              <Text className={styles.inputLabel}>API Key</Text>
+              <Text className={styles.inputLabel}>应用ID</Text>
               <Input.Password
-                placeholder="请输入有道词典 API Key"
+                placeholder="请输入应用ID"
                 value={settings.dictionary.youdaoApiKey}
                 onChange={(e) => handleDictionaryChange('youdaoApiKey', e.target.value)}
                 size="large"
@@ -392,17 +392,27 @@ export function ThirdPartyServicesSection({
             </div>
 
             <div className={styles.inputGroup}>
-              <Text className={styles.inputLabel}>API Secret</Text>
+              <Text className={styles.inputLabel}>密钥</Text>
               <Input.Password
-                placeholder="请输入有道词典 API Secret"
+                placeholder="请输入密钥"
                 value={settings.dictionary.youdaoApiSecret}
                 onChange={(e) => handleDictionaryChange('youdaoApiSecret', e.target.value)}
                 size="large"
               />
             </div>
-
             <Alert
-              message="如需获取 API Key 和 Secret，请访问有道智云开放平台"
+              message={
+                <span className={styles.alertContent}>
+                  申请应用ID和密钥，请访问{' '}
+                  <Link
+                    href="https://ai.youdao.com/console/#/app-overview/create-application"
+                    target="_blank"
+                    className={styles.alertLink}
+                  >
+                    <LinkOutlined /> 有道智云开放平台
+                  </Link>
+                </span>
+              }
               type="info"
               showIcon
             />
