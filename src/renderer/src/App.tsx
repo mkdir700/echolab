@@ -104,9 +104,10 @@ function App(): React.JSX.Element {
   const handleVideoUpload = useCallback(
     (file: File): boolean => {
       videoPlayer.resetVideoState()
+      subtitleControl.resetState()
       return fileUpload.handleVideoUpload(file)
     },
-    [fileUpload.handleVideoUpload, videoPlayer.resetVideoState]
+    [fileUpload.handleVideoUpload, videoPlayer.resetVideoState, subtitleControl.resetState]
   )
 
   // 处理字幕单词hover时的暂停功能
@@ -187,7 +188,7 @@ function App(): React.JSX.Element {
           <div className="shortcuts-hint">
             <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
               💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 |
-              H/L-上一句/下一句 | Ctrl+S-单句循环 | Ctrl+P-自动暂停
+              H/L-上一句/下一句 | R-单句循环 | Ctrl+P-自动暂停
             </Text>
           </div>
         )}

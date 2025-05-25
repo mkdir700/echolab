@@ -11,6 +11,7 @@ interface UseSubtitleControlReturn extends SubtitleControlState {
   toggleAutoPause: () => void
   goToNextSubtitle: () => void
   goToPreviousSubtitle: () => void
+  resetState: () => void
 }
 
 interface UseSubtitleControlParams {
@@ -85,16 +86,22 @@ export function useSubtitleControl({
       const currentIndex = currentSubtitleIndexRef.current
       const currentSubtitle = getSubtitleRef.current(currentIndex)
 
-      if (newSingleLoop && currentIndex >= 0 && currentSubtitle) {
-        // 开启单句循环时，锁定当前字幕对象
-        singleLoopSubtitleRef.current = currentSubtitle
-        console.log('🔄 开启单句循环，锁定字幕:', {
-          index: currentIndex,
-          text: currentSubtitle.text,
-          startTime: currentSubtitle.startTime,
-          endTime: currentSubtitle.endTime
-        })
-      } else if (!newSingleLoop) {
+      if (newSingleLoop) {
+        if (currentIndex >= 0 && currentSubtitle) {
+          // 情况1：当前有正在进行的字幕，锁定当前字幕
+          singleLoopSubtitleRef.current = currentSubtitle
+          console.log('🔄 开启单句循环，锁定当前字幕:', {
+            index: currentIndex,
+            text: currentSubtitle.text,
+            startTime: currentSubtitle.startTime,
+            endTime: currentSubtitle.endTime
+          })
+        } else {
+          // 情况2：当前没有正在进行的字幕，标记为等待下一个字幕
+          singleLoopSubtitleRef.current = null
+          console.log('🔄 开启单句循环，等待下一个字幕')
+        }
+      } else {
         // 关闭单句循环时，重置相关状态
         singleLoopSubtitleRef.current = null
         isLoopingRef.current = false
@@ -204,40 +211,72 @@ export function useSubtitleControl({
     }
   }, [onSeek]) // 只依赖onSeek
 
+  // 重置状态
+  const resetState = useCallback((): void => {
+    setState({
+      isSingleLoop: false,
+      isAutoPause: false
+    })
+    singleLoopSubtitleRef.current = null
+    isLoopingRef.current = false
+    lastLoopTimeRef.current = 0
+    lastSubtitleIndexRef.current = -1
+    shouldPauseRef.current = false
+    console.log('🔄 重置字幕控制状态')
+  }, [])
+
   // 处理单句循环逻辑
   useEffect(() => {
-    if (!state.isSingleLoop || !isVideoLoaded || !isPlaying || !singleLoopSubtitleRef.current) {
+    if (!state.isSingleLoop || !isVideoLoaded || !isPlaying) {
       return
     }
 
-    const loopSubtitle = singleLoopSubtitleRef.current
+    // 情况1：已经有锁定的字幕，进行循环
+    if (singleLoopSubtitleRef.current) {
+      const loopSubtitle = singleLoopSubtitleRef.current
 
-    // 如果当前时间超过了循环字幕的结束时间，则跳回字幕开始
-    if (currentTime > loopSubtitle.endTime) {
-      // 防止重复触发：检查是否刚刚执行过跳转
-      const now = Date.now()
-      if (isLoopingRef.current || now - lastLoopTimeRef.current < 500) {
-        return
+      // 如果当前时间超过了循环字幕的结束时间，则跳回字幕开始
+      if (currentTime > loopSubtitle.endTime) {
+        // 防止重复触发：检查是否刚刚执行过跳转
+        const now = Date.now()
+        if (isLoopingRef.current || now - lastLoopTimeRef.current < 500) {
+          return
+        }
+
+        console.log('🔄 单句循环触发：跳回字幕开始', {
+          currentTime,
+          endTime: loopSubtitle.endTime,
+          startTime: loopSubtitle.startTime,
+          text: loopSubtitle.text
+        })
+
+        // 设置循环标记，防止重复触发
+        isLoopingRef.current = true
+        lastLoopTimeRef.current = now
+
+        // 执行跳转
+        onSeek(loopSubtitle.startTime)
+
+        // 延迟重置循环标记
+        setTimeout(() => {
+          isLoopingRef.current = false
+        }, 200)
       }
+    } else {
+      // 情况2：没有锁定字幕，检查是否有当前字幕可以锁定
+      const currentIndex = currentSubtitleIndexRef.current
+      const currentSubtitle = getSubtitleRef.current(currentIndex)
 
-      console.log('🔄 单句循环触发：跳回字幕开始', {
-        currentTime,
-        endTime: loopSubtitle.endTime,
-        startTime: loopSubtitle.startTime,
-        text: loopSubtitle.text
-      })
-
-      // 设置循环标记，防止重复触发
-      isLoopingRef.current = true
-      lastLoopTimeRef.current = now
-
-      // 执行跳转
-      onSeek(loopSubtitle.startTime)
-
-      // 延迟重置循环标记
-      setTimeout(() => {
-        isLoopingRef.current = false
-      }, 200)
+      if (currentIndex >= 0 && currentSubtitle) {
+        // 找到当前字幕，锁定它
+        singleLoopSubtitleRef.current = currentSubtitle
+        console.log('🔄 单句循环：自动锁定当前字幕', {
+          index: currentIndex,
+          text: currentSubtitle.text,
+          startTime: currentSubtitle.startTime,
+          endTime: currentSubtitle.endTime
+        })
+      }
     }
   }, [state.isSingleLoop, isVideoLoaded, isPlaying, currentTime, onSeek])
 
@@ -298,6 +337,7 @@ export function useSubtitleControl({
     toggleSingleLoop,
     toggleAutoPause,
     goToNextSubtitle,
-    goToPreviousSubtitle
+    goToPreviousSubtitle,
+    resetState
   }
 }
