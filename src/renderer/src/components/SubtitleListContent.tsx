@@ -14,7 +14,6 @@ interface SubtitleListContentProps {
   currentTime: number
   subtitleListRef: React.RefObject<HTMLDivElement | null>
   onSeek: (time: number) => void
-  onScrollToCurrentSubtitle: (index: number) => void
   onCenterCurrentSubtitle: () => void
 }
 
@@ -25,7 +24,6 @@ export function SubtitleListContent({
   currentTime,
   subtitleListRef,
   onSeek,
-  onScrollToCurrentSubtitle,
   onCenterCurrentSubtitle
 }: SubtitleListContentProps): React.JSX.Element {
   return (
@@ -57,46 +55,7 @@ export function SubtitleListContent({
             >
               {isAutoScrollEnabled ? '🤖 自动跟随' : '👆 手动浏览'}
             </Text>
-            {/* 测试滚动按钮 */}
-            <Button
-              size="small"
-              type="text"
-              onClick={() => {
-                console.log('🧪 Test scroll to middle')
-                if (!subtitleListRef.current) {
-                  console.log('❌ No subtitle list ref')
-                  return
-                }
 
-                const listElement = subtitleListRef.current.querySelector('.subtitle-list')
-                if (!listElement) {
-                  console.log('❌ No list element found')
-                  return
-                }
-
-                const antListContainer = listElement.querySelector('.ant-list-items')
-                const actualContainer = antListContainer || listElement
-                const actualItemsCount = actualContainer.children.length
-
-                console.log('🧪 Test analysis:', {
-                  totalSubtitles: subtitles.length,
-                  actualDOMItems: actualItemsCount
-                })
-
-                if (actualItemsCount === 0) {
-                  console.log('❌ No items in DOM')
-                  return
-                }
-
-                const middleIndex = Math.floor(actualItemsCount / 2)
-                console.log('🧪 Scrolling to middle index:', middleIndex, 'of', actualItemsCount)
-                onScrollToCurrentSubtitle(middleIndex)
-              }}
-              title="测试滚动到中间"
-              style={{ fontSize: 11, padding: '2px 6px' }}
-            >
-              🧪 测试
-            </Button>
             {currentSubtitleIndex >= 0 && (
               <Button
                 size="small"
