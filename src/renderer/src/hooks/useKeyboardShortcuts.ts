@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { VOLUME_SETTINGS } from '../constants'
 import { useShortcuts } from './useShortcuts'
-import { DEFAULT_SHORTCUTS } from './useShortcutManager'
+import { matchesShortcut as matchesShortcutUtil } from '../utils/shortcutMatcher'
 
 interface UseKeyboardShortcutsProps {
   onPlayPause: () => void
@@ -33,39 +33,7 @@ export function useKeyboardShortcuts({
   useEffect(() => {
     // 创建快捷键匹配函数，直接使用当前的 shortcuts 状态
     const matchesShortcut = (event: KeyboardEvent, shortcutKey: string): boolean => {
-      const currentKey = shortcuts[shortcutKey] || DEFAULT_SHORTCUTS[shortcutKey]?.defaultKey || ''
-      if (!currentKey) return false
-
-      // 解析快捷键字符串
-      const parts = currentKey.split('+')
-      const key = parts[parts.length - 1]
-      const hasCtrl = parts.includes('Ctrl')
-      const hasAlt = parts.includes('Alt')
-      const hasShift = parts.includes('Shift')
-
-      // 检查修饰键
-      if (hasCtrl !== (event.ctrlKey || event.metaKey)) return false
-      if (hasAlt !== event.altKey) return false
-      if (hasShift !== event.shiftKey) return false
-
-      // 检查主键
-      if (key === 'Space') {
-        return event.code === 'Space'
-      } else if (key === '←') {
-        return event.code === 'ArrowLeft'
-      } else if (key === '→') {
-        return event.code === 'ArrowRight'
-      } else if (key === '↑') {
-        return event.code === 'ArrowUp'
-      } else if (key === '↓') {
-        return event.code === 'ArrowDown'
-      } else if (key.startsWith('Arrow')) {
-        return event.code === key
-      } else if (key.length === 1) {
-        return event.code === `Key${key.toUpperCase()}`
-      } else {
-        return event.code === key
-      }
+      return matchesShortcutUtil(event, shortcutKey, shortcuts)
     }
 
     const handleKeyPress = (e: KeyboardEvent): void => {

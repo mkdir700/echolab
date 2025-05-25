@@ -178,3 +178,124 @@ code {
     display: none;
   }
 }
+
+/* 快捷键设置相关样式 */
+.shortcut-item {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border-soft);
+}
+
+.shortcut-item:last-child {
+  border-bottom: none;
+}
+
+.shortcut-info {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.shortcut-name {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.shortcut-key {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+}
+
+.shortcut-edit {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.shortcut-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shortcut-tag {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: var(--color-background-mute);
+  border: 1px solid var(--color-border);
+}
+
+/* 脉冲动画 */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+  }
+}
+
+/* 等待输入状态的输入框样式 */
+.shortcut-input-waiting {
+  animation: pulse 2s infinite;
+  border-color: #1890ff !important;
+  background-color: #f0f8ff !important;
+}
+
+/* 错误状态的输入框样式 */
+.shortcut-input-error {
+  border-color: #ff4d4f !important;
+  background-color: #fff2f0 !important;
+}
+
+/* 平台特定的快捷键符号样式 */
+.shortcut-symbol {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui;
+  font-size: 14px;
+}
+
+/* 快捷键列表样式 */
+.shortcuts-list {
+  margin-bottom: 24px;
+}
+
+/* 设置卡片样式 */
+.settings-section-card {
+  margin-bottom: 16px;
+}
+
+.settings-section-card .ant-card-body {
+  padding: 24px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .shortcut-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .shortcut-info {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+  
+  .shortcut-key {
+    width: 100%;
+  }
+  
+  .shortcut-edit input {
+    width: 100% !important;
+    max-width: 200px;
+  }
+}

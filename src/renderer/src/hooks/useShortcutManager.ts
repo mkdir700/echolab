@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { matchesShortcut as matchesShortcutUtil } from '../utils/shortcutMatcher'
 
 // 快捷键配置接口
 export interface ShortcutConfig {
@@ -131,40 +132,7 @@ export function useShortcutManager(): {
   // 检查按键事件是否匹配快捷键
   const matchesShortcut = useCallback(
     (event: KeyboardEvent, shortcutKey: string): boolean => {
-      // 直接使用当前的 shortcuts 状态，避免闭包问题
-      const currentKey = shortcuts[shortcutKey] || DEFAULT_SHORTCUTS[shortcutKey]?.defaultKey || ''
-      if (!currentKey) return false
-
-      // 解析快捷键字符串
-      const parts = currentKey.split('+')
-      const key = parts[parts.length - 1]
-      const hasCtrl = parts.includes('Ctrl')
-      const hasAlt = parts.includes('Alt')
-      const hasShift = parts.includes('Shift')
-
-      // 检查修饰键
-      if (hasCtrl !== (event.ctrlKey || event.metaKey)) return false
-      if (hasAlt !== event.altKey) return false
-      if (hasShift !== event.shiftKey) return false
-
-      // 检查主键
-      if (key === 'Space') {
-        return event.code === 'Space'
-      } else if (key === '←') {
-        return event.code === 'ArrowLeft'
-      } else if (key === '→') {
-        return event.code === 'ArrowRight'
-      } else if (key === '↑') {
-        return event.code === 'ArrowUp'
-      } else if (key === '↓') {
-        return event.code === 'ArrowDown'
-      } else if (key.startsWith('Arrow')) {
-        return event.code === key
-      } else if (key.length === 1) {
-        return event.code === `Key${key.toUpperCase()}`
-      } else {
-        return event.code === key
-      }
+      return matchesShortcutUtil(event, shortcutKey, shortcuts)
     },
     [shortcuts]
   )

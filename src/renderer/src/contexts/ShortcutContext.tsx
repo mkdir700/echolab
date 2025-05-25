@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { DEFAULT_SHORTCUTS } from '../hooks/useShortcutManager'
 import { ShortcutContext, type ShortcutContextType } from './shortcut-context'
+import { matchesShortcut as matchesShortcutUtil } from '../utils/shortcutMatcher'
 
 export function ShortcutProvider({ children }: { children: React.ReactNode }): React.JSX.Element {
   const [shortcuts, setShortcuts] = useState<Record<string, string>>(() => {
@@ -57,39 +58,7 @@ export function ShortcutProvider({ children }: { children: React.ReactNode }): R
   // 检查按键事件是否匹配快捷键
   const matchesShortcut = useCallback(
     (event: KeyboardEvent, shortcutKey: string): boolean => {
-      const currentKey = shortcuts[shortcutKey] || DEFAULT_SHORTCUTS[shortcutKey]?.defaultKey || ''
-      if (!currentKey) return false
-
-      // 解析快捷键字符串
-      const parts = currentKey.split('+')
-      const key = parts[parts.length - 1]
-      const hasCtrl = parts.includes('Ctrl')
-      const hasAlt = parts.includes('Alt')
-      const hasShift = parts.includes('Shift')
-
-      // 检查修饰键
-      if (hasCtrl !== (event.ctrlKey || event.metaKey)) return false
-      if (hasAlt !== event.altKey) return false
-      if (hasShift !== event.shiftKey) return false
-
-      // 检查主键
-      if (key === 'Space') {
-        return event.code === 'Space'
-      } else if (key === '←') {
-        return event.code === 'ArrowLeft'
-      } else if (key === '→') {
-        return event.code === 'ArrowRight'
-      } else if (key === '↑') {
-        return event.code === 'ArrowUp'
-      } else if (key === '↓') {
-        return event.code === 'ArrowDown'
-      } else if (key.startsWith('Arrow')) {
-        return event.code === key
-      } else if (key.length === 1) {
-        return event.code === `Key${key.toUpperCase()}`
-      } else {
-        return event.code === key
-      }
+      return matchesShortcutUtil(event, shortcutKey, shortcuts)
     },
     [shortcuts]
   )
