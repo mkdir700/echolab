@@ -146,8 +146,42 @@ export function CurrentSubtitleDisplay({
     setSelectedWord(null)
   }, [])
 
-  // 将文本分割成单词
-  const splitTextIntoWords = useCallback(
+  // 检测文本是否主要包含中文字符
+  const isChinese = useCallback((text: string): boolean => {
+    const chineseRegex = /[\u4e00-\u9fff]/g
+    const chineseMatches = text.match(chineseRegex)
+    const chineseCount = chineseMatches ? chineseMatches.length : 0
+    const totalChars = text.replace(/\s/g, '').length
+    return totalChars > 0 && chineseCount / totalChars > 0.5
+  }, [])
+
+  // 将中文文本分割成字符
+  const splitChineseText = useCallback(
+    (text: string) => {
+      return text.split('').map((char, index) => {
+        // 中文字符不允许点击查询翻译
+        const isChineseChar = /[\u4e00-\u9fff]/.test(char)
+        const isClickable = !isChineseChar && char.trim() !== ''
+
+        return (
+          <span
+            key={index}
+            className={`${styles.subtitleWord} ${isClickable ? styles.clickableWord : ''}`}
+            onMouseEnter={() => handleWordHover(true)}
+            onMouseLeave={() => handleWordHover(false)}
+            onClick={isClickable ? (e) => handleWordClick(char, e) : undefined}
+            style={{ cursor: isClickable ? 'pointer' : 'default' }}
+          >
+            {char}
+          </span>
+        )
+      })
+    },
+    [handleWordHover, handleWordClick]
+  )
+
+  // 将英文文本分割成单词
+  const splitEnglishText = useCallback(
     (text: string) => {
       const words = text.split(/(\s+)/).map((word, index) => {
         if (word.trim() === '') {
@@ -173,6 +207,18 @@ export function CurrentSubtitleDisplay({
       return words
     },
     [handleWordHover, handleWordClick]
+  )
+
+  // 智能分割文本（根据语言类型选择分割方式）
+  const splitTextIntoWords = useCallback(
+    (text: string) => {
+      if (isChinese(text)) {
+        return splitChineseText(text)
+      } else {
+        return splitEnglishText(text)
+      }
+    },
+    [isChinese, splitChineseText, splitEnglishText]
   )
 
   // 获取当前模式的配置
