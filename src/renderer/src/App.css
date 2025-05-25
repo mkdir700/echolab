@@ -338,26 +338,28 @@ body {
 
 /* 拖拽分割线 */
 .resize-handle {
-  width: 4px;
-  background: var(--card-border);
+  width: 3px;
+  background: rgba(255, 255, 255, 0.08);
   cursor: col-resize;
   position: relative;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   user-select: none;
-  will-change: background-color;
+  will-change: background;
   contain: layout style paint;
+  opacity: 0.4;
 }
 
 .resize-handle:hover,
 .resize-handle.dragging {
-  background: var(--accent-color);
+  background: rgba(102, 126, 234, 0.4);
+  opacity: 0.8;
 }
 
 .resize-handle::before {
   content: '';
   position: absolute;
-  left: -2px;
-  right: -2px;
+  left: -3px;
+  right: -3px;
   top: 0;
   bottom: 0;
   background: transparent;
