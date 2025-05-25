@@ -195,11 +195,13 @@ body {
   bottom: 0;
   background: var(--darker-bg);
   z-index: var(--z-index-base);
+  overflow: hidden;
 }
 
 .page-container.other-page {
   z-index: calc(var(--z-index-base) + 1);
   background: var(--darker-bg);
+  overflow: auto;
 }
 
 /* 主容器 - 左右布局 */
@@ -1471,5 +1473,214 @@ body {
   
   .subtitle-controls .loop-controls .ant-space {
     gap: 12px;
+  }
+}
+
+/* 设置页面样式 */
+.settings-page {
+  padding: 32px;
+  background: var(--darker-bg);
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.settings-header .settings-icon {
+  font-size: 32px;
+  color: var(--accent-color);
+  margin-right: 16px;
+}
+
+.settings-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 设置侧边栏 */
+.settings-sidebar {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-nav {
+  padding: 8px 0;
+}
+
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-secondary);
+}
+
+.settings-nav-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: var(--text-primary);
+}
+
+.settings-nav-item.active {
+  background: var(--accent-color-light);
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.settings-nav-item span {
+  margin-left: 12px;
+  font-size: 14px;
+}
+
+/* 设置主内容区域 */
+.settings-main {
+  min-height: 600px;
+}
+
+.settings-section-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 24px;
+}
+
+.settings-section-card .ant-card-head {
+  background: transparent !important;
+  border-bottom: 1px solid var(--card-border) !important;
+}
+
+.settings-section-card .ant-card-head-title {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.settings-section-card .ant-card-body {
+  background: transparent !important;
+}
+
+/* 快捷键列表样式 */
+.shortcuts-list {
+  margin-bottom: 24px;
+}
+
+.shortcut-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.shortcut-item:last-child {
+  border-bottom: none;
+}
+
+.shortcut-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.shortcut-name {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.shortcut-key {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shortcut-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shortcut-tag {
+  background: var(--accent-color-light) !important;
+  border: 1px solid var(--accent-color) !important;
+  color: var(--accent-color) !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  min-width: 60px;
+  text-align: center;
+}
+
+.shortcut-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.shortcut-edit .ant-input {
+  background: var(--darker-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text-primary) !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+}
+
+.shortcut-edit .ant-input:focus {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* 设置项样式 */
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.settings-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .settings-content .ant-col:first-child {
+    margin-bottom: 24px;
+  }
+  
+  .settings-page {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .settings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .shortcut-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .shortcut-key {
+    width: 100%;
+    justify-content: flex-end;
   }
 } 

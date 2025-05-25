@@ -5,6 +5,7 @@ import { Layout, Typography } from 'antd'
 import { useVideoPlayer } from '@renderer/hooks/useVideoPlayer'
 import { useSubtitles } from '@renderer/hooks/useSubtitles'
 import { useFileUpload } from '@renderer/hooks/useFileUpload'
+
 import { useKeyboardShortcuts } from '@renderer/hooks/useKeyboardShortcuts'
 import { useAutoScroll } from '@renderer/hooks/useAutoScroll'
 import { useSidebarResize } from '@renderer/hooks/useSidebarResize'
@@ -18,6 +19,7 @@ import { HomePage } from '@renderer/components/pages/HomePage'
 import { FavoritesPage } from '@renderer/components/pages/FavoritesPage'
 import { AboutPage } from '@renderer/components/pages/AboutPage'
 import { SettingsPage } from '@renderer/components/pages/SettingsPage'
+import { ShortcutProvider } from '@renderer/contexts/ShortcutContext'
 
 // 导入类型
 import { PageType } from '@renderer/types'
@@ -26,6 +28,31 @@ import '@renderer/App.css'
 
 const { Content } = Layout
 const { Text } = Typography
+
+// 快捷键处理组件 - 必须在 ShortcutProvider 内部
+function KeyboardShortcutHandler({
+  videoPlayer,
+  subtitleDisplayMode,
+  subtitleControl
+}: {
+  videoPlayer: ReturnType<typeof useVideoPlayer>
+  subtitleDisplayMode: ReturnType<typeof useSubtitleDisplayMode>
+  subtitleControl: ReturnType<typeof useSubtitleControl>
+}): null {
+  useKeyboardShortcuts({
+    onPlayPause: videoPlayer.handlePlayPause,
+    onStepBackward: videoPlayer.handleStepBackward,
+    onStepForward: videoPlayer.handleStepForward,
+    onToggleSubtitleMode: subtitleDisplayMode.toggleDisplayMode,
+    onVolumeChange: videoPlayer.handleVolumeChange,
+    currentVolume: videoPlayer.volume,
+    onToggleSingleLoop: subtitleControl.toggleSingleLoop,
+    onToggleAutoPause: subtitleControl.toggleAutoPause,
+    onGoToPreviousSubtitle: subtitleControl.goToPreviousSubtitle,
+    onGoToNextSubtitle: subtitleControl.goToNextSubtitle
+  })
+  return null
+}
 
 function App(): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -238,20 +265,6 @@ function App(): React.JSX.Element {
     }
   }, [currentSubtitleIndexMemo, subtitles.currentSubtitleIndex, subtitles.setCurrentSubtitleIndex])
 
-  // 键盘快捷键
-  useKeyboardShortcuts({
-    onPlayPause: videoPlayer.handlePlayPause,
-    onStepBackward: videoPlayer.handleStepBackward,
-    onStepForward: videoPlayer.handleStepForward,
-    onToggleSubtitleMode: subtitleDisplayMode.toggleDisplayMode,
-    onVolumeChange: videoPlayer.handleVolumeChange,
-    currentVolume: videoPlayer.volume,
-    onToggleSingleLoop: subtitleControl.toggleSingleLoop,
-    onToggleAutoPause: subtitleControl.toggleAutoPause,
-    onGoToPreviousSubtitle: subtitleControl.goToPreviousSubtitle,
-    onGoToNextSubtitle: subtitleControl.goToNextSubtitle
-  })
-
   // 处理视频文件选择（包含状态重置）
   const handleVideoFileSelect = useCallback(async (): Promise<boolean> => {
     const success = await fileUpload.handleVideoFileSelect()
@@ -325,31 +338,40 @@ function App(): React.JSX.Element {
   }
 
   return (
-    <Layout className="app-layout">
-      <AppHeader
-        videoFileName={fileUpload.videoFileName}
-        isVideoLoaded={videoPlayer.isVideoLoaded}
-        subtitlesCount={subtitlesLength}
-        currentPage={currentPage}
-        onVideoFileSelect={handleVideoFileSelect}
-        onSubtitleUpload={subtitles.handleSubtitleUpload}
-        onPageChange={setCurrentPage}
+    <ShortcutProvider>
+      {/* 快捷键处理 - 必须在 Provider 内部 */}
+      <KeyboardShortcutHandler
+        videoPlayer={videoPlayer}
+        subtitleDisplayMode={subtitleDisplayMode}
+        subtitleControl={subtitleControl}
       />
 
-      <Content className="app-content">
-        {renderPageContent()}
+      <Layout className="app-layout">
+        <AppHeader
+          videoFileName={fileUpload.videoFileName}
+          isVideoLoaded={videoPlayer.isVideoLoaded}
+          subtitlesCount={subtitlesLength}
+          currentPage={currentPage}
+          onVideoFileSelect={handleVideoFileSelect}
+          onSubtitleUpload={subtitles.handleSubtitleUpload}
+          onPageChange={setCurrentPage}
+        />
 
-        {/* 快捷键提示 - 仅在首页显示 */}
-        {currentPage === 'home' && (
-          <div className="shortcuts-hint">
-            <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-              💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 |
-              H/L-上一句/下一句 | R-单句循环 | Ctrl+P-自动暂停
-            </Text>
-          </div>
-        )}
-      </Content>
-    </Layout>
+        <Content className="app-content">
+          {renderPageContent()}
+
+          {/* 快捷键提示 - 仅在首页显示 */}
+          {currentPage === 'home' && (
+            <div className="shortcuts-hint">
+              <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 |
+                H/L-上一句/下一句 | R-单句循环 | Ctrl+P-自动暂停
+              </Text>
+            </div>
+          )}
+        </Content>
+      </Layout>
+    </ShortcutProvider>
   )
 }
 
