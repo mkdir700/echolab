@@ -5,7 +5,8 @@ import { CurrentSubtitleDisplay } from '../CurrentSubtitleDisplay'
 import { SidebarSection } from '../SidebarSection'
 import { HomePageProps } from '../../types'
 
-export function HomePage({
+// 使用React.memo优化HomePage组件
+export const HomePage = React.memo<HomePageProps>(function HomePage({
   fileUpload,
   videoPlayer,
   subtitles,
@@ -15,7 +16,7 @@ export function HomePage({
   autoScroll,
   handleWordHover,
   handlePauseOnHover
-}: HomePageProps): React.JSX.Element {
+}) {
   return (
     <div className="main-container">
       <div
@@ -89,4 +90,4 @@ export function HomePage({
       />
     </div>
   )
-}
+})

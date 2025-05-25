@@ -1230,7 +1230,7 @@ body {
   background: var(--card-bg) !important;
   border: 1px solid var(--card-border) !important;
   color: var(--text-primary) !important;
-  transition: var(--transition);
+  transition: all 0.1s ease !important; /* 减少过渡时间 */
   height: 28px;
   font-size: 12px;
 }
@@ -1255,10 +1255,12 @@ body {
 
 .subtitle-controls .ant-switch {
   background-color: rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.1s ease !important; /* 减少过渡时间 */
 }
 
 .subtitle-controls .ant-switch-checked {
   background-color: var(--accent-color) !important;
+  transition: all 0.1s ease !important; /* 减少过渡时间 */
 }
 
 /* 响应式设计 */

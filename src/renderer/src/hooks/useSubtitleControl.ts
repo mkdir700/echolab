@@ -14,7 +14,8 @@ interface UseSubtitleControlReturn extends SubtitleControlState {
 }
 
 interface UseSubtitleControlParams {
-  subtitles: SubtitleItem[]
+  subtitlesLength: number
+  getSubtitle: (index: number) => SubtitleItem | undefined
   currentSubtitleIndex: number
   currentTime: number
   isPlaying: boolean
@@ -24,7 +25,8 @@ interface UseSubtitleControlParams {
 }
 
 export function useSubtitleControl({
-  subtitles,
+  subtitlesLength,
+  getSubtitle,
   currentSubtitleIndex,
   currentTime,
   isPlaying,
@@ -48,18 +50,49 @@ export function useSubtitleControl({
   const lastSubtitleIndexRef = useRef<number>(-1)
   const shouldPauseRef = useRef<boolean>(false)
 
-  // 切换单句循环
+  // 使用ref来存储最新的状态，避免闭包问题
+  const stateRef = useRef(state)
+  const subtitlesLengthRef = useRef(subtitlesLength)
+  const getSubtitleRef = useRef(getSubtitle)
+  const currentSubtitleIndexRef = useRef(currentSubtitleIndex)
+  const isVideoLoadedRef = useRef(isVideoLoaded)
+
+  // 更新refs
+  useEffect(() => {
+    stateRef.current = state
+  }, [state])
+
+  useEffect(() => {
+    subtitlesLengthRef.current = subtitlesLength
+  }, [subtitlesLength])
+
+  useEffect(() => {
+    getSubtitleRef.current = getSubtitle
+  }, [getSubtitle])
+
+  useEffect(() => {
+    currentSubtitleIndexRef.current = currentSubtitleIndex
+  }, [currentSubtitleIndex])
+
+  useEffect(() => {
+    isVideoLoadedRef.current = isVideoLoaded
+  }, [isVideoLoaded])
+
+  // 切换单句循环 - 移除不必要的依赖
   const toggleSingleLoop = useCallback((): void => {
     setState((prev) => {
       const newSingleLoop = !prev.isSingleLoop
-      if (newSingleLoop && currentSubtitleIndex >= 0 && subtitles[currentSubtitleIndex]) {
+      const currentIndex = currentSubtitleIndexRef.current
+      const currentSubtitle = getSubtitleRef.current(currentIndex)
+
+      if (newSingleLoop && currentIndex >= 0 && currentSubtitle) {
         // 开启单句循环时，锁定当前字幕对象
-        singleLoopSubtitleRef.current = subtitles[currentSubtitleIndex]
+        singleLoopSubtitleRef.current = currentSubtitle
         console.log('🔄 开启单句循环，锁定字幕:', {
-          index: currentSubtitleIndex,
-          text: subtitles[currentSubtitleIndex].text,
-          startTime: subtitles[currentSubtitleIndex].startTime,
-          endTime: subtitles[currentSubtitleIndex].endTime
+          index: currentIndex,
+          text: currentSubtitle.text,
+          startTime: currentSubtitle.startTime,
+          endTime: currentSubtitle.endTime
         })
       } else if (!newSingleLoop) {
         // 关闭单句循环时，重置相关状态
@@ -73,16 +106,18 @@ export function useSubtitleControl({
         isSingleLoop: newSingleLoop
       }
     })
-  }, [currentSubtitleIndex, subtitles])
+  }, []) // 移除所有依赖
 
-  // 切换自动暂停
+  // 切换自动暂停 - 移除不必要的依赖
   const toggleAutoPause = useCallback((): void => {
     setState((prev) => {
       const newAutoPause = !prev.isAutoPause
+      const currentIndex = currentSubtitleIndexRef.current
+
       if (newAutoPause) {
         console.log('⏸️ 开启自动暂停')
         // 重置自动暂停状态
-        lastSubtitleIndexRef.current = currentSubtitleIndex
+        lastSubtitleIndexRef.current = currentIndex
         shouldPauseRef.current = false
       } else {
         console.log('⏸️ 关闭自动暂停')
@@ -95,77 +130,79 @@ export function useSubtitleControl({
         isAutoPause: newAutoPause
       }
     })
-  }, [currentSubtitleIndex])
+  }, []) // 移除所有依赖
 
-  // 跳转到下一句字幕
+  // 跳转到下一句字幕 - 优化依赖
   const goToNextSubtitle = useCallback((): void => {
-    if (!isVideoLoaded || subtitles.length === 0) return
+    const currentLength = subtitlesLengthRef.current
+    const currentIndex = currentSubtitleIndexRef.current
+    const currentState = stateRef.current
+    const videoLoaded = isVideoLoadedRef.current
+    const getSubtitleFn = getSubtitleRef.current
 
-    const nextIndex = currentSubtitleIndex + 1
-    if (nextIndex < subtitles.length) {
-      const nextSubtitle = subtitles[nextIndex]
-      onSeek(nextSubtitle.startTime)
+    if (!videoLoaded || currentLength === 0) return
 
-      // 如果开启了单句循环，更新锁定的字幕为新的字幕
-      if (state.isSingleLoop) {
-        singleLoopSubtitleRef.current = nextSubtitle
-        console.log('🔄 单句循环：切换到下一句字幕', {
-          index: nextIndex,
-          text: nextSubtitle.text,
-          startTime: nextSubtitle.startTime,
-          endTime: nextSubtitle.endTime
-        })
-      }
+    const nextIndex = currentIndex + 1
+    if (nextIndex < currentLength) {
+      const nextSubtitle = getSubtitleFn(nextIndex)
+      if (nextSubtitle) {
+        onSeek(nextSubtitle.startTime)
 
-      // 重置自动暂停状态，因为用户手动切换了字幕
-      if (state.isAutoPause) {
-        lastSubtitleIndexRef.current = nextIndex
-        shouldPauseRef.current = false
+        // 如果开启了单句循环，更新锁定的字幕为新的字幕
+        if (currentState.isSingleLoop) {
+          singleLoopSubtitleRef.current = nextSubtitle
+          console.log('🔄 单句循环：切换到下一句字幕', {
+            index: nextIndex,
+            text: nextSubtitle.text,
+            startTime: nextSubtitle.startTime,
+            endTime: nextSubtitle.endTime
+          })
+        }
+
+        // 重置自动暂停状态，因为用户手动切换了字幕
+        if (currentState.isAutoPause) {
+          lastSubtitleIndexRef.current = nextIndex
+          shouldPauseRef.current = false
+        }
       }
     }
-  }, [
-    isVideoLoaded,
-    subtitles,
-    currentSubtitleIndex,
-    onSeek,
-    state.isAutoPause,
-    state.isSingleLoop
-  ])
+  }, [onSeek]) // 只依赖onSeek
 
-  // 跳转到上一句字幕
+  // 跳转到上一句字幕 - 优化依赖
   const goToPreviousSubtitle = useCallback((): void => {
-    if (!isVideoLoaded || subtitles.length === 0) return
+    const currentLength = subtitlesLengthRef.current
+    const currentIndex = currentSubtitleIndexRef.current
+    const currentState = stateRef.current
+    const videoLoaded = isVideoLoadedRef.current
+    const getSubtitleFn = getSubtitleRef.current
 
-    const prevIndex = currentSubtitleIndex - 1
+    if (!videoLoaded || currentLength === 0) return
+
+    const prevIndex = currentIndex - 1
     if (prevIndex >= 0) {
-      const prevSubtitle = subtitles[prevIndex]
-      onSeek(prevSubtitle.startTime)
+      const prevSubtitle = getSubtitleFn(prevIndex)
+      if (prevSubtitle) {
+        onSeek(prevSubtitle.startTime)
 
-      // 如果开启了单句循环，更新锁定的字幕为新的字幕
-      if (state.isSingleLoop) {
-        singleLoopSubtitleRef.current = prevSubtitle
-        console.log('🔄 单句循环：切换到上一句字幕', {
-          index: prevIndex,
-          text: prevSubtitle.text,
-          startTime: prevSubtitle.startTime,
-          endTime: prevSubtitle.endTime
-        })
-      }
+        // 如果开启了单句循环，更新锁定的字幕为新的字幕
+        if (currentState.isSingleLoop) {
+          singleLoopSubtitleRef.current = prevSubtitle
+          console.log('🔄 单句循环：切换到上一句字幕', {
+            index: prevIndex,
+            text: prevSubtitle.text,
+            startTime: prevSubtitle.startTime,
+            endTime: prevSubtitle.endTime
+          })
+        }
 
-      // 重置自动暂停状态，因为用户手动切换了字幕
-      if (state.isAutoPause) {
-        lastSubtitleIndexRef.current = prevIndex
-        shouldPauseRef.current = false
+        // 重置自动暂停状态，因为用户手动切换了字幕
+        if (currentState.isAutoPause) {
+          lastSubtitleIndexRef.current = prevIndex
+          shouldPauseRef.current = false
+        }
       }
     }
-  }, [
-    isVideoLoaded,
-    subtitles,
-    currentSubtitleIndex,
-    onSeek,
-    state.isAutoPause,
-    state.isSingleLoop
-  ])
+  }, [onSeek]) // 只依赖onSeek
 
   // 处理单句循环逻辑
   useEffect(() => {
@@ -215,11 +252,11 @@ export function useSubtitleControl({
     // 字幕索引发生变化
     if (prevIndex !== currentSubtitleIndex) {
       // 如果从一个有效字幕切换到另一个有效字幕，或者从有效字幕切换到无字幕状态
-      if (prevIndex >= 0 && prevIndex < subtitles.length) {
-        const prevSubtitle = subtitles[prevIndex]
+      if (prevIndex >= 0 && prevIndex < subtitlesLength) {
+        const prevSubtitle = getSubtitleRef.current(prevIndex)
 
         // 检查是否已经超过了前一个字幕的结束时间
-        if (currentTime >= prevSubtitle.endTime) {
+        if (prevSubtitle && currentTime >= prevSubtitle.endTime) {
           console.log('⏸️ 自动暂停触发：字幕切换', {
             fromIndex: prevIndex,
             toIndex: currentSubtitleIndex,
@@ -243,7 +280,7 @@ export function useSubtitleControl({
     isPlaying,
     currentSubtitleIndex,
     currentTime,
-    subtitles,
+    subtitlesLength,
     onPause
   ])
 

@@ -44,21 +44,37 @@ function App(): React.JSX.Element {
     return subtitles.getCurrentSubtitleIndex(videoPlayer.currentTime)
   }, [subtitles.getCurrentSubtitleIndex, videoPlayer.currentTime])
 
-  // 字幕控制 Hook
+  // 缓存字幕长度，避免频繁重新计算
+  const subtitlesLength = useMemo(() => {
+    console.log('🔍 重新计算字幕长度:', subtitles.subtitles.length)
+    return subtitles.subtitles.length
+  }, [subtitles.subtitles.length])
+
+  // 缓存获取字幕的函数，避免频繁重新创建
+  const getSubtitle = useCallback(
+    (index: number) => {
+      return subtitles.subtitles[index]
+    },
+    [subtitles.subtitles]
+  )
+
+  // 字幕控制 Hook - 优化：只传递必要的数据，避免大数组传递
   const subtitleControl = useSubtitleControl({
-    subtitles: subtitles.subtitles,
+    subtitlesLength,
     currentSubtitleIndex: currentSubtitleIndexMemo,
     currentTime: videoPlayer.currentTime,
     isPlaying: videoPlayer.isPlaying,
     isVideoLoaded: videoPlayer.isVideoLoaded,
     onSeek: videoPlayer.handleSeek,
-    onPause: videoPlayer.handlePlayPause
+    onPause: videoPlayer.handlePlayPause,
+    // 传递获取字幕的函数而不是整个数组
+    getSubtitle
   })
 
   // 自动滚动 Hook
   const autoScroll = useAutoScroll({
     currentSubtitleIndex: currentSubtitleIndexMemo,
-    subtitlesLength: subtitles.subtitles.length,
+    subtitlesLength,
     isAutoScrollEnabled: subtitles.isAutoScrollEnabled,
     onAutoScrollChange: subtitles.setAutoScrollEnabled
   })
@@ -156,7 +172,7 @@ function App(): React.JSX.Element {
       <AppHeader
         videoFileName={fileUpload.videoFileName}
         isVideoLoaded={videoPlayer.isVideoLoaded}
-        subtitlesCount={subtitles.subtitles.length}
+        subtitlesCount={subtitlesLength}
         currentPage={currentPage}
         onVideoUpload={handleVideoUpload}
         onSubtitleUpload={subtitles.handleSubtitleUpload}

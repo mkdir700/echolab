@@ -18,7 +18,8 @@ interface SubtitleControlsProps {
   onGoToNext: () => void
 }
 
-export function SubtitleControls({
+// 使用React.memo优化组件，避免不必要的重新渲染
+export const SubtitleControls = React.memo<SubtitleControlsProps>(function SubtitleControls({
   isSingleLoop,
   isAutoPause,
   isVideoLoaded,
@@ -27,7 +28,7 @@ export function SubtitleControls({
   onToggleAutoPause,
   onGoToPrevious,
   onGoToNext
-}: SubtitleControlsProps): React.JSX.Element {
+}) {
   const hasSubtitles = subtitlesLength > 0
   const isDisabled = !isVideoLoaded || !hasSubtitles
 
@@ -100,4 +101,4 @@ export function SubtitleControls({
       </div>
     </div>
   )
-}
+})
