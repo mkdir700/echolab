@@ -14,14 +14,9 @@ export function SettingsPage(): React.JSX.Element {
   const renderMainContent = (): React.JSX.Element => {
     switch (activeSection) {
       case 'shortcuts':
-        return (
-          <>
-            <ShortcutsSection />
-            <div style={{ marginTop: 24 }}>
-              <DataManagementSection />
-            </div>
-          </>
-        )
+        return <ShortcutsSection />
+      case 'storage':
+        return <DataManagementSection />
       case 'appearance':
         return <PlaceholderSection title="外观设置" description="主题、字体大小等外观相关设置" />
       case 'dictionary':
