@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 import { List, Typography } from 'antd'
-import { SubtitleListItemProps } from '../types'
+import { SubtitleListItemProps } from '@renderer/types'
+import styles from './SubtitleListItem.module.css'
 
 const { Text } = Typography
 
@@ -14,7 +15,7 @@ export const SubtitleListItem = React.memo<SubtitleListItemProps>(
     return (
       <List.Item
         key={index}
-        className={`subtitle-item ${isActive ? 'subtitle-item-active' : ''}`}
+        className={`${styles.subtitleItem} ${isActive ? styles.subtitleItemActive : ''}`}
         onClick={handleClick}
         style={{
           cursor: 'pointer'

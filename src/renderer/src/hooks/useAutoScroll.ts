@@ -33,7 +33,7 @@ export function useAutoScroll({
       return false
     }
 
-    const listElement = subtitleListRef.current.querySelector('.subtitle-list')
+    const listElement = subtitleListRef.current.querySelector('[class*="subtitleList"]')
     if (!listElement) {
       return false
     }
@@ -48,7 +48,7 @@ export function useAutoScroll({
   const getActualDOMIndex = useCallback((subtitleIndex: number): number => {
     if (!subtitleListRef.current || subtitleIndex < 0) return -1
 
-    const listElement = subtitleListRef.current.querySelector('.subtitle-list')
+    const listElement = subtitleListRef.current.querySelector('[class*="subtitleList"]')
     if (!listElement) return -1
 
     const antListContainer = listElement.querySelector('.ant-list-items')
@@ -92,7 +92,7 @@ export function useAutoScroll({
         return
       }
 
-      const listElement = subtitleListRef.current.querySelector('.subtitle-list')
+      const listElement = subtitleListRef.current.querySelector('[class*="subtitleList"]')
       if (!listElement) {
         isAutoScrollingRef.current = false
         return
@@ -223,7 +223,7 @@ export function useAutoScroll({
       return undefined
     }
 
-    const listElement = subtitleListContainer.querySelector('.subtitle-list')
+    const listElement = subtitleListContainer.querySelector('[class*="subtitleList"]')
     if (!listElement) {
       return undefined
     }
@@ -261,7 +261,7 @@ export function useAutoScroll({
 
       // 清理滚动事件监听器
       if (scrollEventListenerRef.current && subtitleListRef.current) {
-        const listElement = subtitleListRef.current.querySelector('.subtitle-list')
+        const listElement = subtitleListRef.current.querySelector('[class*="subtitleList"]')
         if (listElement) {
           listElement.removeEventListener('scroll', handleUserScroll)
           scrollEventListenerRef.current = false

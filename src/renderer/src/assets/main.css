@@ -1,15 +1,7 @@
-@import './base.css';
+/* 主样式入口文件 - 导入模块化样式 */
+@import '../styles/index.css';
 
-/* 全局样式重置 */
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 
-               'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
+/* 保留原有的特殊样式 */
 
 #root {
   width: 100vw;

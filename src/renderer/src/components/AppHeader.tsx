@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons'
 import { AppHeaderProps, PageType, NavigationItem } from '@renderer/types'
 import { SUBTITLE_EXTENSIONS } from '@renderer/constants'
+import styles from './AppHeader/AppHeader.module.css'
 
 const { Header } = Layout
 const { Text, Title } = Typography
@@ -47,24 +48,24 @@ export function AppHeader({
   onPageChange
 }: AppHeaderProps): React.JSX.Element {
   return (
-    <Header className="app-header">
-      <div className="header-left">
+    <Header className={styles.header}>
+      <div className={styles.headerLeft}>
         <Title level={4} style={{ color: '#ffffff', margin: 0, flexShrink: 0 }}>
           🎬 EchoLab
         </Title>
         {videoFileName && (
-          <div className="video-file-info">
-            <VideoCameraOutlined className="video-icon" />
+          <div className={styles.videoFileInfo}>
+            <VideoCameraOutlined className={styles.videoIcon} />
             <Tooltip title={videoFileName} placement="bottomLeft">
-              <Text className="video-filename">{truncateFileName(videoFileName)}</Text>
+              <Text className={styles.videoFilename}>{truncateFileName(videoFileName)}</Text>
             </Tooltip>
-            {isVideoLoaded && <Text className="video-status">✓ 已就绪</Text>}
+            {isVideoLoaded && <Text className={styles.videoStatus}>✓ 已就绪</Text>}
           </div>
         )}
       </div>
 
       {/* 导航菜单 */}
-      <div className="header-center">
+      <div className={styles.headerCenter}>
         <Menu
           mode="horizontal"
           selectedKeys={[currentPage]}
@@ -83,7 +84,7 @@ export function AppHeader({
         />
       </div>
 
-      <div className="header-right">
+      <div className={styles.headerRight}>
         <Space size="middle">
           <Tooltip title="支持 MP4, AVI, MOV 等格式">
             <Button

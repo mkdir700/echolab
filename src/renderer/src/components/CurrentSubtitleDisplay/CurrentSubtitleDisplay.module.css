@@ -1,0 +1,256 @@
+/* CurrentSubtitleDisplay 组件样式 */
+
+.currentSubtitleDisplay {
+  flex: 1; /* 占据约20%的空间 */
+  padding: var(--spacing-md) var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
+  min-height: 120px;
+  max-height: none; /* 移除最大高度限制，让flex控制 */
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* 使用100%宽度 */
+}
+
+.subtitleDisplayContent {
+  flex: 1;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  overflow: visible;
+  position: relative;
+}
+
+/* 浮动控制按钮样式 */
+.subtitleDisplayControlsFloating {
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  z-index: var(--z-index-controls);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  opacity: 0.8;
+}
+
+.subtitleDisplayControlsFloating:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.subtitleDisplayControlsFloating :global(.ant-btn) {
+  border: none !important;
+  padding: var(--spacing-xs) 6px !important;
+  transition: var(--transition-fast);
+}
+
+.subtitleDisplayControlsFloating :global(.ant-btn.active) {
+  background-color: var(--accent-color-light) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 浮动控制按钮的模式选择器 */
+.subtitleModeSelector {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: var(--spacing-sm);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(20px);
+  padding: var(--spacing-sm);
+  z-index: var(--z-index-dropdown);
+  min-width: 120px;
+  max-height: 180px;
+  overflow-y: auto;
+  animation: fadeInUp 0.3s ease;
+}
+
+/* 当空间不足时向下展开的备选样式 */
+.subtitleModeSelector.expandDown {
+  bottom: auto;
+  top: 100%;
+  margin-bottom: 0;
+  margin-top: var(--spacing-sm);
+  animation: fadeInDown 0.3s ease;
+}
+
+.subtitleModeSelector :global(.ant-btn) {
+  border: none !important;
+  margin-bottom: var(--spacing-xs);
+  transition: var(--transition);
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
+}
+
+.subtitleModeSelector :global(.ant-btn:last-child) {
+  margin-bottom: 0;
+}
+
+.subtitleModeSelector :global(.ant-btn:hover) {
+  background-color: var(--accent-color-light) !important;
+  transform: translateX(4px);
+}
+
+/* 浮动控制按钮模式选择器的滚动条样式 */
+.subtitleModeSelector::-webkit-scrollbar {
+  width: 4px;
+}
+
+.subtitleModeSelector::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.subtitleModeSelector::-webkit-scrollbar-thumb {
+  background: var(--card-border);
+  border-radius: 2px;
+}
+
+.subtitleModeSelector::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* 字幕内容包装器 */
+.subtitleContentWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 120px; /* 为浮动控制按钮留出空间 */
+  box-sizing: border-box;
+  overflow: hidden; /* 确保字幕内容不会溢出 */
+  border-radius: var(--border-radius); /* 保持圆角效果 */
+}
+
+.subtitlePlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.subtitleHidden {
+  color: var(--text-muted) !important;
+  font-style: italic;
+}
+
+.subtitleContentOriginal,
+.subtitleContentChinese,
+.subtitleContentEnglish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.subtitleContentBilingual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: var(--spacing-sm);
+}
+
+.subtitleLine {
+  width: 100%;
+  text-align: center;
+}
+
+.subtitleText {
+  font-size: var(--font-size-lg) !important;
+  line-height: var(--line-height-relaxed) !important;
+  color: var(--text-primary) !important;
+  font-weight: 500 !important;
+  display: inline;
+}
+
+.subtitleText.english {
+  font-size: var(--font-size-xl) !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+}
+
+.subtitleText.chinese {
+  font-size: var(--font-size-lg) !important;
+  color: var(--text-secondary) !important;
+  font-weight: 400 !important;
+}
+
+/* 字幕单词hover效果 */
+.subtitleWord {
+  cursor: pointer;
+  padding: 2px 1px;
+  border-radius: 3px;
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.subtitleWord:hover {
+  background-color: var(--accent-color-light);
+  color: var(--accent-color) !important;
+  transform: scale(1.05);
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .currentSubtitleDisplay {
+    padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
+    flex: 1; /* 移动端字幕展示区域占1份 */
+    min-height: 80px;
+    max-height: none; /* 让flex控制高度 */
+    width: 100% !important;
+  }
+
+  .subtitleText {
+    font-size: var(--font-size-base) !important;
+  }
+  
+  .subtitleText.english {
+    font-size: var(--font-size-lg) !important;
+  }
+  
+  .subtitleText.chinese {
+    font-size: var(--font-size-base) !important;
+  }
+
+  /* 移动端浮动控制按钮优化 */
+  .subtitleDisplayControlsFloating {
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+  }
+
+  .subtitleDisplayControlsFloating :global(.ant-btn) {
+    padding: 2px var(--spacing-xs) !important;
+    font-size: var(--font-size-sm);
+  }
+
+  .subtitleContentWrapper {
+    padding-right: 80px; /* 移动端减少右侧留白 */
+  }
+
+  .subtitleModeSelector {
+    min-width: 90px;
+    max-height: 120px;
+    font-size: var(--font-size-sm);
+  }
+} 

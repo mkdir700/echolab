@@ -1,0 +1,169 @@
+/* 响应式样式 */
+
+/* 大屏幕优化 */
+@media (max-width: 1200px) {
+  .control-group {
+    min-width: 120px;
+    gap: 10px;
+    padding: 6px 12px;
+  }
+  
+  .control-slider {
+    width: 60px !important;
+  }
+
+  .volume-control {
+    min-width: 140px;
+  }
+
+  .secondary-controls {
+    gap: 20px;
+  }
+}
+
+/* 平板设备优化 */
+@media (max-width: 1024px) {
+  .settings-content .ant-col:first-child {
+    margin-bottom: var(--spacing-xl);
+  }
+  
+  .settings-page {
+    padding: var(--spacing-lg);
+  }
+}
+
+/* 移动设备优化 */
+@media (max-width: 768px) {
+  /* 设置页面移动端优化 */
+  .settings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+  
+  .shortcut-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+  
+  .shortcut-key {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .shortcut-info {
+    margin-right: 0;
+    margin-bottom: var(--spacing-sm);
+  }
+  
+  .shortcut-edit input {
+    width: 100% !important;
+    max-width: 200px;
+  }
+}
+
+/* 小屏幕设备优化 */
+@media (max-width: 480px) {
+  .subtitle-controls .control-label {
+    min-width: auto;
+    font-size: var(--font-size-sm);
+  }
+  
+  .subtitle-controls .ant-btn {
+    height: 26px;
+    font-size: var(--font-size-xs);
+  }
+  
+  .subtitle-controls-content {
+    gap: var(--spacing-sm);
+  }
+  
+  .subtitle-controls .loop-controls .ant-space {
+    gap: var(--spacing-md);
+  }
+
+  /* 字幕文本大小调整 */
+  .subtitle-text {
+    font-size: var(--font-size-base) !important;
+  }
+  
+  .subtitle-text.english {
+    font-size: var(--font-size-lg) !important;
+  }
+  
+  .subtitle-text.chinese {
+    font-size: var(--font-size-base) !important;
+  }
+
+  /* 移动端字幕选择器优化 */
+  .subtitle-mode-selector {
+    max-height: 150px;
+    min-width: 100px;
+    font-size: var(--font-size-base);
+  }
+
+  .subtitle-display-controls .ant-btn {
+    padding: var(--spacing-xs) 6px;
+  }
+
+  /* 移动端浮动控制按钮优化 */
+  .subtitle-display-controls-floating {
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    padding: 2px 6px;
+    border-radius: var(--border-radius-sm);
+  }
+
+  .subtitle-display-controls-floating .ant-btn {
+    padding: 2px var(--spacing-xs) !important;
+    font-size: var(--font-size-sm);
+  }
+
+  .subtitle-content-wrapper {
+    padding-right: 80px; /* 移动端减少右侧留白 */
+  }
+
+  .subtitle-display-controls-floating .subtitle-mode-selector {
+    min-width: 90px;
+    max-height: 120px;
+    font-size: var(--font-size-sm);
+  }
+
+  /* 移动端视频控制区优化 */
+  .video-controls-bar {
+    bottom: var(--spacing-sm);
+    left: var(--spacing-sm);
+    right: var(--spacing-sm);
+    padding: 6px var(--spacing-md);
+  }
+
+  .controls-left {
+    gap: var(--spacing-sm);
+  }
+
+  .control-btn-compact {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .play-pause-btn {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .center-play-btn {
+    width: 60px !important;
+    height: 60px !important;
+    font-size: var(--font-size-2xl) !important;
+  }
+
+  .time-text-compact {
+    font-size: var(--font-size-sm);
+  }
+
+  .volume-slider-popup,
+  .settings-popup {
+    bottom: 45px;
+  }
+} 

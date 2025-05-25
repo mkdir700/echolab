@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
 import ReactPlayer from 'react-player'
 import { VideoPlaceholder } from './VideoPlaceholder'
-import { LoadingIndicator } from './LoadingIndicator'
-import { ErrorIndicator } from './ErrorIndicator'
-import { VideoControls } from './VideoControls'
+import { LoadingIndicator } from '../LoadingIndicator'
+import { ErrorIndicator } from '../ErrorIndicator'
+import { VideoControls } from '../VideoControls/VideoControls'
+
+// 导入样式
+import styles from './VideoSection.module.css'
 
 interface VideoSectionProps {
   videoFile: string | null
@@ -131,9 +134,9 @@ export function VideoSection({
   }, [isPlaying, isUserInteracting])
 
   return (
-    <div className="video-section">
+    <div className={styles.videoSection}>
       <div
-        className="video-container"
+        className={styles.videoContainer}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
@@ -143,7 +146,7 @@ export function VideoSection({
             <ReactPlayer
               ref={playerRef}
               url={videoFile}
-              className="video-player"
+              className={styles.videoPlayer}
               width="100%"
               height="100%"
               playing={isPlaying}

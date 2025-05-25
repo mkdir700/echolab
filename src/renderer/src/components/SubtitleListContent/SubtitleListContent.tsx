@@ -2,8 +2,9 @@ import React from 'react'
 import { Button, List, Space, Typography } from 'antd'
 import { MessageOutlined } from '@ant-design/icons'
 import { SubtitleListItem } from './SubtitleListItem'
-import { formatTime } from '../utils/helpers'
-import type { SubtitleItem } from '../types/shared'
+import { formatTime } from '@renderer/utils/helpers'
+import type { SubtitleItem } from '@renderer/types/shared'
+import styles from './SubtitleListContent.module.css'
 
 const { Text } = Typography
 
@@ -29,7 +30,7 @@ export function SubtitleListContent({
   onCenterCurrentSubtitle
 }: SubtitleListContentProps): React.JSX.Element {
   return (
-    <div className="subtitle-list-container-no-header">
+    <div className={styles.subtitleListContainerNoHeader}>
       {subtitles.length > 0 && (
         <div
           style={{
@@ -76,12 +77,12 @@ export function SubtitleListContent({
           </Space>
         </div>
       )}
-      <div className="subtitle-list-content" ref={subtitleListRef}>
+      <div className={styles.subtitleListContent} ref={subtitleListRef}>
         {subtitles.length > 0 ? (
           <List
             size="small"
             dataSource={subtitles}
-            className="subtitle-list"
+            className={styles.subtitleList}
             renderItem={(item, index) => {
               const isActive = currentTime >= item.startTime && currentTime <= item.endTime
               return (

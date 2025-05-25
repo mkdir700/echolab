@@ -15,16 +15,17 @@ import { useAppState } from '@renderer/hooks/useAppState'
 
 // 导入组件
 import { AppHeader } from '@renderer/components/AppHeader'
-import { HomePage } from '@renderer/components/pages/HomePage'
-import { FavoritesPage } from '@renderer/components/pages/FavoritesPage'
-import { AboutPage } from '@renderer/components/pages/AboutPage'
-import { SettingsPage } from '@renderer/components/pages/SettingsPage'
+import { HomePage } from '@renderer/pages/HomePage'
+import { FavoritesPage } from '@renderer/pages/FavoritesPage'
+import { AboutPage } from '@renderer/pages/AboutPage'
+import { SettingsPage } from '@renderer/pages/SettingsPage'
 import { ShortcutProvider } from '@renderer/contexts/ShortcutContext'
 
 // 导入类型
 import { PageType } from '@renderer/types'
 
-import '@renderer/App.css'
+// 导入样式
+import styles from './App.module.css'
 
 const { Content } = Layout
 const { Text } = Typography
@@ -299,7 +300,7 @@ function App(): React.JSX.Element {
         {/* 首页 - 始终挂载，通过 display 控制显示 */}
         <div
           ref={containerRef}
-          className="page-container"
+          className={styles.pageContainer}
           style={{
             display: currentPage === 'home' ? 'block' : 'none'
           }}
@@ -319,17 +320,17 @@ function App(): React.JSX.Element {
 
         {/* 其他页面 - 条件渲染，覆盖在首页之上 */}
         {currentPage === 'favorites' && (
-          <div className="page-container other-page">
+          <div className={`${styles.pageContainer} ${styles.otherPage}`}>
             <FavoritesPage />
           </div>
         )}
         {currentPage === 'about' && (
-          <div className="page-container other-page">
+          <div className={`${styles.pageContainer} ${styles.otherPage}`}>
             <AboutPage />
           </div>
         )}
         {currentPage === 'settings' && (
-          <div className="page-container other-page">
+          <div className={`${styles.pageContainer} ${styles.otherPage}`}>
             <SettingsPage />
           </div>
         )}
@@ -346,7 +347,7 @@ function App(): React.JSX.Element {
         subtitleControl={subtitleControl}
       />
 
-      <Layout className="app-layout">
+      <Layout className={styles.appLayout}>
         <AppHeader
           videoFileName={fileUpload.videoFileName}
           isVideoLoaded={videoPlayer.isVideoLoaded}
@@ -357,12 +358,12 @@ function App(): React.JSX.Element {
           onPageChange={setCurrentPage}
         />
 
-        <Content className="app-content">
+        <Content className={styles.appContent}>
           {renderPageContent()}
 
           {/* 快捷键提示 - 仅在首页显示 */}
           {currentPage === 'home' && (
-            <div className="shortcuts-hint">
+            <div className={styles.shortcutsHint}>
               <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                 💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 |
                 H/L-上一句/下一句 | R-单句循环 | Ctrl+P-自动暂停

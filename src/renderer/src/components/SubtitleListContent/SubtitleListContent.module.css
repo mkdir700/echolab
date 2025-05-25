@@ -1,0 +1,220 @@
+/* SubtitleListContent 组件样式 */
+
+.subtitleListContainer {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
+  margin-bottom: var(--spacing-lg);
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.subtitleHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md);
+  border-bottom: 1px solid var(--card-border);
+  flex-shrink: 0;
+}
+
+.subtitleListContent {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.subtitleList {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--spacing-sm);
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+}
+
+/* 确保 Ant Design List 组件不会超出容器 */
+.subtitleList :global(.ant-list) {
+  height: 100%;
+  overflow: visible;
+}
+
+.subtitleList :global(.ant-list-items) {
+  height: auto;
+  max-height: none;
+}
+
+.subtitleList :global(.ant-list-item) {
+  border: none !important;
+  padding: 0 !important;
+  margin-bottom: var(--spacing-xs);
+  flex-shrink: 0;
+}
+
+.subtitleItem {
+  transition: var(--transition-fast);
+  user-select: none;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  will-change: transform, background-color, border-color;
+  contain: layout style paint;
+  transform: translateZ(0); /* 启用硬件加速 */
+  padding: 10px 14px !important; /* 增加内间距 */
+  border-radius: var(--border-radius-sm);
+  border: 1px solid transparent;
+  margin-bottom: 6px;
+}
+
+.subtitleItem:hover {
+  background-color: rgba(102, 126, 234, 0.1) !important;
+  border-color: var(--accent-color) !important;
+  transform: translateX(2px) translateZ(0);
+}
+
+.subtitleItemActive {
+  background-color: rgba(102, 126, 234, 0.2) !important;
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transform: scale(1.02) translateZ(0);
+}
+
+/* 原有字幕样式保持兼容性 */
+.subtitleDisplay {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
+  margin-bottom: var(--spacing-lg);
+}
+
+.subtitleContent {
+  padding: var(--spacing-lg);
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subtitleText {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  text-align: center;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.subtitleHidden {
+  color: var(--text-muted) !important;
+  font-style: italic;
+}
+
+/* 字幕列表容器全高度 */
+.subtitleListContainer.fullHeight {
+  height: 100% !important;
+  flex: 1;
+  margin-bottom: 0;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden;
+}
+
+.subtitleListContainer.fullHeight .subtitleListContent {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.subtitleListContainer.fullHeight .subtitleList {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: var(--spacing-sm);
+  box-sizing: border-box;
+}
+
+/* 强制 Ant Design List 组件遵循容器限制 */
+.subtitleListContainer.fullHeight .subtitleList :global(.ant-list) {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.subtitleListContainer.fullHeight .subtitleList :global(.ant-list-items) {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.subtitleListContainer.fullHeight .subtitleList :global(.ant-list-item) {
+  border: none !important;
+  padding: 0 !important;
+  margin-bottom: var(--spacing-xs);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* 无标题的字幕列表容器 */
+.subtitleListContainerNoHeader {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.subtitleListContainerNoHeader .subtitleListContent {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.subtitleListContainerNoHeader .subtitleList {
+  flex: 1;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: var(--spacing-md);
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  /* 启用滚动优化 */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  contain: size layout style paint;
+}
+
+/* 修复字幕列表滚动问题 */
+.subtitleListContainerNoHeader .subtitleList :global(.ant-list) {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.subtitleListContainerNoHeader .subtitleList :global(.ant-list-items) {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.subtitleListContainerNoHeader .subtitleList :global(.ant-list-item) {
+  border: none !important;
+  padding: 0 !important;
+  margin-bottom: 6px;
+  flex-shrink: 0;
+} 

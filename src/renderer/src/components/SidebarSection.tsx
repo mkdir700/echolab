@@ -1,5 +1,5 @@
 import React from 'react'
-import { SubtitleListContent } from './SubtitleListContent'
+import { SubtitleListContent } from './SubtitleListContent/SubtitleListContent'
 import type { SubtitleItem } from '../types/shared'
 
 interface SidebarSectionProps {

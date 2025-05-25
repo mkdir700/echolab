@@ -1,12 +1,13 @@
 import React from 'react'
 import { Space, Typography } from 'antd'
 import { VideoCameraOutlined } from '@ant-design/icons'
+import styles from './VideoSection.module.css'
 
 const { Text } = Typography
 
 export function VideoPlaceholder(): React.JSX.Element {
   return (
-    <div className="video-placeholder">
+    <div className={styles.videoPlaceholder}>
       <Space direction="vertical" align="center" size="large">
         <VideoCameraOutlined style={{ fontSize: 48, color: 'var(--accent-color)' }} />
         <Text style={{ color: 'var(--text-secondary)', fontSize: 16, textAlign: 'center' }}>

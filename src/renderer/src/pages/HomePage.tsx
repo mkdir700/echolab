@@ -1,9 +1,9 @@
 import React from 'react'
-import { VideoSection } from '../VideoSection'
-import { SubtitleControls } from '../SubtitleControls'
-import { CurrentSubtitleDisplay } from '../CurrentSubtitleDisplay'
-import { SidebarSection } from '../SidebarSection'
-import { HomePageProps } from '../../types'
+import { VideoSection } from '@renderer/components/VideoSection/VideoSection'
+import { SubtitleControls } from '@renderer/components/SubtitleControls/SubtitleControls'
+import { CurrentSubtitleDisplay } from '@renderer/components/CurrentSubtitleDisplay/CurrentSubtitleDisplay'
+import { SidebarSection } from '@renderer/components/SidebarSection'
+import { HomePageProps } from '@renderer/types'
 
 // 使用React.memo优化HomePage组件
 export const HomePage = React.memo<HomePageProps>(function HomePage({

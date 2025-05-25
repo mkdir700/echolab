@@ -1,0 +1,63 @@
+/* VideoSection 组件样式 */
+
+.videoSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-md) var(--spacing-xl);
+  min-width: 0;
+  flex: 3; /* 占据约60%的空间 */
+  width: 100%;
+  min-height: 200px;
+}
+
+.videoContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(20px);
+  aspect-ratio: 16/9;
+}
+
+.videoPlayer {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #000;
+  border-radius: var(--border-radius-lg);
+  object-fit: contain;
+}
+
+.videoPlaceholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+  border: 2px dashed var(--card-border);
+  border-radius: var(--border-radius-lg);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.videoPlaceholder:hover {
+  border-color: var(--accent-color);
+  background: linear-gradient(45deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  transform: translateY(-2px);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .videoSection {
+    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-sm) var(--spacing-lg);
+    flex: 2; /* 移动端视频区域占2份 */
+    min-height: 150px;
+  }
+} 

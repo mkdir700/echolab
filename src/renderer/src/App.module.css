@@ -1,0 +1,128 @@
+/* App 组件样式 - 主应用布局 */
+
+.appLayout {
+  height: 100vh;
+  background: var(--dark-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 主内容区域 */
+.appContent {
+  background: var(--darker-bg) !important;
+  padding: 0;
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* 页面容器样式 - 用于页面冻结功能 */
+.pageContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--darker-bg);
+  z-index: var(--z-index-base);
+  overflow: hidden;
+}
+
+.pageContainer.otherPage {
+  z-index: calc(var(--z-index-base) + 1);
+  background: var(--darker-bg);
+  overflow: auto;
+}
+
+/* 主容器 - 左右布局 */
+.mainContainer {
+  display: flex;
+  height: 100%;
+  gap: 0;
+  position: relative;
+}
+
+/* 左侧区域包含视频和字幕展示 */
+.leftSection {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  transition: width 0.1s ease;
+}
+
+/* 右侧边栏 */
+.sidebarSection {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-xl) var(--spacing-lg);
+  flex-shrink: 0;
+  min-width: 280px;
+  max-width: 600px;
+  transition: width 0.1s ease;
+}
+
+/* 拖拽分割线 */
+.resizeHandle {
+  width: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  cursor: col-resize;
+  position: relative;
+  transition: var(--transition-fast);
+  user-select: none;
+  will-change: background;
+  contain: layout style paint;
+  opacity: 0.4;
+}
+
+.resizeHandle:hover,
+.resizeHandle.dragging {
+  background: rgba(102, 126, 234, 0.4);
+  opacity: 0.8;
+}
+
+.resizeHandle::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  right: -3px;
+  top: 0;
+  bottom: 0;
+  background: transparent;
+}
+
+/* 快捷键提示 */
+.shortcutsHint {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(20px);
+  padding: 8px 12px;
+  border-radius: 8px;
+  opacity: 0.8;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .mainContainer {
+    flex-direction: column;
+  }
+  
+  .leftSection {
+    width: 100% !important;
+  }
+
+  .resizeHandle {
+    display: none;
+  }
+
+  .sidebarSection {
+    width: 100% !important;
+    padding: var(--spacing-lg);
+    max-height: 40vh;
+  }
+} 

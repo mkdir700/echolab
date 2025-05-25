@@ -15,6 +15,12 @@ export default defineConfig({
         '@renderer': resolve('src/renderer/src')
       }
     },
+    css: {
+      modules: {
+        localsConvention: 'camelCase',
+        generateScopedName: '[name]__[local]___[hash:base64:5]'
+      }
+    },
     plugins: [react()]
   }
 })

@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { Typography, Row, Col } from 'antd'
 import { SettingOutlined } from '@ant-design/icons'
-import { ShortcutsSection } from '@renderer/components/settings/ShortcutsSection'
-import { DataManagementSection } from '@renderer/components/settings/DataManagementSection'
-import { SettingsNavigation } from '@renderer/components/settings/SettingsNavigation'
-import { PlaceholderSection } from '@renderer/components/settings/PlaceholderSection'
+import { ShortcutsSection } from '@renderer/components/Settings/ShortcutsSection'
+import { DataManagementSection } from '@renderer/components/Settings/DataManagementSection'
+import { SettingsNavigation } from '@renderer/components/Settings/SettingsNavigation'
+import { PlaceholderSection } from '@renderer/components/Settings/PlaceholderSection'
 
 const { Title } = Typography
 

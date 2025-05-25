@@ -1,0 +1,150 @@
+/* 通用组件样式 - Ant Design 组件样式覆盖 */
+
+/* 按钮样式覆盖 */
+.ant-btn {
+  border-radius: var(--border-radius-sm) !important;
+  transition: var(--transition) !important;
+  font-weight: 500 !important;
+}
+
+.ant-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.ant-btn-primary {
+  background: var(--primary-gradient) !important;
+  border: none !important;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #7c93f0 0%, #8b5fb8 100%) !important;
+}
+
+/* 卡片样式 */
+.card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
+}
+
+.card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 输入框样式 */
+.input {
+  background: transparent !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--border-radius-sm) !important;
+}
+
+.input:focus {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+.input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* 开关样式 */
+.ant-switch {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  transition: var(--transition-fast) !important;
+}
+
+.ant-switch-checked {
+  background-color: var(--accent-color) !important;
+}
+
+/* 选择器样式 */
+.select {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius-sm) !important;
+}
+
+.select .ant-select-selector {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-primary) !important;
+}
+
+.select .ant-select-arrow {
+  color: var(--text-secondary) !important;
+}
+
+/* 滑块样式 */
+.slider .ant-slider-rail {
+  background: rgba(255, 255, 255, 0.25);
+  height: 4px;
+  border-radius: 2px;
+}
+
+.slider .ant-slider-track {
+  background: linear-gradient(90deg, var(--accent-color), #7c93f0);
+  height: 4px;
+  border-radius: 2px;
+}
+
+.slider .ant-slider-handle {
+  border: 2px solid var(--accent-color);
+  background: white;
+  width: 12px;
+  height: 12px;
+}
+
+/* 标签样式 */
+.tag {
+  background: var(--accent-color-light) !important;
+  border: 1px solid var(--accent-color) !important;
+  color: var(--accent-color) !important;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+}
+
+/* 工具提示样式 */
+.tooltip {
+  background: rgba(0, 0, 0, 0.8) !important;
+  color: white !important;
+  border-radius: var(--border-radius-sm) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* 下拉菜单样式 */
+.dropdown {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-lg) !important;
+  backdrop-filter: blur(20px);
+}
+
+/* 模态框样式 */
+.modal .ant-modal-content {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius) !important;
+  backdrop-filter: blur(20px);
+}
+
+.modal .ant-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid var(--card-border) !important;
+}
+
+.modal .ant-modal-title {
+  color: var(--text-primary) !important;
+}
+
+.modal .ant-modal-body {
+  color: var(--text-primary) !important;
+} 

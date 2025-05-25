@@ -7,8 +7,11 @@ import {
   TranslationOutlined,
   MenuUnfoldOutlined
 } from '@ant-design/icons'
-import type { SubtitleItem } from '../types/shared'
-import type { DisplayMode } from '../hooks/useSubtitleDisplayMode'
+import type { SubtitleItem } from '../../types/shared'
+import type { DisplayMode } from '../../hooks/useSubtitleDisplayMode'
+
+// 导入样式
+import styles from './CurrentSubtitleDisplay.module.css'
 
 const { Text } = Typography
 
@@ -124,7 +127,7 @@ export function CurrentSubtitleDisplay({
         return (
           <span
             key={index}
-            className="subtitle-word"
+            className={styles.subtitleWord}
             onMouseEnter={() => handleWordHover(true)}
             onMouseLeave={() => handleWordHover(false)}
           >
@@ -143,8 +146,8 @@ export function CurrentSubtitleDisplay({
   const renderSubtitleContent = useMemo(() => {
     if (!currentSubtitle || displayMode === 'none') {
       return (
-        <div className="subtitle-placeholder">
-          <Text className="subtitle-hidden">
+        <div className={styles.subtitlePlaceholder}>
+          <Text className={styles.subtitleHidden}>
             {displayMode === 'none' ? '字幕已隐藏' : '当前没有字幕'}
           </Text>
         </div>
@@ -156,55 +159,59 @@ export function CurrentSubtitleDisplay({
     switch (displayMode) {
       case 'original':
         return (
-          <div className="subtitle-content-original">
-            <Text className="subtitle-text">{splitTextIntoWords(text)}</Text>
+          <div className={styles.subtitleContentOriginal}>
+            <Text className={styles.subtitleText}>{splitTextIntoWords(text)}</Text>
           </div>
         )
 
       case 'chinese':
         if (chineseText) {
           return (
-            <div className="subtitle-content-chinese">
-              <Text className="subtitle-text">{splitTextIntoWords(chineseText)}</Text>
+            <div className={styles.subtitleContentChinese}>
+              <Text className={styles.subtitleText}>{splitTextIntoWords(chineseText)}</Text>
             </div>
           )
         }
         return (
-          <div className="subtitle-placeholder">
-            <Text className="subtitle-hidden">没有中文字幕</Text>
+          <div className={styles.subtitlePlaceholder}>
+            <Text className={styles.subtitleHidden}>没有中文字幕</Text>
           </div>
         )
 
       case 'english':
         if (englishText) {
           return (
-            <div className="subtitle-content-english">
-              <Text className="subtitle-text">{splitTextIntoWords(englishText)}</Text>
+            <div className={styles.subtitleContentEnglish}>
+              <Text className={styles.subtitleText}>{splitTextIntoWords(englishText)}</Text>
             </div>
           )
         }
         return (
-          <div className="subtitle-placeholder">
-            <Text className="subtitle-hidden">没有英文字幕</Text>
+          <div className={styles.subtitlePlaceholder}>
+            <Text className={styles.subtitleHidden}>没有英文字幕</Text>
           </div>
         )
 
       case 'bilingual':
         return (
-          <div className="subtitle-content-bilingual">
+          <div className={styles.subtitleContentBilingual}>
             {englishText && (
-              <div className="subtitle-line english">
-                <Text className="subtitle-text english">{splitTextIntoWords(englishText)}</Text>
+              <div className={`${styles.subtitleLine} english`}>
+                <Text className={`${styles.subtitleText} english`}>
+                  {splitTextIntoWords(englishText)}
+                </Text>
               </div>
             )}
             {chineseText && (
-              <div className="subtitle-line chinese">
-                <Text className="subtitle-text chinese">{splitTextIntoWords(chineseText)}</Text>
+              <div className={`${styles.subtitleLine} chinese`}>
+                <Text className={`${styles.subtitleText} chinese`}>
+                  {splitTextIntoWords(chineseText)}
+                </Text>
               </div>
             )}
             {!englishText && !chineseText && (
-              <div className="subtitle-line original">
-                <Text className="subtitle-text">{splitTextIntoWords(text)}</Text>
+              <div className={`${styles.subtitleLine} original`}>
+                <Text className={styles.subtitleText}>{splitTextIntoWords(text)}</Text>
               </div>
             )}
           </div>
@@ -216,10 +223,10 @@ export function CurrentSubtitleDisplay({
   }, [currentSubtitle, displayMode, splitTextIntoWords])
 
   return (
-    <div className="current-subtitle-display">
-      <div className="subtitle-display-content">
+    <div className={styles.currentSubtitleDisplay}>
+      <div className={styles.subtitleDisplayContent}>
         {/* 浮动控制按钮 */}
-        <div className="subtitle-display-controls-floating" ref={controlsRef}>
+        <div className={styles.subtitleDisplayControlsFloating} ref={controlsRef}>
           <Space size="small">
             {/* 模式指示器 - 仅显示图标 */}
             <Tooltip title={`当前模式: ${currentModeConfig.label}`}>
@@ -257,7 +264,7 @@ export function CurrentSubtitleDisplay({
           {/* 展开的模式选择器 */}
           {showModeSelector && (
             <div
-              className={`subtitle-mode-selector ${expandDirection === 'down' ? 'expand-down' : ''}`}
+              className={`${styles.subtitleModeSelector} ${expandDirection === 'down' ? styles.expandDown : ''}`}
               ref={selectorRef}
             >
               <Space direction="vertical" size="small">
@@ -286,7 +293,7 @@ export function CurrentSubtitleDisplay({
         </div>
 
         {/* 字幕内容 */}
-        <div className="subtitle-content-wrapper">{renderSubtitleContent}</div>
+        <div className={styles.subtitleContentWrapper}>{renderSubtitleContent}</div>
       </div>
     </div>
   )

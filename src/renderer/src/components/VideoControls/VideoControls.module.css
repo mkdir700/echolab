@@ -1,0 +1,436 @@
+/* VideoControls 组件样式 */
+
+/* 进度条容器 - 始终显示在底部 */
+.videoProgressContainer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.videoProgressContainer.enhanced {
+  height: 8px;
+  padding: var(--spacing-sm) 0;
+}
+
+.progressTrack {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.videoProgressContainer.enhanced .progressTrack {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.progressFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-color), #7c93f0);
+  border-radius: inherit;
+  transition: var(--transition-fast);
+}
+
+.progressHandle {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.videoProgressContainer.enhanced .progressHandle {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.progressTimeTooltip {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+}
+
+.progressTime {
+  color: white !important;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+/* 中央播放按钮 */
+.centerPlayButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.centerPlayBtn {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 50% !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  color: white !important;
+  font-size: var(--font-size-3xl) !important;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+.centerPlayBtn:hover {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border-color: var(--accent-color) !important;
+  transform: scale(1.1);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+  color: white !important;
+}
+
+.centerPlayBtn:focus {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border-color: var(--accent-color) !important;
+  transform: scale(1.05);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+  color: white !important;
+  outline: none;
+}
+
+.centerPlayBtn:active {
+  transform: scale(0.95);
+  transition: all 0.1s ease;
+}
+
+/* 主控制栏 */
+.videoControlsBar {
+  position: absolute;
+  bottom: var(--spacing-lg);
+  left: var(--spacing-lg);
+  right: var(--spacing-lg);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.videoControlsBar.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.controlsLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.controlsRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 紧凑控制按钮 */
+.controlBtnCompact {
+  width: 36px !important;
+  height: 36px !important;
+  border: none !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border-radius: var(--border-radius-sm) !important;
+  transition: var(--transition-fast);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+}
+
+.controlBtnCompact:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  transform: scale(1.05);
+}
+
+.controlBtnCompact:focus {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.controlBtnCompact:active {
+  transform: scale(0.95);
+  transition: all 0.1s ease;
+}
+
+.playPauseBtn {
+  background: var(--accent-color) !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+}
+
+.playPauseBtn:hover {
+  background: #7c93f0 !important;
+  transform: scale(1.1);
+  color: white !important;
+}
+
+.playPauseBtn:focus {
+  background: #7c93f0 !important;
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px rgba(124, 147, 240, 0.5);
+  color: white !important;
+}
+
+.playPauseBtn:active {
+  transform: scale(0.95);
+  transition: all 0.1s ease;
+}
+
+/* 时间显示 */
+.timeDisplayCompact {
+  margin-left: var(--spacing-sm);
+}
+
+.timeTextCompact {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-family: var(--font-family-mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* 音量控制 */
+.volumeControlCompact {
+  position: relative;
+}
+
+.volumeSliderPopup {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md) var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 20;
+  animation: fadeInUp 0.2s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.volumeSliderVertical {
+  height: 80px !important;
+}
+
+.volumeSliderVertical :global(.ant-slider-rail) {
+  background: rgba(255, 255, 255, 0.3);
+  width: 4px;
+}
+
+.volumeSliderVertical :global(.ant-slider-track) {
+  background: var(--accent-color);
+  width: 4px;
+}
+
+.volumeSliderVertical :global(.ant-slider-handle) {
+  border: 2px solid var(--accent-color);
+  background: white;
+  width: 12px;
+  height: 12px;
+}
+
+.volumeText {
+  color: white !important;
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+}
+
+/* 设置控制 */
+.settingsControlCompact {
+  position: relative;
+}
+
+.settingsPopup {
+  position: absolute;
+  bottom: 50px;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-md);
+  min-width: 200px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 20;
+  animation: fadeInUp 0.2s ease;
+}
+
+.settingsItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.settingsIcon {
+  color: var(--accent-color);
+  font-size: var(--font-size-base);
+}
+
+.settingsLabel {
+  color: white !important;
+  font-size: 13px;
+  flex: 1;
+}
+
+.settingsSelect {
+  width: 80px;
+}
+
+.settingsSelect :global(.ant-select-selector) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.settingsSelect :global(.ant-select-arrow) {
+  color: white !important;
+}
+
+.controlSlider :global(.ant-slider-rail) {
+  background: rgba(255, 255, 255, 0.25);
+  height: 4px;
+  border-radius: 2px;
+}
+
+.controlSlider :global(.ant-slider-track) {
+  background: linear-gradient(90deg, var(--accent-color), #7c93f0);
+  height: 4px;
+  border-radius: 2px;
+}
+
+.controlSelect {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: var(--border-radius-sm) !important;
+}
+
+.controlSelect :global(.ant-select-selector) {
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-primary) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.controlSelect :global(.ant-select-arrow) {
+  color: var(--text-secondary) !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  /* 移动端视频控制区优化 */
+  .videoControlsBar {
+    bottom: var(--spacing-sm);
+    left: var(--spacing-sm);
+    right: var(--spacing-sm);
+    padding: 6px var(--spacing-md);
+  }
+
+  .controlsLeft {
+    gap: var(--spacing-sm);
+  }
+
+  .controlsRight {
+    gap: var(--spacing-xs);
+  }
+
+  .controlBtnCompact {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .playPauseBtn {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .centerPlayBtn {
+    width: 60px !important;
+    height: 60px !important;
+    font-size: var(--font-size-2xl) !important;
+  }
+
+  .timeTextCompact {
+    font-size: var(--font-size-sm);
+  }
+
+  .volumeSliderPopup,
+  .settingsPopup {
+    bottom: 45px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .controlGroup {
+    min-width: 120px;
+    gap: 10px;
+    padding: 6px var(--spacing-md);
+  }
+  
+  .controlSlider {
+    width: 60px !important;
+  }
+
+  .volumeControl {
+    min-width: 140px;
+  }
+
+  .secondaryControls {
+    gap: 20px;
+  }
+} 

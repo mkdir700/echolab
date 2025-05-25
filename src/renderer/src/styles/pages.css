@@ -1,0 +1,186 @@
+/* 页面特定样式 */
+
+/* 设置页面样式 */
+.settings-page {
+  padding: var(--spacing-2xl);
+  background: var(--darker-bg);
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-2xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.settings-header .settings-icon {
+  font-size: var(--font-size-3xl);
+  color: var(--accent-color);
+  margin-right: var(--spacing-lg);
+}
+
+.settings-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 设置侧边栏 */
+.settings-sidebar {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.settings-nav {
+  padding: var(--spacing-sm) 0;
+}
+
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-secondary);
+}
+
+.settings-nav-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: var(--text-primary);
+}
+
+.settings-nav-item.active {
+  background: var(--accent-color-light);
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.settings-nav-item span {
+  margin-left: var(--spacing-md);
+  font-size: var(--font-size-base);
+}
+
+/* 设置主内容区域 */
+.settings-main {
+  min-height: 600px;
+}
+
+.settings-section-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+.settings-section-card .ant-card-head {
+  background: transparent !important;
+  border-bottom: 1px solid var(--card-border) !important;
+}
+
+.settings-section-card .ant-card-head-title {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+}
+
+.settings-section-card .ant-card-body {
+  background: transparent !important;
+  padding: var(--spacing-xl);
+}
+
+/* 快捷键相关样式 */
+.shortcuts-list {
+  margin-bottom: var(--spacing-xl);
+}
+
+.shortcut-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-lg) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.shortcut-item:last-child {
+  border-bottom: none;
+}
+
+.shortcut-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.shortcut-name {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.shortcut-key {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.shortcut-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.shortcut-edit {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.shortcut-edit .ant-input {
+  background: var(--darker-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+}
+
+.shortcut-edit .ant-input:focus {
+  border-color: var(--accent-color) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* 设置项样式 */
+.settings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+}
+
+.settings-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 快捷键输入状态样式 */
+.shortcut-input-waiting {
+  animation: pulse 2s infinite;
+  border-color: #1890ff !important;
+  background-color: #f0f8ff !important;
+}
+
+.shortcut-input-error {
+  border-color: var(--error-color) !important;
+  background-color: #fff2f0 !important;
+}
+
+.shortcut-symbol {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+} 

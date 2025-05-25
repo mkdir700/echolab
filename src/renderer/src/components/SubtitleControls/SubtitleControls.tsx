@@ -6,6 +6,7 @@ import {
   ReloadOutlined,
   PauseCircleOutlined
 } from '@ant-design/icons'
+import styles from './SubtitleControls.module.css'
 
 interface SubtitleControlsProps {
   isSingleLoop: boolean
@@ -33,16 +34,16 @@ export const SubtitleControls = React.memo<SubtitleControlsProps>(function Subti
   const isDisabled = !isVideoLoaded || !hasSubtitles
 
   return (
-    <div className="subtitle-controls">
-      <div className="subtitle-controls-content">
+    <div className={styles.subtitleControls}>
+      <div className={styles.subtitleControlsContent}>
         {/* 左侧：循环控制开关 */}
-        <div className="loop-controls">
+        <div className={styles.loopControls}>
           <Space size="large">
-            <div className="control-item">
+            <div className={styles.controlItem}>
               <Tooltip title="开启后，当前字幕播放完毕会自动重复播放">
                 <Space align="center" size="small">
                   <ReloadOutlined style={{ color: isSingleLoop ? '#1890ff' : '#8c8c8c' }} />
-                  <span className="control-label">单句循环</span>
+                  <span className={styles.controlLabel}>单句循环</span>
                   <Switch
                     checked={isSingleLoop}
                     onChange={onToggleSingleLoop}
@@ -53,11 +54,11 @@ export const SubtitleControls = React.memo<SubtitleControlsProps>(function Subti
               </Tooltip>
             </div>
 
-            <div className="control-item">
+            <div className={styles.controlItem}>
               <Tooltip title="开启后，每句字幕播放完毕会自动暂停视频">
                 <Space align="center" size="small">
                   <PauseCircleOutlined style={{ color: isAutoPause ? '#1890ff' : '#8c8c8c' }} />
-                  <span className="control-label">自动暂停</span>
+                  <span className={styles.controlLabel}>自动暂停</span>
                   <Switch
                     checked={isAutoPause}
                     onChange={onToggleAutoPause}
@@ -71,7 +72,7 @@ export const SubtitleControls = React.memo<SubtitleControlsProps>(function Subti
         </div>
 
         {/* 右侧：字幕导航按钮 */}
-        <div className="navigation-controls">
+        <div className={styles.navigationControls}>
           <Space size="small">
             <Tooltip title="跳转到上一句字幕">
               <Button
