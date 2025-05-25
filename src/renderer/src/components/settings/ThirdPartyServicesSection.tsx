@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Select, Input, Typography, Alert, Button, message, InputNumber, Slider } from 'antd'
+import { Card, Select, Input, Typography, Alert, Button, InputNumber, Slider, App } from 'antd'
 import {
   CloudOutlined,
   LinkOutlined,
@@ -15,6 +15,7 @@ import type {
   OpenAIModelOption,
   ThirdPartyServicesSettings
 } from '@renderer/types'
+import { DictionaryServiceFactory } from '@renderer/utils/dictionaryServices'
 import styles from './Settings.module.css'
 
 const { Text, Link } = Typography
@@ -64,6 +65,10 @@ const OPENAI_MODELS: OpenAIModelOption[] = [
 export function ThirdPartyServicesSection({
   className
 }: ThirdPartyServicesSectionProps): React.JSX.Element {
+  // FIXME: 需要提前在 App.tsx 中引入 antd 的 APP，否则 message 会报错
+  // 但是引入了 antd 的 APP 后，会导致卡顿，操作延迟变高
+  const { message } = App.useApp()
+
   const [settings, setSettings] = useState<ThirdPartyServicesSettings>({
     openai: {
       apiKey: '',
@@ -155,27 +160,20 @@ export function ThirdPartyServicesSection({
       return
     }
 
-    if (settings.dictionary.selectedEngine === 'eudic' && !settings.dictionary.eudicApiToken) {
-      message.warning('请先配置欧陆词典 API Token')
-      return
-    }
-
-    if (
-      settings.dictionary.selectedEngine === 'youdao' &&
-      (!settings.dictionary.youdaoApiKey || !settings.dictionary.youdaoApiSecret)
-    ) {
-      message.warning('请先配置有道词典 API Key 和 Secret')
-      return
-    }
-
     setIsTestingDictionary(true)
     try {
-      // 这里可以根据不同的词典引擎实现具体的测试逻辑
-      // 目前先模拟测试
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      message.success(
-        `${DICTIONARY_ENGINES.find((e) => e.key === settings.dictionary.selectedEngine)?.label} API 连接测试成功！`
+      const result = await DictionaryServiceFactory.testService(
+        settings.dictionary.selectedEngine,
+        settings.dictionary
       )
+
+      if (result.success) {
+        console.log('result', result)
+        message.success(result.message)
+      } else {
+        console.log('result', result)
+        message.error(result.message)
+      }
     } catch (error) {
       console.error('Dictionary API test failed:', error)
       message.error('词典 API 连接测试失败')

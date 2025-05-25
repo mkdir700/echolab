@@ -38,9 +38,37 @@ const fileSystemAPI = {
     ipcRenderer.invoke('dialog:open-file', options)
 }
 
+// 词典服务 API
+const dictionaryAPI = {
+  // 有道词典API请求
+  youdaoRequest: (
+    url: string,
+    params: Record<string, string>
+  ): Promise<{
+    success: boolean
+    data?: unknown
+    error?: string
+  }> => ipcRenderer.invoke('dictionary:youdao-request', url, params),
+
+  // 欧陆词典API请求
+  eudicRequest: (
+    url: string,
+    options: RequestInit
+  ): Promise<{
+    success: boolean
+    data?: unknown
+    error?: string
+    status?: number
+  }> => ipcRenderer.invoke('dictionary:eudic-request', url, options),
+
+  // SHA256哈希计算
+  sha256: (text: string): Promise<string | null> => ipcRenderer.invoke('crypto:sha256', text)
+}
+
 // Custom APIs for renderer
 const api = {
-  fileSystem: fileSystemAPI
+  fileSystem: fileSystemAPI,
+  dictionary: dictionaryAPI
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

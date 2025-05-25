@@ -267,4 +267,10 @@
   .ant-card {
     border-radius: 8px !important;
   }
-} 
+}
+
+/* Message 组件位置调整 */
+.ant-message {
+  top: 100px !important;
+  z-index: 1050 !important;
+}

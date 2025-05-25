@@ -155,43 +155,6 @@ export interface HomePageProps {
   handlePauseOnHover: () => void
 }
 
-// 项目相关类型定义
-export interface ProjectData {
-  id: string
-  name: string
-  videoFileName: string
-  videoFilePath: string
-  subtitles: SubtitleItem[]
-  progress: ProjectProgress
-  settings: ProjectSettings
-  createdAt: number
-  updatedAt: number
-}
-
-export interface ProjectProgress {
-  currentTime: number
-  currentSubtitleIndex: number
-  playbackRate: number
-  volume: number
-  isAutoScrollEnabled: boolean
-  displayMode: 'none' | 'original' | 'chinese' | 'english' | 'bilingual'
-  isSingleLoop: boolean
-  isAutoPause: boolean
-  sidebarWidth: number
-}
-
-export interface ProjectSettings {
-  autoSave: boolean
-  autoSaveInterval: number // 秒
-}
-
-export interface ProjectState {
-  currentProject: ProjectData | null
-  recentProjects: ProjectData[]
-  isLoading: boolean
-  error: string | null
-}
-
 // 查单词相关类型定义
 export type DictionaryEngine = 'eudic' | 'youdao'
 
@@ -229,4 +192,9 @@ export interface OpenAIModelOption {
 export interface ThirdPartyServicesSettings {
   openai: OpenAISettings
   dictionary: DictionarySettings
+}
+
+// 软件设置类型定义
+export interface Settings {
+  thirdPartyServices: ThirdPartyServicesSettings
 }

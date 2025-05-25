@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { readFile, access, constants, stat } from 'fs/promises'
+import { createHash } from 'crypto'
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
@@ -72,6 +73,9 @@ app.whenReady().then(() => {
 
   // 文件系统相关的 IPC 处理器
   setupFileSystemHandlers()
+
+  // 设置词典服务相关的 IPC 处理器
+  setupDictionaryHandlers()
 
   createWindow()
 
@@ -171,6 +175,75 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+// 设置词典服务相关的 IPC 处理器
+function setupDictionaryHandlers(): void {
+  // 有道词典API请求
+  ipcMain.handle(
+    'dictionary:youdao-request',
+    async (_, url: string, params: Record<string, string>) => {
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams(params)
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          return { success: true, data }
+        } else {
+          return { success: false, error: '请求失败' }
+        }
+      } catch (error) {
+        console.error('有道词典API请求失败:', error)
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : '网络错误'
+        }
+      }
+    }
+  )
+
+  // 欧陆词典API请求
+  ipcMain.handle('dictionary:eudic-request', async (_, url: string, options: RequestInit) => {
+    try {
+      const response = await fetch(url, options)
+
+      if (response.ok) {
+        const data = await response.json()
+        return { success: true, data }
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        return {
+          success: false,
+          error: errorData.message || response.statusText,
+          status: response.status
+        }
+      }
+    } catch (error) {
+      console.error('欧陆词典API请求失败:', error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : '网络错误'
+      }
+    }
+  })
+
+  // SHA256哈希计算
+  ipcMain.handle('crypto:sha256', async (_, text: string) => {
+    try {
+      const hash = createHash('sha256')
+      hash.update(text)
+      return hash.digest('hex')
+    } catch (error) {
+      console.error('SHA256计算失败:', error)
+      return null
+    }
+  })
+}
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
