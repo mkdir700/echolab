@@ -24,6 +24,19 @@ const navigationItems: NavigationItem[] = [
   { key: 'settings', label: '设置', icon: <SettingOutlined /> }
 ]
 
+// 截断文件名的工具函数
+function truncateFileName(fileName: string, maxLength: number = 30): string {
+  if (fileName.length <= maxLength) return fileName
+
+  const extension = fileName.split('.').pop() || ''
+  const nameWithoutExt = fileName.slice(0, fileName.lastIndexOf('.'))
+  const maxNameLength = maxLength - extension.length - 4 // 4 for "..." and "."
+
+  if (nameWithoutExt.length <= maxNameLength) return fileName
+
+  return `${nameWithoutExt.slice(0, maxNameLength)}...${extension}`
+}
+
 export function AppHeader({
   videoFileName,
   isVideoLoaded,
@@ -36,15 +49,17 @@ export function AppHeader({
   return (
     <Header className="app-header">
       <div className="header-left">
-        <Title level={4} style={{ color: '#ffffff', margin: 0 }}>
+        <Title level={4} style={{ color: '#ffffff', margin: 0, flexShrink: 0 }}>
           🎬 EchoLab
         </Title>
         {videoFileName && (
-          <Space style={{ marginLeft: 16 }}>
-            <VideoCameraOutlined style={{ color: '#ffffff', opacity: 0.8 }} />
-            <Text style={{ color: '#ffffff', opacity: 0.8, fontSize: 12 }}>{videoFileName}</Text>
-            {isVideoLoaded && <Text style={{ color: '#52c41a', fontSize: 12 }}>✓ 已就绪</Text>}
-          </Space>
+          <div className="video-file-info">
+            <VideoCameraOutlined className="video-icon" />
+            <Tooltip title={videoFileName} placement="bottomLeft">
+              <Text className="video-filename">{truncateFileName(videoFileName)}</Text>
+            </Tooltip>
+            {isVideoLoaded && <Text className="video-status">✓ 已就绪</Text>}
+          </div>
         )}
       </div>
 
@@ -68,42 +83,48 @@ export function AppHeader({
         />
       </div>
 
-      <Space size="middle">
-        <Upload accept="video/*" beforeUpload={onVideoUpload} showUploadList={false}>
-          <Tooltip title="支持 MP4, AVI, MOV 等格式">
-            <Button
-              icon={<UploadOutlined />}
-              style={{
-                borderColor: 'rgba(255,255,255,0.3)',
-                color: '#ffffff',
-                background: 'transparent'
-              }}
-            >
-              打开视频
-            </Button>
-          </Tooltip>
-        </Upload>
-        <Upload accept={SUBTITLE_EXTENSIONS} beforeUpload={onSubtitleUpload} showUploadList={false}>
-          <Tooltip title="支持 JSON, SRT, VTT 格式">
-            <Button
-              icon={<FileAddOutlined />}
-              style={{
-                borderColor: 'rgba(255,255,255,0.3)',
-                color: '#ffffff',
-                background: 'transparent'
-              }}
-            >
-              导入字幕
-            </Button>
-          </Tooltip>
-        </Upload>
-        {subtitlesCount > 0 && (
-          <Space>
-            <MessageOutlined style={{ color: '#ffffff', opacity: 0.8 }} />
-            <Text style={{ color: '#ffffff', opacity: 0.8 }}>{subtitlesCount} 条字幕</Text>
-          </Space>
-        )}
-      </Space>
+      <div className="header-right">
+        <Space size="middle">
+          <Upload accept="video/*" beforeUpload={onVideoUpload} showUploadList={false}>
+            <Tooltip title="支持 MP4, AVI, MOV 等格式">
+              <Button
+                icon={<UploadOutlined />}
+                style={{
+                  borderColor: 'rgba(255,255,255,0.3)',
+                  color: '#ffffff',
+                  background: 'transparent'
+                }}
+              >
+                打开视频
+              </Button>
+            </Tooltip>
+          </Upload>
+          <Upload
+            accept={SUBTITLE_EXTENSIONS}
+            beforeUpload={onSubtitleUpload}
+            showUploadList={false}
+          >
+            <Tooltip title="支持 JSON, SRT, VTT 格式">
+              <Button
+                icon={<FileAddOutlined />}
+                style={{
+                  borderColor: 'rgba(255,255,255,0.3)',
+                  color: '#ffffff',
+                  background: 'transparent'
+                }}
+              >
+                导入字幕
+              </Button>
+            </Tooltip>
+          </Upload>
+          {subtitlesCount > 0 && (
+            <Space>
+              <MessageOutlined style={{ color: '#ffffff', opacity: 0.8 }} />
+              <Text style={{ color: '#ffffff', opacity: 0.8 }}>{subtitlesCount} 条字幕</Text>
+            </Space>
+          )}
+        </Space>
+      </div>
     </Header>
   )
 }

@@ -81,6 +81,9 @@ body {
   display: flex;
   align-items: center;
   z-index: 1;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 40%;
 }
 
 .header-left h4 {
@@ -90,6 +93,41 @@ body {
   background-clip: text;
   font-weight: 700;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 视频文件信息样式 */
+.video-file-info {
+  display: flex;
+  align-items: center;
+  margin-left: 16px;
+  min-width: 0;
+  flex: 1;
+  gap: 8px;
+}
+
+.video-icon {
+  color: #ffffff;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.video-filename {
+  color: #ffffff !important;
+  opacity: 0.8 !important;
+  font-size: 12px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+  cursor: pointer;
+}
+
+.video-status {
+  color: #52c41a !important;
+  font-size: 12px !important;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .header-center {
@@ -128,6 +166,13 @@ body {
 
 .header-center .ant-menu-item-selected::after {
   border-bottom-color: #ffffff !important;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  z-index: 1;
+  flex-shrink: 0;
 }
 
 /* Content 样式 */
