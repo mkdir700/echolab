@@ -1,30 +1,36 @@
-import React, { useRef, useCallback, useEffect, useMemo } from 'react'
+import React, { useRef, useCallback, useEffect, useMemo, useState } from 'react'
 import { Layout, Typography } from 'antd'
 
 // 导入自定义 Hook
-import { useVideoPlayer } from './hooks/useVideoPlayer'
-import { useSubtitles } from './hooks/useSubtitles'
-import { useFileUpload } from './hooks/useFileUpload'
-import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { useAutoScroll } from './hooks/useAutoScroll'
-import { useSidebarResize } from './hooks/useSidebarResize'
-import { useSubtitleDisplayMode } from './hooks/useSubtitleDisplayMode'
-import { useSubtitleControl } from './hooks/useSubtitleControl'
+import { useVideoPlayer } from '@renderer/hooks/useVideoPlayer'
+import { useSubtitles } from '@renderer/hooks/useSubtitles'
+import { useFileUpload } from '@renderer/hooks/useFileUpload'
+import { useKeyboardShortcuts } from '@renderer/hooks/useKeyboardShortcuts'
+import { useAutoScroll } from '@renderer/hooks/useAutoScroll'
+import { useSidebarResize } from '@renderer/hooks/useSidebarResize'
+import { useSubtitleDisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
+import { useSubtitleControl } from '@renderer/hooks/useSubtitleControl'
 
 // 导入组件
-import { AppHeader } from './components/AppHeader'
-import { VideoSection } from './components/VideoSection'
-import { SubtitleControls } from './components/SubtitleControls'
-import { CurrentSubtitleDisplay } from './components/CurrentSubtitleDisplay'
-import { SidebarSection } from './components/SidebarSection'
+import { AppHeader } from '@renderer/components/AppHeader'
+import { HomePage } from '@renderer/components/pages/HomePage'
+import { FavoritesPage } from '@renderer/components/pages/FavoritesPage'
+import { AboutPage } from '@renderer/components/pages/AboutPage'
+import { SettingsPage } from '@renderer/components/pages/SettingsPage'
 
-import './App.css'
+// 导入类型
+import { PageType } from '@renderer/types'
+
+import '@renderer/App.css'
 
 const { Content } = Layout
 const { Text } = Typography
 
 function App(): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // 页面状态管理
+  const [currentPage, setCurrentPage] = useState<PageType>('home')
 
   // 使用自定义 Hooks
   const videoPlayer = useVideoPlayer()
@@ -103,96 +109,72 @@ function App(): React.JSX.Element {
     }
   }, [videoPlayer.isPlaying, videoPlayer.handlePlayPause])
 
+  // 渲染页面内容
+  const renderPageContent = (): React.JSX.Element => {
+    switch (currentPage) {
+      case 'home':
+        return (
+          <div ref={containerRef}>
+            <HomePage
+              fileUpload={fileUpload}
+              videoPlayer={videoPlayer}
+              subtitles={subtitles}
+              sidebarResize={sidebarResize}
+              subtitleDisplayMode={subtitleDisplayMode}
+              subtitleControl={subtitleControl}
+              autoScroll={autoScroll}
+              handleWordHover={handleWordHover}
+              handlePauseOnHover={handlePauseOnHover}
+            />
+          </div>
+        )
+      case 'favorites':
+        return <FavoritesPage />
+      case 'about':
+        return <AboutPage />
+      case 'settings':
+        return <SettingsPage />
+      default:
+        return (
+          <HomePage
+            fileUpload={fileUpload}
+            videoPlayer={videoPlayer}
+            subtitles={subtitles}
+            sidebarResize={sidebarResize}
+            subtitleDisplayMode={subtitleDisplayMode}
+            subtitleControl={subtitleControl}
+            autoScroll={autoScroll}
+            handleWordHover={handleWordHover}
+            handlePauseOnHover={handlePauseOnHover}
+          />
+        )
+    }
+  }
+
   return (
     <Layout className="app-layout">
       <AppHeader
         videoFileName={fileUpload.videoFileName}
         isVideoLoaded={videoPlayer.isVideoLoaded}
         subtitlesCount={subtitles.subtitles.length}
+        currentPage={currentPage}
         onVideoUpload={handleVideoUpload}
         onSubtitleUpload={subtitles.handleSubtitleUpload}
+        onPageChange={setCurrentPage}
       />
 
       <Content className="app-content">
-        <div className="main-container" ref={containerRef}>
-          <div
-            className="left-section"
-            style={{ width: `calc(100% - ${sidebarResize.sidebarWidth}px)` }}
-          >
-            {/* 上部：视频播放区域 */}
-            <VideoSection
-              videoFile={fileUpload.videoFile}
-              playerRef={videoPlayer.playerRef}
-              isPlaying={videoPlayer.isPlaying}
-              volume={videoPlayer.volume}
-              playbackRate={videoPlayer.playbackRate}
-              currentTime={videoPlayer.currentTime}
-              duration={videoPlayer.duration}
-              isVideoLoaded={videoPlayer.isVideoLoaded}
-              videoError={videoPlayer.videoError}
-              onProgress={videoPlayer.handleProgress}
-              onDuration={videoPlayer.handleVideoDuration}
-              onReady={videoPlayer.handleVideoReady}
-              onError={videoPlayer.handleVideoError}
-              onSeek={videoPlayer.handleSeek}
-              onStepBackward={videoPlayer.handleStepBackward}
-              onPlayPause={videoPlayer.handlePlayPause}
-              onStepForward={videoPlayer.handleStepForward}
-              onPlaybackRateChange={videoPlayer.handlePlaybackRateChange}
-              onVolumeChange={videoPlayer.handleVolumeChange}
-            />
+        {renderPageContent()}
 
-            {/* 字幕控制区域 */}
-            <SubtitleControls
-              isSingleLoop={subtitleControl.isSingleLoop}
-              isAutoPause={subtitleControl.isAutoPause}
-              isVideoLoaded={videoPlayer.isVideoLoaded}
-              subtitlesLength={subtitles.subtitles.length}
-              onToggleSingleLoop={subtitleControl.toggleSingleLoop}
-              onToggleAutoPause={subtitleControl.toggleAutoPause}
-              onGoToPrevious={subtitleControl.goToPreviousSubtitle}
-              onGoToNext={subtitleControl.goToNextSubtitle}
-            />
-
-            {/* 下部：当前字幕展示区域 */}
-            <CurrentSubtitleDisplay
-              currentSubtitle={subtitles.getCurrentSubtitle(videoPlayer.currentTime)}
-              isPlaying={videoPlayer.isPlaying}
-              displayMode={subtitleDisplayMode.displayMode}
-              onDisplayModeChange={subtitleDisplayMode.setDisplayMode}
-              onToggleDisplayMode={subtitleDisplayMode.toggleDisplayMode}
-              onWordHover={handleWordHover}
-              onPauseOnHover={handlePauseOnHover}
-            />
+        {/* 快捷键提示 - 仅在首页显示 */}
+        {currentPage === 'home' && (
+          <div className="shortcuts-hint">
+            <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+              💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 |
+              H/L-上一句/下一句 | Ctrl+S-单句循环 | Ctrl+P-自动暂停
+            </Text>
           </div>
-
-          {/* 拖拽分割线 */}
-          <div
-            className={`resize-handle ${sidebarResize.isDragging ? 'dragging' : ''}`}
-            onMouseDown={sidebarResize.handleMouseDown}
-          />
-
-          {/* 右侧：字幕列表区域 */}
-          <SidebarSection
-            sidebarWidth={sidebarResize.sidebarWidth}
-            subtitles={subtitles.subtitles}
-            isAutoScrollEnabled={subtitles.isAutoScrollEnabled}
-            currentSubtitleIndex={subtitles.currentSubtitleIndex}
-            currentTime={videoPlayer.currentTime}
-            subtitleListRef={autoScroll.subtitleListRef}
-            onSeek={videoPlayer.handleSeek}
-            onScrollToCurrentSubtitle={autoScroll.scrollToCurrentSubtitle}
-            onCenterCurrentSubtitle={autoScroll.handleCenterCurrentSubtitle}
-          />
-        </div>
-
-        {/* 快捷键提示 */}
-        <div className="shortcuts-hint">
-          <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 | H/L-上一句/下一句
-            | Ctrl+S-单句循环 | Ctrl+P-自动暂停
-          </Text>
-        </div>
+        )}
       </Content>
     </Layout>
   )

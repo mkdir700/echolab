@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import type { SubtitleItem } from '../types/shared'
+import type { SubtitleItem } from '@renderer/types/shared'
 
 interface SubtitleControlState {
   isSingleLoop: boolean // 是否开启单句循环

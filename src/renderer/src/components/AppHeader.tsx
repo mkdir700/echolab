@@ -1,23 +1,37 @@
 import React from 'react'
-import { Layout, Button, Upload, Space, Typography, Tooltip } from 'antd'
+import { Layout, Button, Upload, Space, Typography, Tooltip, Menu } from 'antd'
 import {
   UploadOutlined,
   FileAddOutlined,
   VideoCameraOutlined,
-  MessageOutlined
+  MessageOutlined,
+  HomeOutlined,
+  HeartOutlined,
+  InfoCircleOutlined,
+  SettingOutlined
 } from '@ant-design/icons'
-import { AppHeaderProps } from '../types'
-import { SUBTITLE_EXTENSIONS } from '../constants'
+import { AppHeaderProps, PageType, NavigationItem } from '@renderer/types'
+import { SUBTITLE_EXTENSIONS } from '@renderer/constants'
 
 const { Header } = Layout
 const { Text, Title } = Typography
+
+// 导航菜单配置
+const navigationItems: NavigationItem[] = [
+  { key: 'home', label: '首页', icon: <HomeOutlined /> },
+  { key: 'favorites', label: '收藏', icon: <HeartOutlined /> },
+  { key: 'about', label: '关于', icon: <InfoCircleOutlined /> },
+  { key: 'settings', label: '设置', icon: <SettingOutlined /> }
+]
 
 export function AppHeader({
   videoFileName,
   isVideoLoaded,
   subtitlesCount,
+  currentPage,
   onVideoUpload,
-  onSubtitleUpload
+  onSubtitleUpload,
+  onPageChange
 }: AppHeaderProps): React.JSX.Element {
   return (
     <Header className="app-header">
@@ -33,6 +47,27 @@ export function AppHeader({
           </Space>
         )}
       </div>
+
+      {/* 导航菜单 */}
+      <div className="header-center">
+        <Menu
+          mode="horizontal"
+          selectedKeys={[currentPage]}
+          onClick={({ key }) => onPageChange(key as PageType)}
+          style={{
+            backgroundColor: 'transparent',
+            borderBottom: 'none',
+            minWidth: 300
+          }}
+          items={navigationItems.map((item) => ({
+            key: item.key,
+            icon: item.icon,
+            label: item.label,
+            style: { color: '#ffffff' }
+          }))}
+        />
+      </div>
+
       <Space size="middle">
         <Upload accept="video/*" beforeUpload={onVideoUpload} showUploadList={false}>
           <Tooltip title="支持 MP4, AVI, MOV 等格式">
