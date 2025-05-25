@@ -5,6 +5,7 @@ import { ShortcutsSection } from '@renderer/components/Settings/ShortcutsSection
 import { DataManagementSection } from '@renderer/components/Settings/DataManagementSection'
 import { SettingsNavigation } from '@renderer/components/Settings/SettingsNavigation'
 import { PlaceholderSection } from '@renderer/components/Settings/PlaceholderSection'
+import { ThirdPartyServicesSection } from '@renderer/components/Settings/ThirdPartyServicesSection'
 
 const { Title } = Typography
 
@@ -20,9 +21,7 @@ export function SettingsPage(): React.JSX.Element {
       case 'appearance':
         return <PlaceholderSection title="外观设置" description="主题、字体大小等外观相关设置" />
       case 'dictionary':
-        return (
-          <PlaceholderSection title="查单词设置" description="配置欧陆词典 API Key 等查词功能" />
-        )
+        return <ThirdPartyServicesSection />
       case 'about':
         return <PlaceholderSection title="关于应用" description="版本信息、更新检查等" />
       default:

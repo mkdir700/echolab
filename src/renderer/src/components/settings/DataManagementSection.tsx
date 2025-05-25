@@ -2,6 +2,7 @@ import React from 'react'
 import { Card, Space, Switch, Button, Divider, Typography, message } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 import { useAppState } from '@renderer/hooks/useAppState'
+import styles from './Settings.module.css'
 
 const { Text } = Typography
 
@@ -25,10 +26,10 @@ export function DataManagementSection({
   }
 
   return (
-    <Card title="数据管理" className={`settings-section-card ${className || ''}`}>
+    <Card title="数据管理" className={`${styles.settingsCard} ${className || ''}`}>
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <div className="settings-item">
-          <div className="settings-item-info">
+        <div className={styles.settingsItem}>
+          <div className={styles.settingsItemInfo}>
             <Text strong style={{ color: 'var(--text-primary)', display: 'block' }}>
               自动保存应用状态
             </Text>
@@ -44,8 +45,8 @@ export function DataManagementSection({
 
         <Divider />
 
-        <div className="settings-item">
-          <div className="settings-item-info">
+        <div className={styles.settingsItem}>
+          <div className={styles.settingsItemInfo}>
             <Text strong style={{ color: 'var(--text-primary)', display: 'block' }}>
               清除所有数据
             </Text>

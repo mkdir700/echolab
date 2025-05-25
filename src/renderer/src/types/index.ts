@@ -191,3 +191,42 @@ export interface ProjectState {
   isLoading: boolean
   error: string | null
 }
+
+// 查单词相关类型定义
+export type DictionaryEngine = 'eudic' | 'youdao'
+
+export interface DictionarySettings {
+  selectedEngine: DictionaryEngine | null
+  eudicApiToken: string
+  youdaoApiKey: string
+  youdaoApiSecret: string
+}
+
+export interface DictionaryEngineOption {
+  key: DictionaryEngine
+  label: string
+  description: string
+  requiresAuth: boolean
+}
+
+// OpenAI 相关类型定义
+export type OpenAIModel = 'gpt-3.5-turbo' | 'gpt-4' | 'gpt-4-turbo' | 'gpt-4o' | 'gpt-4o-mini'
+
+export interface OpenAISettings {
+  apiKey: string
+  selectedModel: OpenAIModel | null
+  baseUrl: string
+  maxTokens: number
+  temperature: number
+}
+
+export interface OpenAIModelOption {
+  key: OpenAIModel
+  label: string
+}
+
+// 第三方服务配置类型定义
+export interface ThirdPartyServicesSettings {
+  openai: OpenAISettings
+  dictionary: DictionarySettings
+}

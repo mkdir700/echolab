@@ -30,41 +30,51 @@
 
 /* 设置侧边栏 */
 .settings-sidebar {
-  background: var(--card-bg) !important;
-  border: 1px solid var(--card-border) !important;
-  border-radius: var(--border-radius) !important;
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(145deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.02) 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 }
 
 .settings-nav {
-  padding: var(--spacing-sm) 0;
+  padding: 16px 0;
 }
 
 .settings-nav-item {
   display: flex;
   align-items: center;
-  padding: var(--spacing-md) var(--spacing-lg);
-  margin: var(--spacing-xs) var(--spacing-sm);
-  border-radius: var(--border-radius-sm);
+  padding: 14px 20px;
+  margin: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s ease;
   color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 .settings-nav-item:hover {
-  background: rgba(102, 126, 234, 0.1);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(102, 126, 234, 0.06) 100%);
   color: var(--text-primary);
+  transform: translateX(2px);
 }
 
 .settings-nav-item.active {
-  background: var(--accent-color-light);
-  color: var(--accent-color);
-  font-weight: 500;
+  background: linear-gradient(135deg, var(--accent-color) 0%, #8b5cf6 100%);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transform: translateX(4px);
 }
 
 .settings-nav-item span {
-  margin-left: var(--spacing-md);
-  font-size: var(--font-size-base);
+  margin-left: 12px;
+  font-size: inherit;
 }
 
 /* 设置主内容区域 */
@@ -215,4 +225,6 @@
 .shortcut-symbol {
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
-} 
+}
+
+ 

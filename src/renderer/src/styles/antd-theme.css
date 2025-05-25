@@ -1,0 +1,270 @@
+/* Ant Design 深色主题统一样式覆盖 */
+
+/* 全局深色主题变量 */
+:root {
+  --antd-bg-primary: rgba(255, 255, 255, 0.03);
+  --antd-bg-secondary: rgba(255, 255, 255, 0.05);
+  --antd-bg-hover: rgba(255, 255, 255, 0.08);
+  --antd-border: rgba(255, 255, 255, 0.08);
+  --antd-border-hover: var(--accent-color);
+  --antd-text: var(--text-primary);
+  --antd-text-secondary: var(--text-muted);
+  --antd-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --antd-shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* 输入框组件统一样式 */
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-input-number,
+.ant-input-password {
+  background: var(--antd-bg-primary) !important;
+  border: 1px solid var(--antd-border) !important;
+  border-radius: 8px !important;
+  color: var(--antd-text) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: var(--antd-shadow) !important;
+}
+
+.ant-input:hover,
+.ant-input-affix-wrapper:hover,
+.ant-input-number:hover,
+.ant-input-password:hover {
+  border-color: var(--antd-border-hover) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1) !important;
+}
+
+.ant-input:focus,
+.ant-input-affix-wrapper:focus,
+.ant-input-affix-wrapper-focused,
+.ant-input-number:focus,
+.ant-input-number-focused,
+.ant-input-password:focus {
+  border-color: var(--antd-border-hover) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+.ant-input::placeholder,
+.ant-input-affix-wrapper input::placeholder {
+  color: var(--antd-text-secondary) !important;
+}
+
+/* 选择器组件统一样式 */
+.ant-select .ant-select-selector {
+  background: var(--antd-bg-primary) !important;
+  border: 1px solid var(--antd-border) !important;
+  border-radius: 8px !important;
+  color: var(--antd-text) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: var(--antd-shadow) !important;
+}
+
+.ant-select:hover .ant-select-selector {
+  border-color: var(--antd-border-hover) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1) !important;
+}
+
+.ant-select-focused .ant-select-selector {
+  border-color: var(--antd-border-hover) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+.ant-select-selection-placeholder {
+  color: var(--antd-text-secondary) !important;
+}
+
+.ant-select-selection-item {
+  color: var(--antd-text) !important;
+}
+
+.ant-select-arrow {
+  color: var(--antd-text-secondary) !important;
+}
+
+/* 下拉菜单统一样式 */
+.ant-select-dropdown {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--antd-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.ant-select-item {
+  background: transparent !important;
+  color: var(--antd-text) !important;
+  border-radius: 4px !important;
+  margin: 2px 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+.ant-select-item:hover {
+  background: var(--antd-bg-hover) !important;
+  color: var(--antd-text) !important;
+}
+
+.ant-select-item-option-selected {
+  background: var(--accent-color-light) !important;
+  color: var(--accent-color) !important;
+}
+
+.ant-select-item-option-active {
+  background: var(--antd-bg-hover) !important;
+}
+
+/* 按钮组件统一样式 */
+.ant-btn {
+  border-radius: 8px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-weight: 500 !important;
+}
+
+.ant-btn-default {
+  background: var(--antd-bg-primary) !important;
+  border: 1px solid var(--antd-border) !important;
+  color: var(--antd-text) !important;
+}
+
+.ant-btn-default:hover {
+  background: var(--antd-bg-hover) !important;
+  border-color: var(--antd-border-hover) !important;
+  color: var(--accent-color) !important;
+  transform: translateY(-1px) !important;
+}
+
+.ant-btn-primary {
+  background: linear-gradient(135deg, var(--accent-color), #8b5cf6) !important;
+  border: none !important;
+  color: white !important;
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #7c93f0, #9d6bdc) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* 卡片组件统一样式 */
+.ant-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--antd-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--antd-shadow) !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.ant-card-head {
+  background: transparent !important;
+  border-bottom: 1px solid var(--antd-border) !important;
+}
+
+.ant-card-head-title {
+  color: var(--antd-text) !important;
+}
+
+.ant-card-body {
+  background: transparent !important;
+}
+
+/* 滑块组件统一样式 */
+.ant-slider {
+  margin: 16px 0 !important;
+}
+
+.ant-slider-rail {
+  background: var(--antd-border) !important;
+  height: 6px !important;
+}
+
+.ant-slider-track {
+  background: linear-gradient(135deg, var(--accent-color), #8b5cf6) !important;
+  height: 6px !important;
+}
+
+.ant-slider-mark-text {
+  color: var(--antd-text-secondary) !important;
+  font-size: 12px !important;
+}
+
+/* 警告框组件统一样式 */
+.ant-alert {
+  border-radius: 8px !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.ant-alert-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.04) 100%) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+.ant-alert-warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(245, 158, 11, 0.04) 100%) !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.ant-alert-message {
+  color: var(--antd-text) !important;
+}
+
+/* 分割线组件统一样式 */
+.ant-divider {
+  border-color: var(--antd-border) !important;
+}
+
+.ant-divider-inner-text {
+  background: var(--card-bg) !important;
+  color: var(--antd-text) !important;
+}
+
+/* 开关组件统一样式 */
+.ant-switch {
+  background: rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.ant-switch-checked {
+  background: var(--accent-color) !important;
+}
+
+/* 数字输入框特殊样式 */
+.ant-input-number-input {
+  background: transparent !important;
+  color: var(--antd-text) !important;
+}
+
+.ant-input-number-handler-wrap {
+  background: transparent !important;
+  border-left: 1px solid var(--antd-border) !important;
+}
+
+.ant-input-number-handler {
+  border: none !important;
+  color: var(--antd-text-secondary) !important;
+}
+
+.ant-input-number-handler:hover {
+  color: var(--accent-color) !important;
+}
+
+/* 密码输入框特殊样式 */
+.ant-input-password-icon {
+  color: var(--antd-text-secondary) !important;
+}
+
+.ant-input-password-icon:hover {
+  color: var(--accent-color) !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .ant-input,
+  .ant-input-affix-wrapper,
+  .ant-input-number,
+  .ant-select .ant-select-selector {
+    border-radius: 6px !important;
+  }
+  
+  .ant-card {
+    border-radius: 8px !important;
+  }
+} 

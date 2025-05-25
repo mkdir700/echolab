@@ -4,6 +4,9 @@
 @import './variables.css';
 @import './base.css';
 
+/* Ant Design 主题覆盖 */
+@import './antd-theme.css';
+
 /* 布局样式 */
 @import './layout.css';
 
