@@ -59,8 +59,9 @@ export const SubtitleListItem = React.memo<SubtitleListItemProps>(
           >
             {item.text}
           </Text>
+          {/* NOTE: 仅展示要学习的语言，不展示母语 */}
           {/* 显示中文字幕（如果有双语字幕） */}
-          {item.chineseText && item.englishText && (
+          {/* {item.chineseText && item.englishText && (
             <Text
               style={{
                 fontSize: 12,
@@ -73,7 +74,7 @@ export const SubtitleListItem = React.memo<SubtitleListItemProps>(
             >
               {item.chineseText}
             </Text>
-          )}
+          )} */}
         </div>
       </List.Item>
     )
