@@ -17,15 +17,7 @@ export const SubtitleListItem = React.memo<SubtitleListItemProps>(
         className={`subtitle-item ${isActive ? 'subtitle-item-active' : ''}`}
         onClick={handleClick}
         style={{
-          cursor: 'pointer',
-          padding: '8px 12px',
-          borderRadius: '6px',
-          marginBottom: '4px',
-          backgroundColor: isActive ? 'var(--accent-color-light)' : 'transparent',
-          border: isActive ? '1px solid var(--accent-color)' : '1px solid transparent',
-          transition: 'all 0.3s ease',
-          transform: isActive ? 'scale(1.02)' : 'scale(1)',
-          boxShadow: isActive ? '0 2px 8px rgba(0, 0, 0, 0.1)' : 'none'
+          cursor: 'pointer'
         }}
       >
         <div style={{ width: '100%' }}>

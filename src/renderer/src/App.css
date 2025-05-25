@@ -793,6 +793,10 @@ body {
   will-change: transform, background-color, border-color;
   contain: layout style paint;
   transform: translateZ(0); /* 启用硬件加速 */
+  padding: 10px 14px !important; /* 增加内间距 */
+  border-radius: 8px;
+  border: 1px solid transparent;
+  margin-bottom: 6px;
 }
 
 .subtitle-item:hover {
@@ -805,7 +809,7 @@ body {
   background-color: rgba(102, 126, 234, 0.2) !important;
   border-color: var(--accent-color) !important;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-  transform: translateZ(0);
+  transform: scale(1.02) translateZ(0);
 }
 
 /* 原有字幕样式保持兼容性 */
