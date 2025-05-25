@@ -85,7 +85,6 @@ export const HomePage = React.memo<HomePageProps>(function HomePage({
         currentTime={videoPlayer.currentTime}
         subtitleListRef={autoScroll.subtitleListRef}
         onSeek={videoPlayer.handleSeek}
-        onScrollToCurrentSubtitle={autoScroll.scrollToCurrentSubtitle}
         onCenterCurrentSubtitle={autoScroll.handleCenterCurrentSubtitle}
       />
     </div>

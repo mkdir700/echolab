@@ -15,7 +15,6 @@ interface SubtitleListContentProps {
   currentTime: number
   subtitleListRef: React.RefObject<HTMLDivElement | null>
   onSeek: (time: number) => void
-  onScrollToCurrentSubtitle: (index: number) => void
   onCenterCurrentSubtitle: () => void
 }
 
@@ -26,7 +25,6 @@ export function SubtitleListContent({
   currentTime,
   subtitleListRef,
   onSeek,
-  onScrollToCurrentSubtitle: _onScrollToCurrentSubtitle,
   onCenterCurrentSubtitle
 }: SubtitleListContentProps): React.JSX.Element {
   return (

@@ -10,7 +10,6 @@ interface SidebarSectionProps {
   currentTime: number
   subtitleListRef: React.RefObject<HTMLDivElement | null>
   onSeek: (time: number) => void
-  onScrollToCurrentSubtitle: (index: number) => void
   onCenterCurrentSubtitle: () => void
 }
 
@@ -22,7 +21,6 @@ export function SidebarSection({
   currentTime,
   subtitleListRef,
   onSeek,
-  onScrollToCurrentSubtitle,
   onCenterCurrentSubtitle
 }: SidebarSectionProps): React.JSX.Element {
   return (
@@ -34,7 +32,6 @@ export function SidebarSection({
         currentTime={currentTime}
         subtitleListRef={subtitleListRef}
         onSeek={onSeek}
-        onScrollToCurrentSubtitle={onScrollToCurrentSubtitle}
         onCenterCurrentSubtitle={onCenterCurrentSubtitle}
       />
     </div>
