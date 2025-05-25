@@ -105,13 +105,32 @@ export function useSubtitleControl({
     if (nextIndex < subtitles.length) {
       const nextSubtitle = subtitles[nextIndex]
       onSeek(nextSubtitle.startTime)
+
+      // 如果开启了单句循环，更新锁定的字幕为新的字幕
+      if (state.isSingleLoop) {
+        singleLoopSubtitleRef.current = nextSubtitle
+        console.log('🔄 单句循环：切换到下一句字幕', {
+          index: nextIndex,
+          text: nextSubtitle.text,
+          startTime: nextSubtitle.startTime,
+          endTime: nextSubtitle.endTime
+        })
+      }
+
       // 重置自动暂停状态，因为用户手动切换了字幕
       if (state.isAutoPause) {
         lastSubtitleIndexRef.current = nextIndex
         shouldPauseRef.current = false
       }
     }
-  }, [isVideoLoaded, subtitles, currentSubtitleIndex, onSeek, state.isAutoPause])
+  }, [
+    isVideoLoaded,
+    subtitles,
+    currentSubtitleIndex,
+    onSeek,
+    state.isAutoPause,
+    state.isSingleLoop
+  ])
 
   // 跳转到上一句字幕
   const goToPreviousSubtitle = useCallback((): void => {
@@ -121,13 +140,32 @@ export function useSubtitleControl({
     if (prevIndex >= 0) {
       const prevSubtitle = subtitles[prevIndex]
       onSeek(prevSubtitle.startTime)
+
+      // 如果开启了单句循环，更新锁定的字幕为新的字幕
+      if (state.isSingleLoop) {
+        singleLoopSubtitleRef.current = prevSubtitle
+        console.log('🔄 单句循环：切换到上一句字幕', {
+          index: prevIndex,
+          text: prevSubtitle.text,
+          startTime: prevSubtitle.startTime,
+          endTime: prevSubtitle.endTime
+        })
+      }
+
       // 重置自动暂停状态，因为用户手动切换了字幕
       if (state.isAutoPause) {
         lastSubtitleIndexRef.current = prevIndex
         shouldPauseRef.current = false
       }
     }
-  }, [isVideoLoaded, subtitles, currentSubtitleIndex, onSeek, state.isAutoPause])
+  }, [
+    isVideoLoaded,
+    subtitles,
+    currentSubtitleIndex,
+    onSeek,
+    state.isAutoPause,
+    state.isSingleLoop
+  ])
 
   // 处理单句循环逻辑
   useEffect(() => {
