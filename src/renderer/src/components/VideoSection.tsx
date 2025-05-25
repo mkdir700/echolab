@@ -98,6 +98,15 @@ export function VideoSection({
     }, 2000)
   }
 
+  // 处理视频播放器点击事件
+  const handleVideoClick = (): void => {
+    onPlayPause()
+    setShowControls(true)
+    if (hideControlsTimeoutRef.current) {
+      clearTimeout(hideControlsTimeoutRef.current)
+    }
+  }
+
   // 清理定时器
   useEffect(() => {
     return () => {
@@ -144,8 +153,10 @@ export function VideoSection({
               onDuration={onDuration}
               onReady={onReady}
               onError={onError}
+              onClick={handleVideoClick}
               controls={false}
               progressInterval={100}
+              style={{ cursor: 'pointer' }}
               config={{
                 file: {
                   attributes: {
