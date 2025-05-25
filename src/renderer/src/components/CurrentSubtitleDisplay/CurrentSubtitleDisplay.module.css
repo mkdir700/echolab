@@ -22,7 +22,7 @@
   justify-content: center;
   padding: var(--spacing-lg);
   overflow: visible;
-  position: relative;
+  position: relative; /* 为绝对定位的WordCard提供定位上下文 */
 }
 
 /* 浮动控制按钮样式 */
@@ -131,8 +131,9 @@
   justify-content: center;
   padding-right: 120px; /* 为浮动控制按钮留出空间 */
   box-sizing: border-box;
-  overflow: hidden; /* 确保字幕内容不会溢出 */
+  overflow: visible; /* 允许单词卡片溢出显示 */
   border-radius: var(--border-radius); /* 保持圆角效果 */
+  position: relative; /* 为绝对定位的子元素提供定位上下文 */
 }
 
 .subtitlePlaceholder {
@@ -207,6 +208,22 @@
   transform: scale(1.05);
   font-weight: 600 !important;
   box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+/* 可点击单词的特殊样式 */
+.clickableWord {
+  cursor: pointer !important;
+  border-bottom: 1px dotted var(--accent-color);
+  transition: all var(--transition-fast);
+}
+
+.clickableWord:hover {
+  background-color: var(--accent-color-light) !important;
+  color: var(--accent-color) !important;
+  transform: scale(1.05) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3) !important;
+  border-bottom-style: solid !important;
 }
 
 /* 响应式设计 */

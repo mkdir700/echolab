@@ -7,8 +7,9 @@ import {
   TranslationOutlined,
   MenuUnfoldOutlined
 } from '@ant-design/icons'
-import type { SubtitleItem } from '../../types/shared'
-import type { DisplayMode } from '../../hooks/useSubtitleDisplayMode'
+import type { SubtitleItem } from '@renderer/types/shared'
+import type { DisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
+import { WordCard } from './WordCard'
 
 // 导入样式
 import styles from './CurrentSubtitleDisplay.module.css'
@@ -45,6 +46,10 @@ export function CurrentSubtitleDisplay({
 }: CurrentSubtitleDisplayProps): React.JSX.Element {
   const [showModeSelector, setShowModeSelector] = useState(false)
   const [expandDirection, setExpandDirection] = useState<'up' | 'down'>('up')
+  const [selectedWord, setSelectedWord] = useState<{
+    word: string
+    element: HTMLElement
+  } | null>(null)
   const selectorRef = useRef<HTMLDivElement>(null)
   const controlsRef = useRef<HTMLDivElement>(null)
 
@@ -116,27 +121,58 @@ export function CurrentSubtitleDisplay({
     [onWordHover, onPauseOnHover, isPlaying]
   )
 
+  // 处理单词点击事件
+  const handleWordClick = useCallback((word: string, event: React.MouseEvent) => {
+    // 阻止事件冒泡
+    event.stopPropagation()
+
+    // 过滤掉空白字符
+    const trimmedWord = word.trim()
+    if (trimmedWord === '') {
+      return
+    }
+
+    // 保存单词元素的引用，用于动态计算位置
+    const wordElement = event.target as HTMLElement
+
+    setSelectedWord({
+      word: trimmedWord,
+      element: wordElement
+    })
+  }, [])
+
+  // 关闭单词卡片
+  const handleCloseWordCard = useCallback(() => {
+    setSelectedWord(null)
+  }, [])
+
   // 将文本分割成单词
   const splitTextIntoWords = useCallback(
     (text: string) => {
-      return text.split(/(\s+)/).map((word, index) => {
+      const words = text.split(/(\s+)/).map((word, index) => {
         if (word.trim() === '') {
           return <span key={index}>{word}</span>
         }
 
+        const isClickableWord = word.trim() !== ''
+
         return (
           <span
             key={index}
-            className={styles.subtitleWord}
+            className={`${styles.subtitleWord} ${isClickableWord ? styles.clickableWord : ''}`}
             onMouseEnter={() => handleWordHover(true)}
             onMouseLeave={() => handleWordHover(false)}
+            onClick={isClickableWord ? (e) => handleWordClick(word, e) : undefined}
+            style={{ cursor: isClickableWord ? 'pointer' : 'default' }}
           >
             {word}
           </span>
         )
       })
+
+      return words
     },
-    [handleWordHover]
+    [handleWordHover, handleWordClick]
   )
 
   // 获取当前模式的配置
@@ -295,6 +331,15 @@ export function CurrentSubtitleDisplay({
         {/* 字幕内容 */}
         <div className={styles.subtitleContentWrapper}>{renderSubtitleContent}</div>
       </div>
+
+      {/* 单词卡片 - 使用固定定位渲染在根级别 */}
+      {selectedWord && (
+        <WordCard
+          word={selectedWord.word}
+          targetElement={selectedWord.element}
+          onClose={handleCloseWordCard}
+        />
+      )}
     </div>
   )
 }
