@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import ReactPlayer from 'react-player'
 import { VideoPlaceholder } from './VideoPlaceholder'
 import { LoadingIndicator } from './LoadingIndicator'
@@ -54,13 +54,80 @@ export function VideoSection({
   onVolumeChange
 }: VideoSectionProps): React.JSX.Element {
   const [showControls, setShowControls] = useState(false)
+  const [isUserInteracting, setIsUserInteracting] = useState(false)
+  const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // 智能控制显示逻辑
+  const handleMouseEnter = (): void => {
+    setShowControls(true)
+    if (hideControlsTimeoutRef.current) {
+      clearTimeout(hideControlsTimeoutRef.current)
+    }
+  }
+
+  const handleMouseLeave = (): void => {
+    if (!isUserInteracting) {
+      hideControlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false)
+      }, 2000) // 2秒后隐藏
+    }
+  }
+
+  const handleMouseMove = (): void => {
+    setShowControls(true)
+    if (hideControlsTimeoutRef.current) {
+      clearTimeout(hideControlsTimeoutRef.current)
+    }
+
+    if (!isUserInteracting) {
+      hideControlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false)
+      }, 3000) // 3秒无操作后隐藏
+    }
+  }
+
+  const handleUserInteractionStart = (): void => {
+    setIsUserInteracting(true)
+    setShowControls(true)
+  }
+
+  const handleUserInteractionEnd = (): void => {
+    setIsUserInteracting(false)
+    hideControlsTimeoutRef.current = setTimeout(() => {
+      setShowControls(false)
+    }, 2000)
+  }
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (hideControlsTimeoutRef.current) {
+        clearTimeout(hideControlsTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  // 播放状态变化时的控制逻辑
+  useEffect(() => {
+    if (!isPlaying) {
+      setShowControls(true)
+      if (hideControlsTimeoutRef.current) {
+        clearTimeout(hideControlsTimeoutRef.current)
+      }
+    } else if (!isUserInteracting) {
+      hideControlsTimeoutRef.current = setTimeout(() => {
+        setShowControls(false)
+      }, 3000)
+    }
+  }, [isPlaying, isUserInteracting])
 
   return (
     <div className="video-section">
       <div
         className="video-container"
-        onMouseEnter={() => setShowControls(true)}
-        onMouseLeave={() => setShowControls(false)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onMouseMove={handleMouseMove}
       >
         {videoFile ? (
           <>
@@ -100,23 +167,25 @@ export function VideoSection({
             {/* 错误状态提示 */}
             {videoError && <ErrorIndicator error={videoError} />}
 
-            {/* 视频控制条 */}
-            <VideoControls
-              showControls={showControls}
-              duration={duration}
-              currentTime={currentTime}
-              isVideoLoaded={isVideoLoaded}
-              isPlaying={isPlaying}
-              videoError={videoError}
-              playbackRate={playbackRate}
-              volume={volume}
-              onSeek={onSeek}
-              onStepBackward={onStepBackward}
-              onPlayPause={onPlayPause}
-              onStepForward={onStepForward}
-              onPlaybackRateChange={onPlaybackRateChange}
-              onVolumeChange={onVolumeChange}
-            />
+            {/* 现代化视频控制组件 */}
+            <div onMouseEnter={handleUserInteractionStart} onMouseLeave={handleUserInteractionEnd}>
+              <VideoControls
+                showControls={showControls}
+                duration={duration}
+                currentTime={currentTime}
+                isVideoLoaded={isVideoLoaded}
+                isPlaying={isPlaying}
+                videoError={videoError}
+                playbackRate={playbackRate}
+                volume={volume}
+                onSeek={onSeek}
+                onStepBackward={onStepBackward}
+                onPlayPause={onPlayPause}
+                onStepForward={onStepForward}
+                onPlaybackRateChange={onPlaybackRateChange}
+                onVolumeChange={onVolumeChange}
+              />
+            </div>
           </>
         ) : (
           <VideoPlaceholder />

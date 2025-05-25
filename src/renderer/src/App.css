@@ -519,198 +519,290 @@ body {
   transform: translateY(-2px);
 }
 
-/* 视频控制区样式优化 */
-.video-controls-overlay {
+/* 现代化视频控制组件样式 */
+
+/* 进度条容器 - 始终显示在底部 */
+.video-progress-container {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, 
-    rgba(0, 0, 0, 0.9) 0%, 
-    rgba(0, 0, 0, 0.7) 50%, 
-    rgba(0, 0, 0, 0.3) 80%,
-    transparent 100%);
-  backdrop-filter: blur(15px);
-  padding: 24px 32px 28px;
-  transform: translateY(100%);
+  height: 4px;
+  background: transparent;
+  cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  opacity: 0;
-  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+  z-index: 10;
 }
 
-.video-controls-overlay.show {
+.video-progress-container.enhanced {
+  height: 8px;
+  padding: 8px 0;
+}
+
+.progress-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.video-progress-container.enhanced .progress-track {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-color), #7c93f0);
+  border-radius: inherit;
+  transition: all 0.2s ease;
+}
+
+.progress-handle {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.video-progress-container.enhanced .progress-handle {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.progress-time-tooltip {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+}
+
+.progress-time {
+  color: white !important;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 中央播放按钮 */
+.center-play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.center-play-btn {
+  width: 80px !important;
+  height: 80px !important;
+  border-radius: 50% !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  color: white !important;
+  font-size: 32px !important;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.center-play-btn:hover {
+  background: rgba(0, 0, 0, 0.8) !important;
+  border-color: var(--accent-color) !important;
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* 主控制栏 */
+.video-controls-bar {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  border-radius: 12px;
+  padding: 8px 16px;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.video-controls-bar.visible {
   transform: translateY(0);
   opacity: 1;
 }
 
-.video-progress-bar {
-  margin-bottom: 20px;
-}
-
-.progress-slider-overlay {
-  margin-bottom: 12px;
-  padding: 4px 0;
-  border-radius: 8px;
-}
-
-.progress-slider-overlay:hover {
-  /* 保持简洁，不添加额外变换 */
-}
-
-.progress-slider-overlay:hover .ant-slider-rail {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.progress-slider-overlay:hover .ant-slider-track {
-  box-shadow: 0 0 12px rgba(102, 126, 234, 0.5);
-}
-
-.progress-slider-overlay .ant-slider-rail {
-  background: rgba(255, 255, 255, 0.2);
-  height: 6px;
-  border-radius: 3px;
-}
-
-.progress-slider-overlay .ant-slider-track {
-  background: linear-gradient(90deg, var(--accent-color), #7c93f0);
-  height: 6px;
-  border-radius: 3px;
-  box-shadow: 0 0 8px rgba(102, 126, 234, 0.4);
-}
-
-.progress-slider-overlay .ant-slider-handle:hover {
-  transform: scale(1.15);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.4),
-    0 0 0 4px rgba(102, 126, 234, 0.3);
-  border-color: #ffffff;
-}
-
-.progress-slider-overlay .ant-slider-handle:hover::before {
-  display: none;
-}
-
-.progress-slider-overlay .ant-slider-handle:active {
-  transform: scale(1.05);
-  box-shadow: 
-    0 1px 4px rgba(0, 0, 0, 0.5),
-    0 0 0 3px rgba(102, 126, 234, 0.4);
-}
-
-.time-display {
+.controls-left {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0 4px;
-  margin-top: 8px;
+  gap: 16px;
 }
 
-.time-text {
-  color: var(--text-primary) !important;
+.controls-right {
+  display: flex;
+  align-items: center;
+}
+
+/* 紧凑控制按钮 */
+.control-btn-compact {
+  width: 36px !important;
+  height: 36px !important;
+  border: none !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.control-btn-compact:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  transform: scale(1.05);
+}
+
+.play-pause-btn {
+  background: var(--accent-color) !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+}
+
+.play-pause-btn:hover {
+  background: #7c93f0 !important;
+  transform: scale(1.1);
+}
+
+/* 时间显示 */
+.time-display-compact {
+  margin-left: 8px;
+}
+
+.time-text-compact {
+  color: rgba(255, 255, 255, 0.9) !important;
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
   font-size: 13px;
-  font-weight: 600;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  font-weight: 500;
 }
 
-.time-text:hover {
-  /* 移除hover效果，保持简洁 */
+/* 音量控制 */
+.volume-control-compact {
+  position: relative;
 }
 
-.video-controls-buttons {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-}
-
-.primary-controls {
-  display: flex;
-  align-items: center;
-}
-
-.control-btn {
-  border: none !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: var(--text-primary) !important;
+.volume-slider-popup {
+  position: absolute;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
-  border-radius: 12px !important;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.control-btn:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-.control-btn:active {
-  transform: translateY(0);
-}
-
-.play-btn {
-  background: linear-gradient(135deg, var(--accent-color), #7c93f0) !important;
-  width: 56px !important;
-  height: 56px !important;
-  border-radius: 50% !important;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4) !important;
-  margin: 0 8px;
-}
-
-.play-btn:hover {
-  background: linear-gradient(135deg, #7c93f0, #9ca9f3) !important;
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5) !important;
-}
-
-.secondary-controls {
+  border-radius: 8px;
+  padding: 12px 8px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 28px;
-}
-
-.control-group {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 140px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
+  gap: 8px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.2s ease;
 }
 
-.control-group:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+.volume-slider-vertical {
+  height: 80px !important;
 }
 
-.volume-control {
-  min-width: 160px;
+.volume-slider-vertical .ant-slider-rail {
+  background: rgba(255, 255, 255, 0.3);
+  width: 4px;
 }
 
-.control-icon {
+.volume-slider-vertical .ant-slider-track {
+  background: var(--accent-color);
+  width: 4px;
+}
+
+.volume-slider-vertical .ant-slider-handle {
+  border: 2px solid var(--accent-color);
+  background: white;
+  width: 12px;
+  height: 12px;
+}
+
+.volume-text {
+  color: white !important;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* 设置控制 */
+.settings-control-compact {
+  position: relative;
+}
+
+.settings-popup {
+  position: absolute;
+  bottom: 50px;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 200px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-icon {
   color: var(--accent-color);
-  font-size: 16px;
-  min-width: 16px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  font-size: 14px;
 }
 
-.control-label {
-  color: var(--text-secondary) !important;
+.settings-label {
+  color: white !important;
   font-size: 13px;
-  font-weight: 600;
-  min-width: 45px;
-  text-align: center;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  flex: 1;
 }
 
-.control-slider {
-  width: 70px !important;
-  flex: 1;
+.settings-select {
+  width: 80px;
+}
+
+.settings-select .ant-select-selector {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.settings-select .ant-select-arrow {
+  color: white !important;
 }
 
 .control-slider .ant-slider-rail {
@@ -994,41 +1086,40 @@ body {
   }
 
   /* 移动端视频控制区优化 */
-  .video-controls-overlay {
-    padding: 16px 20px 20px;
+  .video-controls-bar {
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    padding: 6px 12px;
   }
 
-  .video-controls-buttons {
-    flex-direction: column;
-    gap: 16px;
-    align-items: center;
+  .controls-left {
+    gap: 8px;
   }
 
-  .secondary-controls {
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
+  .control-btn-compact {
+    width: 32px !important;
+    height: 32px !important;
   }
 
-  .control-group {
-    width: 100%;
-    max-width: 280px;
-    justify-content: space-between;
-    min-width: unset;
+  .play-pause-btn {
+    width: 36px !important;
+    height: 36px !important;
   }
 
-  .control-slider {
-    width: 100px !important;
+  .center-play-btn {
+    width: 60px !important;
+    height: 60px !important;
+    font-size: 24px !important;
   }
 
-  .play-btn {
-    width: 48px !important;
-    height: 48px !important;
+  .time-text-compact {
+    font-size: 12px;
   }
 
-  .control-btn {
-    width: 40px !important;
-    height: 40px !important;
+  .volume-slider-popup,
+  .settings-popup {
+    bottom: 45px;
   }
   
   .subtitle-text {
