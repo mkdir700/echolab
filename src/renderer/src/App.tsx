@@ -277,33 +277,18 @@ function App(): React.JSX.Element {
     }
   }, [videoPlayer.isPlaying, videoPlayer.handlePlayPause])
 
-  // 渲染页面内容
+  // 渲染页面内容 - 使用冻结模式，首页始终保持挂载
   const renderPageContent = (): React.JSX.Element => {
-    switch (currentPage) {
-      case 'home':
-        return (
-          <div ref={containerRef}>
-            <HomePage
-              fileUpload={fileUpload}
-              videoPlayer={videoPlayer}
-              subtitles={subtitles}
-              sidebarResize={sidebarResize}
-              subtitleDisplayMode={subtitleDisplayMode}
-              subtitleControl={subtitleControl}
-              autoScroll={autoScroll}
-              handleWordHover={handleWordHover}
-              handlePauseOnHover={handlePauseOnHover}
-            />
-          </div>
-        )
-      case 'favorites':
-        return <FavoritesPage />
-      case 'about':
-        return <AboutPage />
-      case 'settings':
-        return <SettingsPage />
-      default:
-        return (
+    return (
+      <>
+        {/* 首页 - 始终挂载，通过 display 控制显示 */}
+        <div
+          ref={containerRef}
+          className="page-container"
+          style={{
+            display: currentPage === 'home' ? 'block' : 'none'
+          }}
+        >
           <HomePage
             fileUpload={fileUpload}
             videoPlayer={videoPlayer}
@@ -315,8 +300,26 @@ function App(): React.JSX.Element {
             handleWordHover={handleWordHover}
             handlePauseOnHover={handlePauseOnHover}
           />
-        )
-    }
+        </div>
+
+        {/* 其他页面 - 条件渲染，覆盖在首页之上 */}
+        {currentPage === 'favorites' && (
+          <div className="page-container other-page">
+            <FavoritesPage />
+          </div>
+        )}
+        {currentPage === 'about' && (
+          <div className="page-container other-page">
+            <AboutPage />
+          </div>
+        )}
+        {currentPage === 'settings' && (
+          <div className="page-container other-page">
+            <SettingsPage />
+          </div>
+        )}
+      </>
+    )
   }
 
   return (
