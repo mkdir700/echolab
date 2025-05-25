@@ -6,6 +6,7 @@ interface UseSubtitleDisplayModeReturn {
   displayMode: DisplayMode
   setDisplayMode: (mode: DisplayMode) => void
   toggleDisplayMode: () => void
+  restoreDisplayMode: (mode: DisplayMode) => void
 }
 
 export function useSubtitleDisplayMode(
@@ -20,9 +21,15 @@ export function useSubtitleDisplayMode(
     setDisplayMode(modes[nextIndex])
   }, [displayMode])
 
+  const restoreDisplayMode = useCallback((mode: DisplayMode) => {
+    setDisplayMode(mode)
+    console.log('🔄 恢复字幕显示模式:', mode)
+  }, [])
+
   return {
     displayMode,
     setDisplayMode,
-    toggleDisplayMode
+    toggleDisplayMode,
+    restoreDisplayMode
   }
 }

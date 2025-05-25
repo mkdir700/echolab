@@ -42,7 +42,7 @@ export function AppHeader({
   isVideoLoaded,
   subtitlesCount,
   currentPage,
-  onVideoUpload,
+  onVideoFileSelect,
   onSubtitleUpload,
   onPageChange
 }: AppHeaderProps): React.JSX.Element {
@@ -85,20 +85,19 @@ export function AppHeader({
 
       <div className="header-right">
         <Space size="middle">
-          <Upload accept="video/*" beforeUpload={onVideoUpload} showUploadList={false}>
-            <Tooltip title="支持 MP4, AVI, MOV 等格式">
-              <Button
-                icon={<UploadOutlined />}
-                style={{
-                  borderColor: 'rgba(255,255,255,0.3)',
-                  color: '#ffffff',
-                  background: 'transparent'
-                }}
-              >
-                打开视频
-              </Button>
-            </Tooltip>
-          </Upload>
+          <Tooltip title="支持 MP4, AVI, MOV 等格式">
+            <Button
+              icon={<UploadOutlined />}
+              onClick={onVideoFileSelect}
+              style={{
+                borderColor: 'rgba(255,255,255,0.3)',
+                color: '#ffffff',
+                background: 'transparent'
+              }}
+            >
+              打开视频
+            </Button>
+          </Tooltip>
           <Upload
             accept={SUBTITLE_EXTENSIONS}
             beforeUpload={onSubtitleUpload}

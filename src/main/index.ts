@@ -1,6 +1,7 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { readFile, access, constants, stat } from 'fs/promises'
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
@@ -69,8 +70,8 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  // 文件系统相关的 IPC 处理器
+  setupFileSystemHandlers()
 
   createWindow()
 
@@ -80,6 +81,87 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
+
+// 设置文件系统相关的 IPC 处理器
+function setupFileSystemHandlers(): void {
+  // 检查文件是否存在
+  ipcMain.handle('fs:check-file-exists', async (_, filePath: string): Promise<boolean> => {
+    try {
+      await access(filePath, constants.F_OK)
+      return true
+    } catch {
+      return false
+    }
+  })
+
+  // 读取文件内容（用于字幕文件）
+  ipcMain.handle('fs:read-file', async (_, filePath: string): Promise<string | null> => {
+    try {
+      const content = await readFile(filePath, 'utf-8')
+      return content
+    } catch (error) {
+      console.error('读取文件失败:', error)
+      return null
+    }
+  })
+
+  // 获取文件的 file:// URL（用于视频文件）
+  ipcMain.handle('fs:get-file-url', async (_, filePath: string): Promise<string | null> => {
+    try {
+      await access(filePath, constants.F_OK)
+      // 在 Windows 上需要特殊处理路径
+      const normalizedPath = process.platform === 'win32' ? filePath.replace(/\\/g, '/') : filePath
+      return `file://${normalizedPath}`
+    } catch (error) {
+      console.error('获取文件URL失败:', error)
+      return null
+    }
+  })
+
+  // 打开文件选择对话框
+  ipcMain.handle('dialog:open-file', async (_, options: Electron.OpenDialogOptions) => {
+    const result = await dialog.showOpenDialog(options)
+    return result
+  })
+
+  // 获取文件信息
+  ipcMain.handle('fs:get-file-info', async (_, filePath: string) => {
+    try {
+      const stats = await stat(filePath)
+      return {
+        size: stats.size,
+        mtime: stats.mtime.getTime(),
+        isFile: stats.isFile(),
+        isDirectory: stats.isDirectory()
+      }
+    } catch (error) {
+      console.error('获取文件信息失败:', error)
+      return null
+    }
+  })
+
+  // 验证文件完整性（通过文件大小和修改时间）
+  ipcMain.handle(
+    'fs:validate-file',
+    async (_, filePath: string, expectedSize?: number, expectedMtime?: number) => {
+      try {
+        const stats = await stat(filePath)
+
+        if (expectedSize !== undefined && stats.size !== expectedSize) {
+          return false
+        }
+
+        if (expectedMtime !== undefined && stats.mtime.getTime() !== expectedMtime) {
+          return false
+        }
+
+        return true
+      } catch {
+        return false
+      }
+    }
+  )
+}
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

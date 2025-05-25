@@ -6,6 +6,7 @@ interface UseSidebarResizeReturn {
   sidebarWidth: number
   isDragging: boolean
   handleMouseDown: (e: React.MouseEvent) => void
+  restoreSidebarWidth: (width: number) => void
 }
 
 export function useSidebarResize(
@@ -50,9 +51,18 @@ export function useSidebarResize(
     setIsDragging(true)
   }, [])
 
+  const restoreSidebarWidth = useCallback((width: number): void => {
+    const minWidth = SIDEBAR_SETTINGS.MIN_WIDTH
+    const maxWidth = 600 // 使用固定最大宽度
+    const validWidth = Math.max(minWidth, Math.min(maxWidth, width))
+    setSidebarWidth(validWidth)
+    console.log('🔄 恢复侧边栏宽度:', validWidth)
+  }, [])
+
   return {
     sidebarWidth,
     isDragging,
-    handleMouseDown
+    handleMouseDown,
+    restoreSidebarWidth
   }
 }

@@ -79,7 +79,7 @@ export interface AppHeaderProps {
   isVideoLoaded: boolean
   subtitlesCount: number
   currentPage: PageType
-  onVideoUpload: (file: File) => boolean
+  onVideoFileSelect: () => Promise<boolean>
   onSubtitleUpload: (file: File) => boolean
   onPageChange: (page: PageType) => void
 }
@@ -153,4 +153,41 @@ export interface HomePageProps {
   }
   handleWordHover: (isHovering: boolean) => void
   handlePauseOnHover: () => void
+}
+
+// 项目相关类型定义
+export interface ProjectData {
+  id: string
+  name: string
+  videoFileName: string
+  videoFilePath: string
+  subtitles: SubtitleItem[]
+  progress: ProjectProgress
+  settings: ProjectSettings
+  createdAt: number
+  updatedAt: number
+}
+
+export interface ProjectProgress {
+  currentTime: number
+  currentSubtitleIndex: number
+  playbackRate: number
+  volume: number
+  isAutoScrollEnabled: boolean
+  displayMode: 'none' | 'original' | 'chinese' | 'english' | 'bilingual'
+  isSingleLoop: boolean
+  isAutoPause: boolean
+  sidebarWidth: number
+}
+
+export interface ProjectSettings {
+  autoSave: boolean
+  autoSaveInterval: number // 秒
+}
+
+export interface ProjectState {
+  currentProject: ProjectData | null
+  recentProjects: ProjectData[]
+  isLoading: boolean
+  error: string | null
 }

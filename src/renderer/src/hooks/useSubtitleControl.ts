@@ -12,6 +12,7 @@ interface UseSubtitleControlReturn extends SubtitleControlState {
   goToNextSubtitle: () => void
   goToPreviousSubtitle: () => void
   resetState: () => void
+  restoreState: (isSingleLoop: boolean, isAutoPause: boolean) => void
 }
 
 interface UseSubtitleControlParams {
@@ -225,6 +226,23 @@ export function useSubtitleControl({
     console.log('🔄 重置字幕控制状态')
   }, [])
 
+  // 恢复状态
+  const restoreState = useCallback((isSingleLoop: boolean, isAutoPause: boolean): void => {
+    setState({
+      isSingleLoop,
+      isAutoPause
+    })
+
+    // 重置相关引用状态
+    singleLoopSubtitleRef.current = null
+    isLoopingRef.current = false
+    lastLoopTimeRef.current = 0
+    lastSubtitleIndexRef.current = currentSubtitleIndexRef.current
+    shouldPauseRef.current = false
+
+    console.log('🔄 恢复字幕控制状态:', { isSingleLoop, isAutoPause })
+  }, [])
+
   // 处理单句循环逻辑
   useEffect(() => {
     if (!state.isSingleLoop || !isVideoLoaded || !isPlaying) {
@@ -338,6 +356,7 @@ export function useSubtitleControl({
     toggleAutoPause,
     goToNextSubtitle,
     goToPreviousSubtitle,
-    resetState
+    resetState,
+    restoreState
   }
 }

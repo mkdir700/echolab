@@ -10,6 +10,7 @@ import { useAutoScroll } from '@renderer/hooks/useAutoScroll'
 import { useSidebarResize } from '@renderer/hooks/useSidebarResize'
 import { useSubtitleDisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
 import { useSubtitleControl } from '@renderer/hooks/useSubtitleControl'
+import { useAppState } from '@renderer/hooks/useAppState'
 
 // 导入组件
 import { AppHeader } from '@renderer/components/AppHeader'
@@ -32,6 +33,14 @@ function App(): React.JSX.Element {
   // 页面状态管理
   const [currentPage, setCurrentPage] = useState<PageType>('home')
 
+  // 状态恢复标志 - 使用 ref 确保只执行一次
+  const [isInitialized, setIsInitialized] = useState(false)
+  const initializationRef = useRef(false)
+  const restorationCompleteRef = useRef(false)
+
+  // 应用状态持久化
+  const { saveAppState, restoreAppState, enableAutoSave } = useAppState()
+
   // 使用自定义 Hooks
   const videoPlayer = useVideoPlayer()
   const subtitles = useSubtitles()
@@ -46,7 +55,6 @@ function App(): React.JSX.Element {
 
   // 缓存字幕长度，避免频繁重新计算
   const subtitlesLength = useMemo(() => {
-    console.log('🔍 重新计算字幕长度:', subtitles.subtitles.length)
     return subtitles.subtitles.length
   }, [subtitles.subtitles.length])
 
@@ -79,6 +87,148 @@ function App(): React.JSX.Element {
     onAutoScrollChange: subtitles.setAutoScrollEnabled
   })
 
+  // 应用启动时恢复状态 - 确保只执行一次
+  useEffect(() => {
+    // 防止重复执行
+    if (initializationRef.current) {
+      return
+    }
+
+    initializationRef.current = true
+    console.log('🚀 开始应用初始化')
+
+    const initializeApp = async (): Promise<void> => {
+      try {
+        const savedState = await restoreAppState()
+        if (savedState) {
+          console.log('✅ 恢复保存的应用状态')
+
+          // 恢复字幕状态
+          if (savedState.subtitles.length > 0) {
+            subtitles.restoreSubtitles(
+              savedState.subtitles,
+              savedState.currentSubtitleIndex,
+              savedState.isAutoScrollEnabled
+            )
+          }
+
+          // 恢复视频状态
+          videoPlayer.restoreVideoState(
+            savedState.currentTime,
+            savedState.playbackRate,
+            savedState.volume
+          )
+
+          // 恢复字幕显示模式
+          subtitleDisplayMode.restoreDisplayMode(savedState.displayMode)
+
+          // 恢复字幕控制状态
+          subtitleControl.restoreState(savedState.isSingleLoop, savedState.isAutoPause)
+
+          // 恢复侧边栏宽度
+          sidebarResize.restoreSidebarWidth(savedState.sidebarWidth)
+
+          // 恢复视频文件（如果有保存的路径）
+          if (savedState.videoFilePath && savedState.videoFileName) {
+            const restored = await fileUpload.restoreVideoFile(
+              savedState.videoFilePath,
+              savedState.videoFileName
+            )
+            if (!restored) {
+              console.warn('⚠️ 无法恢复视频文件，可能文件已被移动或删除')
+            }
+          }
+
+          // 等待足够长的时间确保所有状态都已恢复
+          setTimeout(() => {
+            restorationCompleteRef.current = true
+            setIsInitialized(true)
+            enableAutoSave(true)
+            console.log('✅ 应用初始化完成，自动保存已启用')
+          }, 1000) // 给状态恢复1秒的时间
+        } else {
+          console.log('📝 使用默认应用状态')
+          // 没有保存状态时立即启用自动保存
+          restorationCompleteRef.current = true
+          setIsInitialized(true)
+          enableAutoSave(true)
+          console.log('✅ 应用初始化完成')
+        }
+      } catch (error) {
+        console.error('❌ 应用初始化失败:', error)
+        // 出错时也要启用自动保存
+        restorationCompleteRef.current = true
+        setIsInitialized(true)
+        enableAutoSave(true)
+      }
+    }
+
+    initializeApp()
+  }, []) // 空依赖数组，确保只执行一次
+
+  // 自动保存应用状态
+  useEffect(() => {
+    // 如果还没有初始化完成或状态恢复未完成，跳过自动保存
+    if (!isInitialized || !restorationCompleteRef.current) {
+      return
+    }
+
+    // 只有本地文件才保存路径信息
+    const shouldSaveVideoPath = fileUpload.isLocalFile && fileUpload.originalFilePath
+
+    // 收集当前状态
+    const currentState = {
+      // 视频相关 - 只有本地文件才保存路径
+      videoFilePath: shouldSaveVideoPath ? fileUpload.originalFilePath : undefined,
+      videoFileName: fileUpload.videoFileName,
+      currentTime: videoPlayer.currentTime,
+      playbackRate: videoPlayer.playbackRate,
+      volume: videoPlayer.volume,
+
+      // 字幕相关
+      subtitles: subtitles.subtitles,
+      currentSubtitleIndex: currentSubtitleIndexMemo,
+      isAutoScrollEnabled: subtitles.isAutoScrollEnabled,
+      displayMode: subtitleDisplayMode.displayMode,
+
+      // 控制配置
+      isSingleLoop: subtitleControl.isSingleLoop,
+      isAutoPause: subtitleControl.isAutoPause,
+
+      // UI状态
+      sidebarWidth: sidebarResize.sidebarWidth
+    }
+
+    // 保存状态（带防抖）
+    saveAppState(currentState)
+  }, [
+    // 初始化状态
+    isInitialized,
+    // 视频相关
+    fileUpload.originalFilePath,
+    fileUpload.videoFileName,
+    fileUpload.isLocalFile,
+    videoPlayer.currentTime,
+    videoPlayer.playbackRate,
+    videoPlayer.volume,
+
+    // 字幕相关
+    subtitles.subtitles,
+    currentSubtitleIndexMemo,
+    subtitles.isAutoScrollEnabled,
+    subtitleDisplayMode.displayMode,
+
+    // 控制配置
+    subtitleControl.isSingleLoop,
+    subtitleControl.isAutoPause,
+
+    // UI状态
+    sidebarResize.sidebarWidth,
+
+    // 依赖
+    saveAppState
+  ])
+
   // 同步当前字幕索引
   useEffect(() => {
     if (currentSubtitleIndexMemo !== subtitles.currentSubtitleIndex) {
@@ -100,15 +250,16 @@ function App(): React.JSX.Element {
     onGoToNextSubtitle: subtitleControl.goToNextSubtitle
   })
 
-  // 组合视频上传和状态重置
-  const handleVideoUpload = useCallback(
-    (file: File): boolean => {
+  // 处理视频文件选择（包含状态重置）
+  const handleVideoFileSelect = useCallback(async (): Promise<boolean> => {
+    const success = await fileUpload.handleVideoFileSelect()
+    if (success) {
+      // 重置视频播放器和字幕控制状态
       videoPlayer.resetVideoState()
       subtitleControl.resetState()
-      return fileUpload.handleVideoUpload(file)
-    },
-    [fileUpload.handleVideoUpload, videoPlayer.resetVideoState, subtitleControl.resetState]
-  )
+    }
+    return success
+  }, [fileUpload.handleVideoFileSelect, videoPlayer.resetVideoState, subtitleControl.resetState])
 
   // 处理字幕单词hover时的暂停功能
   const handleWordHover = useCallback(
@@ -175,7 +326,7 @@ function App(): React.JSX.Element {
         isVideoLoaded={videoPlayer.isVideoLoaded}
         subtitlesCount={subtitlesLength}
         currentPage={currentPage}
-        onVideoUpload={handleVideoUpload}
+        onVideoFileSelect={handleVideoFileSelect}
         onSubtitleUpload={subtitles.handleSubtitleUpload}
         onPageChange={setCurrentPage}
       />

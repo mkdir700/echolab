@@ -5,11 +5,16 @@ import { createRoot } from 'react-dom/client'
 import App from './App'
 
 // 渲染主应用
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+const AppComponent =
+  process.env.NODE_ENV === 'development' ? (
     <App />
-  </StrictMode>
-)
+  ) : (
+    <StrictMode>
+      <App />
+    </StrictMode>
+  )
+
+createRoot(document.getElementById('root')!).render(AppComponent)
 
 // 只在开发模式下初始化 stagewise toolbar
 if (process.env.NODE_ENV === 'development') {

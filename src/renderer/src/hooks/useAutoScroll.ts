@@ -25,6 +25,24 @@ export function useAutoScroll({
   const subtitleListRef = useRef<HTMLDivElement>(null)
   const userScrollTimerRef = useRef<NodeJS.Timeout | null>(null)
   const isAutoScrollingRef = useRef(false)
+  const scrollEventListenerRef = useRef<boolean>(false)
+
+  // 检查 DOM 元素是否准备就绪
+  const checkDOMReady = useCallback((): boolean => {
+    if (!subtitleListRef.current || subtitlesLength === 0) {
+      return false
+    }
+
+    const listElement = subtitleListRef.current.querySelector('.subtitle-list')
+    if (!listElement) {
+      return false
+    }
+
+    const antListContainer = listElement.querySelector('.ant-list-items')
+    const actualContainer = antListContainer || listElement
+
+    return actualContainer.children.length > 0
+  }, [subtitlesLength])
 
   // 将字幕索引映射到实际DOM索引的辅助函数
   const getActualDOMIndex = useCallback((subtitleIndex: number): number => {
@@ -47,36 +65,35 @@ export function useAutoScroll({
   // 优化的自动滚动函数
   const scrollToCurrentSubtitle = useMemo(() => {
     return throttle((index: number): void => {
-      console.log(
-        '🎯 scrollToCurrentSubtitle called with index:',
-        index,
-        'auto scroll enabled:',
-        isAutoScrollEnabled
-      )
-
       if (index === -1 || !subtitleListRef.current || subtitlesLength === 0) {
-        console.log('❌ Early return: index=-1 or no ref or no subtitles')
         return
       }
 
       if (!isAutoScrollEnabled) {
-        console.log('🔒 Auto scroll disabled at execution time, aborting')
+        return
+      }
+
+      // 检查 DOM 是否准备就绪
+      if (!checkDOMReady()) {
+        // 延迟重试，但不输出日志
+        setTimeout(() => {
+          if (checkDOMReady()) {
+            scrollToCurrentSubtitle(index)
+          }
+        }, 100)
         return
       }
 
       isAutoScrollingRef.current = true
-      console.log('🤖 Starting auto scroll, setting flag to true')
 
       const actualDOMIndex = getActualDOMIndex(index)
       if (actualDOMIndex === -1) {
-        console.log('❌ Could not map to actual DOM index')
         isAutoScrollingRef.current = false
         return
       }
 
       const listElement = subtitleListRef.current.querySelector('.subtitle-list')
       if (!listElement) {
-        console.log('❌ List element not found')
         isAutoScrollingRef.current = false
         return
       }
@@ -86,14 +103,12 @@ export function useAutoScroll({
       const actualItemsCount = actualContainer.children.length
 
       if (actualDOMIndex >= actualItemsCount) {
-        console.log('❌ DOM Index out of bounds:', { actualDOMIndex, actualItemsCount })
         isAutoScrollingRef.current = false
         return
       }
 
       const currentItem = actualContainer.children[actualDOMIndex] as HTMLElement
       if (!currentItem) {
-        console.log('❌ Current item not found at DOM index:', actualDOMIndex)
         isAutoScrollingRef.current = false
         return
       }
@@ -102,7 +117,6 @@ export function useAutoScroll({
       const itemRect = currentItem.getBoundingClientRect()
 
       if (listElement.scrollHeight <= listRect.height) {
-        console.log('📏 List is short, no need to scroll')
         isAutoScrollingRef.current = false
         return
       }
@@ -136,21 +150,17 @@ export function useAutoScroll({
       const scrollDifference = Math.abs(targetScrollTop - currentScrollTop)
 
       if (scrollDifference > AUTO_SCROLL_SETTINGS.MIN_SCROLL_THRESHOLD) {
-        console.log('🚀 Scrolling to:', targetScrollTop)
         listElement.scrollTo({
           top: targetScrollTop,
           behavior: 'smooth'
         })
-      } else {
-        console.log('⏸️ No scroll needed, difference too small')
       }
 
       setTimeout(() => {
         isAutoScrollingRef.current = false
-        console.log('🤖 Auto scroll completed, clearing flag')
       }, AUTO_SCROLL_SETTINGS.COMPLETION_DELAY)
     }, THROTTLE_DELAYS.SCROLL)
-  }, [subtitlesLength, getActualDOMIndex, isAutoScrollEnabled])
+  }, [subtitlesLength, getActualDOMIndex, isAutoScrollEnabled, checkDOMReady])
 
   // 重置用户滚动定时器
   const resetUserScrollTimer = useCallback((): void => {
@@ -159,7 +169,6 @@ export function useAutoScroll({
     }
 
     userScrollTimerRef.current = setTimeout(() => {
-      console.log('⏰ 5秒超时，重新启用自动滚动')
       onAutoScrollChange(true)
     }, AUTO_SCROLL_SETTINGS.TIMEOUT)
   }, [onAutoScrollChange])
@@ -167,14 +176,10 @@ export function useAutoScroll({
   // 处理用户滚动事件
   const handleUserScroll = useCallback((): void => {
     if (isAutoScrollingRef.current) {
-      console.log('🤖 Ignoring scroll event during auto scroll')
       return
     }
 
-    console.log('👆 User manual scroll detected - current auto scroll state:', isAutoScrollEnabled)
-
     if (isAutoScrollEnabled) {
-      console.log('🔒 Immediately disabling auto scroll due to user interaction')
       onAutoScrollChange(false)
     }
 
@@ -183,7 +188,6 @@ export function useAutoScroll({
 
   // 手动定位到当前字幕的函数
   const handleCenterCurrentSubtitle = useCallback((): void => {
-    console.log('🎯 Manual center called, currentSubtitleIndex:', currentSubtitleIndex)
     if (currentSubtitleIndex >= 0) {
       onAutoScrollChange(true)
 
@@ -198,41 +202,73 @@ export function useAutoScroll({
 
   // 监听字幕索引变化并自动滚动
   useEffect(() => {
-    if (currentSubtitleIndex >= 0 && isAutoScrollEnabled) {
-      console.log('📺 Auto scroll triggered for subtitle index:', currentSubtitleIndex)
+    if (currentSubtitleIndex >= 0 && isAutoScrollEnabled && subtitlesLength > 0) {
+      // 使用双重 requestAnimationFrame 确保 DOM 完全渲染
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           scrollToCurrentSubtitle(currentSubtitleIndex)
         })
       })
-    } else if (currentSubtitleIndex >= 0 && !isAutoScrollEnabled) {
-      console.log('🔒 Auto scroll skipped - disabled by user')
     }
-  }, [currentSubtitleIndex, isAutoScrollEnabled, scrollToCurrentSubtitle])
+  }, [currentSubtitleIndex, isAutoScrollEnabled, scrollToCurrentSubtitle, subtitlesLength])
 
-  // 监听用户滚动事件
-  useEffect(() => {
+  // 设置滚动事件监听器
+  const setupScrollListener = useCallback((): (() => void) | undefined => {
+    if (scrollEventListenerRef.current) {
+      return undefined // 已经设置过了
+    }
+
     const subtitleListContainer = subtitleListRef.current
     if (!subtitleListContainer) {
-      console.log('❌ No subtitle list container found')
-      return
+      return undefined
     }
 
     const listElement = subtitleListContainer.querySelector('.subtitle-list')
     if (!listElement) {
-      console.log('❌ No .subtitle-list element found')
-      return
+      return undefined
     }
-
-    console.log('📜 Adding scroll event listener to:', listElement.className)
 
     listElement.addEventListener('scroll', handleUserScroll, { passive: true })
+    scrollEventListenerRef.current = true
+
+    // 返回清理函数
+    return (): void => {
+      listElement.removeEventListener('scroll', handleUserScroll)
+      scrollEventListenerRef.current = false
+    }
+  }, [handleUserScroll])
+
+  // 监听用户滚动事件 - 延迟设置以确保 DOM 准备就绪
+  useEffect(() => {
+    if (subtitlesLength === 0) {
+      return // 没有字幕时不需要设置监听器
+    }
+
+    let cleanupFunction: (() => void) | undefined
+
+    // 延迟设置监听器，确保 DOM 已经渲染
+    const timeoutId = setTimeout(() => {
+      cleanupFunction = setupScrollListener()
+    }, 200) // 200ms 延迟
 
     return (): void => {
-      console.log('📜 Removing scroll event listener')
-      listElement.removeEventListener('scroll', handleUserScroll)
+      clearTimeout(timeoutId)
+
+      // 调用清理函数（如果存在）
+      if (cleanupFunction) {
+        cleanupFunction()
+      }
+
+      // 清理滚动事件监听器
+      if (scrollEventListenerRef.current && subtitleListRef.current) {
+        const listElement = subtitleListRef.current.querySelector('.subtitle-list')
+        if (listElement) {
+          listElement.removeEventListener('scroll', handleUserScroll)
+          scrollEventListenerRef.current = false
+        }
+      }
     }
-  }, [handleUserScroll, subtitlesLength])
+  }, [subtitlesLength, setupScrollListener, handleUserScroll])
 
   // 清理定时器
   useEffect(() => {

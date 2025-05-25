@@ -1,8 +1,47 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+// 文件系统 API
+const fileSystemAPI = {
+  // 检查文件是否存在
+  checkFileExists: (filePath: string): Promise<boolean> =>
+    ipcRenderer.invoke('fs:check-file-exists', filePath),
+
+  // 读取文件内容
+  readFile: (filePath: string): Promise<string | null> =>
+    ipcRenderer.invoke('fs:read-file', filePath),
+
+  // 获取文件 URL
+  getFileUrl: (filePath: string): Promise<string | null> =>
+    ipcRenderer.invoke('fs:get-file-url', filePath),
+
+  // 获取文件信息
+  getFileInfo: (
+    filePath: string
+  ): Promise<{
+    size: number
+    mtime: number
+    isFile: boolean
+    isDirectory: boolean
+  } | null> => ipcRenderer.invoke('fs:get-file-info', filePath),
+
+  // 验证文件完整性
+  validateFile: (
+    filePath: string,
+    expectedSize?: number,
+    expectedMtime?: number
+  ): Promise<boolean> =>
+    ipcRenderer.invoke('fs:validate-file', filePath, expectedSize, expectedMtime),
+
+  // 打开文件选择对话框
+  openFileDialog: (options: Electron.OpenDialogOptions): Promise<Electron.OpenDialogReturnValue> =>
+    ipcRenderer.invoke('dialog:open-file', options)
+}
+
 // Custom APIs for renderer
-const api = {}
+const api = {
+  fileSystem: fileSystemAPI
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

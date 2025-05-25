@@ -11,6 +11,11 @@ interface UseSubtitlesReturn extends SubtitleState {
   getCurrentSubtitle: (currentTime: number) => SubtitleItem | null
   setAutoScrollEnabled: (enabled: boolean) => void
   setCurrentSubtitleIndex: (index: number) => void
+  restoreSubtitles: (
+    subtitles: SubtitleItem[],
+    currentSubtitleIndex: number,
+    isAutoScrollEnabled: boolean
+  ) => void
 }
 
 export function useSubtitles(): UseSubtitlesReturn {
@@ -88,6 +93,28 @@ export function useSubtitles(): UseSubtitlesReturn {
     }))
   }, [])
 
+  // 恢复字幕状态
+  const restoreSubtitles = useCallback(
+    (
+      subtitles: SubtitleItem[],
+      currentSubtitleIndex: number,
+      isAutoScrollEnabled: boolean
+    ): void => {
+      setState({
+        subtitles,
+        showSubtitles: true,
+        currentSubtitleIndex,
+        isAutoScrollEnabled
+      })
+      console.log('🔄 恢复字幕状态:', {
+        subtitlesCount: subtitles.length,
+        currentSubtitleIndex,
+        isAutoScrollEnabled
+      })
+    },
+    []
+  )
+
   return {
     ...state,
     handleSubtitleUpload,
@@ -95,6 +122,7 @@ export function useSubtitles(): UseSubtitlesReturn {
     getCurrentSubtitleIndex,
     getCurrentSubtitle,
     setAutoScrollEnabled,
-    setCurrentSubtitleIndex
+    setCurrentSubtitleIndex,
+    restoreSubtitles
   }
 }
