@@ -197,7 +197,29 @@ function ShortcutItem({
 
       <div className="shortcut-key">
         {isEditing ? (
-          <div className="shortcut-edit">
+          <div
+            className={`shortcut-edit ${isWaiting ? 'waiting' : ''} ${errorMessage ? 'error' : ''}`}
+          >
+            {isWaiting && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '-24px',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  fontSize: '11px',
+                  color: 'var(--accent-color)',
+                  background: 'var(--card-bg)',
+                  padding: '2px 8px',
+                  borderRadius: 'var(--border-radius-sm)',
+                  border: '1px solid var(--accent-color)',
+                  whiteSpace: 'nowrap',
+                  zIndex: 10
+                }}
+              >
+                ⌨️ 等待按键输入...
+              </div>
+            )}
             <Input
               size="small"
               placeholder={isWaiting ? '按下新的快捷键...' : '等待输入...'}
@@ -206,7 +228,9 @@ function ShortcutItem({
               className={`${isWaiting ? 'shortcut-input-waiting' : ''} ${errorMessage ? 'shortcut-input-error' : ''}`}
               style={{
                 width: 140,
-                marginRight: 8
+                marginRight: 8,
+                background: 'transparent',
+                border: 'none'
               }}
               status={errorMessage ? 'error' : undefined}
               autoFocus
@@ -327,11 +351,6 @@ export function ShortcutsSection({ className }: ShortcutsSectionProps): React.JS
     <Card title="快捷键设置" className={`settings-section-card ${className || ''}`}>
       <Paragraph style={{ color: 'var(--text-muted)', marginBottom: 24 }}>
         自定义快捷键以提高使用效率。点击快捷键右侧的编辑按钮进行修改。
-        <br />
-        <Text style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-          💡 提示：快捷键必须包含修饰键（{isMac ? '⌘ Cmd' : 'Ctrl'}/Alt），按 Enter 确认，按 Esc
-          取消
-        </Text>
       </Paragraph>
 
       <div className="shortcuts-list">

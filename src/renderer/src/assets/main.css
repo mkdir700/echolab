@@ -215,38 +215,61 @@ code {
 }
 
 .shortcut-tag {
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  background-color: var(--color-background-mute);
-  border: 1px solid var(--color-border);
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: var(--border-radius-sm);
+  background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.08) 100%);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(10px);
+  transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.shortcut-tag:hover {
+  background: linear-gradient(135deg, var(--accent-color-light) 0%, rgba(102, 126, 234, 0.2) 100%);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 /* 脉冲动画 */
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.4);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2), 0 0 0 0 rgba(102, 126, 234, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.1);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2), 0 0 0 6px rgba(102, 126, 234, 0.1);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2), 0 0 0 0 rgba(102, 126, 234, 0);
   }
 }
 
 /* 等待输入状态的输入框样式 */
 .shortcut-input-waiting {
   animation: pulse 2s infinite;
-  border-color: #1890ff !important;
-  background-color: #f0f8ff !important;
+  border-color: var(--accent-color) !important;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
 }
 
 /* 错误状态的输入框样式 */
 .shortcut-input-error {
-  border-color: #ff4d4f !important;
-  background-color: #fff2f0 !important;
+  border-color: var(--error-color) !important;
+  background: linear-gradient(135deg, rgba(255, 77, 79, 0.1) 0%, rgba(255, 77, 79, 0.05) 100%) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
 }
 
 /* 平台特定的快捷键符号样式 */

@@ -136,10 +136,38 @@
   gap: var(--spacing-sm);
 }
 
+.shortcut-display .ant-tag {
+  margin: 0 !important;
+}
+
 .shortcut-edit {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
+  position: relative;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
+  background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.02) 100%);
+  border: 1px solid var(--card-border);
+  transition: var(--transition-fast);
+  outline: none;
+}
+
+.shortcut-edit:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.2);
+}
+
+.shortcut-edit.waiting {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(102, 126, 234, 0.03) 100%);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.2);
+}
+
+.shortcut-edit.error {
+  background: linear-gradient(135deg, rgba(255, 77, 79, 0.08) 0%, rgba(255, 77, 79, 0.03) 100%);
+  border-color: var(--error-color);
+  box-shadow: 0 0 0 1px rgba(255, 77, 79, 0.2);
 }
 
 .shortcut-edit .ant-input {
@@ -171,13 +199,17 @@
 /* 快捷键输入状态样式 */
 .shortcut-input-waiting {
   animation: pulse 2s infinite;
-  border-color: #1890ff !important;
-  background-color: #f0f8ff !important;
+  border-color: var(--accent-color) !important;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
 }
 
 .shortcut-input-error {
   border-color: var(--error-color) !important;
-  background-color: #fff2f0 !important;
+  background: linear-gradient(135deg, rgba(255, 77, 79, 0.1) 0%, rgba(255, 77, 79, 0.05) 100%) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
 }
 
 .shortcut-symbol {

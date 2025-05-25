@@ -98,12 +98,23 @@
   position: absolute;
   bottom: 16px;
   right: 16px;
-  background: var(--card-bg);
+  background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.08) 100%);
   border: 1px solid var(--card-border);
   backdrop-filter: blur(20px);
-  padding: 8px 12px;
-  border-radius: 8px;
-  opacity: 0.8;
+  padding: 10px 14px;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+  opacity: 0.9;
+  transition: var(--transition-fast);
+  max-width: 400px;
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-base);
+}
+
+.shortcutsHint:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 /* 响应式设计 */
