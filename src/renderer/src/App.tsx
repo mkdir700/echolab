@@ -15,7 +15,7 @@ import { useAppState } from '@renderer/hooks/useAppState'
 
 // 导入组件
 import { AppHeader } from '@renderer/components/AppHeader'
-import { HomePage } from '@renderer/pages/HomePage'
+import { PlayPage } from '@renderer/pages/PlayPage'
 import { FavoritesPage } from '@renderer/pages/FavoritesPage'
 import { AboutPage } from '@renderer/pages/AboutPage'
 import { SettingsPage } from '@renderer/pages/SettingsPage'
@@ -289,7 +289,7 @@ function App(): React.JSX.Element {
             display: currentPage === 'home' ? 'block' : 'none'
           }}
         >
-          <HomePage
+          <PlayPage
             fileUpload={fileUpload}
             videoPlayer={videoPlayer}
             subtitles={subtitles}

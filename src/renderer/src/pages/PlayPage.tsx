@@ -2,10 +2,9 @@ import React from 'react'
 import { VideoPlayer } from '@renderer/components/VideoPlayer/VideoPlayer'
 import { SubtitleControls } from '@renderer/components/SubtitleControls/SubtitleControls'
 import { SidebarSection } from '@renderer/components/SidebarSection'
-import { HomePageProps } from '@renderer/types'
+import { PlayPageProps } from '@renderer/types'
 
-// 使用React.memo优化HomePage组件
-export const HomePage = React.memo<HomePageProps>(function HomePage({
+export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
   fileUpload,
   videoPlayer,
   subtitles,

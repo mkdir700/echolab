@@ -95,8 +95,7 @@ export interface NavigationItem {
   icon: React.ReactNode
 }
 
-// HomePage 组件的 props 类型
-export interface HomePageProps {
+export interface PlayPageProps {
   fileUpload: {
     videoFile: string | null
     videoFileName: string
