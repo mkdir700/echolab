@@ -236,12 +236,22 @@ export function VideoPlayer({
                 videoError={videoError}
                 playbackRate={playbackRate}
                 volume={volume}
+                isLooping={false}
+                autoSkipSilence={false}
+                subtitlePosition="bottom"
+                isFullscreen={false}
                 onSeek={onSeek}
                 onStepBackward={onStepBackward}
                 onPlayPause={onPlayPause}
                 onStepForward={onStepForward}
                 onPlaybackRateChange={onPlaybackRateChange}
                 onVolumeChange={onVolumeChange}
+                onLoopToggle={() => {}}
+                onAutoSkipToggle={() => {}}
+                onSubtitlePositionToggle={() => {}}
+                onFullscreenToggle={() => {}}
+                onPreviousSubtitle={() => {}}
+                onNextSubtitle={() => {}}
               />
             </div>
           </>

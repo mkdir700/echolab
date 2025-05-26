@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Slider, Space, Typography, Select, Tooltip } from 'antd'
+import { Button, Slider, Typography, Select, Tooltip } from 'antd'
 import {
   PlayCircleOutlined,
   PauseCircleOutlined,
@@ -8,9 +8,17 @@ import {
   SoundOutlined,
   SoundFilled,
   ThunderboltOutlined,
-  SettingOutlined
+  SettingOutlined,
+  ReloadOutlined,
+  FastForwardOutlined,
+  VerticalAlignTopOutlined,
+  VerticalAlignBottomOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
+  LeftOutlined,
+  RightOutlined
 } from '@ant-design/icons'
-import { formatTime } from '@renderer/utils/helpers'
+import { VideoProgressBar } from './VideoProgressBar'
 
 // 导入样式
 import styles from './VideoControls.module.css'
@@ -26,12 +34,22 @@ interface VideoControlsProps {
   videoError: string | null
   playbackRate: number
   volume: number
+  isLooping: boolean
+  autoSkipSilence: boolean
+  subtitlePosition: 'top' | 'bottom'
+  isFullscreen: boolean
   onSeek: (value: number) => void
   onStepBackward: () => void
   onPlayPause: () => void
   onStepForward: () => void
   onPlaybackRateChange: (value: number) => void
   onVolumeChange: (value: number) => void
+  onLoopToggle: () => void
+  onAutoSkipToggle: () => void
+  onSubtitlePositionToggle: () => void
+  onFullscreenToggle: () => void
+  onPreviousSubtitle: () => void
+  onNextSubtitle: () => void
 }
 
 export function VideoControls({
@@ -43,16 +61,25 @@ export function VideoControls({
   videoError,
   playbackRate,
   volume,
+  isLooping,
+  autoSkipSilence,
+  subtitlePosition,
+  isFullscreen,
   onSeek,
   onStepBackward,
   onPlayPause,
   onStepForward,
   onPlaybackRateChange,
-  onVolumeChange
+  onVolumeChange,
+  onLoopToggle,
+  onAutoSkipToggle,
+  onSubtitlePositionToggle,
+  onFullscreenToggle,
+  onPreviousSubtitle,
+  onNextSubtitle
 }: VideoControlsProps): React.JSX.Element {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
-  const [isProgressHovered, setIsProgressHovered] = useState(false)
 
   // 自动隐藏设置面板
   useEffect(() => {
@@ -62,42 +89,15 @@ export function VideoControls({
     }
   }, [showControls])
 
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0
-
-  // 处理进度条点击
-  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>): void => {
-    if (!isVideoLoaded || duration === 0) return
-
-    const rect = event.currentTarget.getBoundingClientRect()
-    const clickX = event.clientX - rect.left
-    const percentage = clickX / rect.width
-    const newTime = percentage * duration
-
-    onSeek(Math.max(0, Math.min(duration, newTime)))
-  }
-
   return (
     <>
-      {/* 进度条 - 始终显示在底部，悬停时增强 */}
-      <div
-        className={`${styles.videoProgressContainer} ${showControls || isProgressHovered ? styles.enhanced : ''}`}
-        onMouseEnter={() => setIsProgressHovered(true)}
-        onMouseLeave={() => setIsProgressHovered(false)}
-        onClick={handleProgressClick}
-      >
-        <div className={styles.progressTrack}>
-          <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-          <div className={styles.progressHandle} style={{ left: `${progress}%` }} />
-        </div>
-
-        {(showControls || isProgressHovered) && (
-          <div className={styles.progressTimeTooltip}>
-            <Text className={styles.progressTime}>
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </Text>
-          </div>
-        )}
-      </div>
+      {/* 顶部进度条 - 独立组件 */}
+      <VideoProgressBar
+        duration={duration}
+        currentTime={currentTime}
+        isVideoLoaded={isVideoLoaded}
+        onSeek={onSeek}
+      />
 
       {/* 中央播放按钮 - 仅在暂停时显示 */}
       {!isPlaying && showControls && (
@@ -115,49 +115,139 @@ export function VideoControls({
 
       {/* 主控制栏 - 悬停时显示 */}
       <div className={`${styles.videoControlsBar} ${showControls ? styles.visible : ''}`}>
+        {/* 左侧控制区 - 功能按钮 */}
         <div className={styles.controlsLeft}>
-          <Space size="small">
-            <Tooltip title="后退10秒">
+          <div className={styles.controlGroup}>
+            {/* 循环播放 */}
+            <Tooltip title={isLooping ? '关闭循环播放' : '开启循环播放'}>
               <Button
-                icon={<StepBackwardOutlined />}
-                onClick={onStepBackward}
+                icon={<ReloadOutlined />}
+                onClick={onLoopToggle}
                 type="text"
-                className={styles.controlBtnCompact}
+                className={`${styles.controlBtn} ${isLooping ? styles.activeBtn : ''}`}
                 disabled={!isVideoLoaded}
               />
             </Tooltip>
 
-            <Button
-              icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-              onClick={onPlayPause}
-              type="text"
-              className={`${styles.controlBtnCompact} ${styles.playPauseBtn}`}
-              disabled={!isVideoLoaded && !videoError}
-            />
-
-            <Tooltip title="前进10秒">
+            {/* 自动跳过无对话 */}
+            <Tooltip title={autoSkipSilence ? '关闭自动跳过' : '开启自动跳过无对话'}>
               <Button
-                icon={<StepForwardOutlined />}
-                onClick={onStepForward}
+                icon={<FastForwardOutlined />}
+                onClick={onAutoSkipToggle}
                 type="text"
-                className={styles.controlBtnCompact}
+                className={`${styles.controlBtn} ${autoSkipSilence ? styles.activeBtn : ''}`}
                 disabled={!isVideoLoaded}
               />
             </Tooltip>
-          </Space>
 
-          <div className={styles.timeDisplayCompact}>
-            <Text className={styles.timeTextCompact}>
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </Text>
+            {/* 字幕位置 */}
+            <Tooltip title={`字幕显示在${subtitlePosition === 'top' ? '上方' : '下方'}`}>
+              <Button
+                icon={
+                  subtitlePosition === 'top' ? (
+                    <VerticalAlignTopOutlined />
+                  ) : (
+                    <VerticalAlignBottomOutlined />
+                  )
+                }
+                onClick={onSubtitlePositionToggle}
+                type="text"
+                className={styles.controlBtn}
+              />
+            </Tooltip>
+
+            {/* 播放倍数 */}
+            <div className={styles.playbackRateControl}>
+              <Tooltip title="播放速度">
+                <Select
+                  value={playbackRate}
+                  onChange={onPlaybackRateChange}
+                  className={styles.playbackRateSelect}
+                  disabled={!isVideoLoaded}
+                  size="small"
+                  suffixIcon={<ThunderboltOutlined />}
+                  options={[
+                    { value: 0.25, label: '0.25x' },
+                    { value: 0.5, label: '0.5x' },
+                    { value: 0.75, label: '0.75x' },
+                    { value: 1, label: '1x' },
+                    { value: 1.25, label: '1.25x' },
+                    { value: 1.5, label: '1.5x' },
+                    { value: 1.75, label: '1.75x' },
+                    { value: 2, label: '2x' }
+                  ]}
+                />
+              </Tooltip>
+            </div>
           </div>
         </div>
 
+        {/* 中间控制区 - 播放控制 */}
+        <div className={styles.controlsCenter}>
+          <div className={styles.controlGroup}>
+            {/* 上一句字幕 */}
+            <Tooltip title="上一句字幕">
+              <Button
+                icon={<StepBackwardOutlined />}
+                onClick={onPreviousSubtitle}
+                type="text"
+                className={styles.controlBtn}
+                disabled={!isVideoLoaded}
+              />
+            </Tooltip>
+
+            {/* 后退10秒 */}
+            <Tooltip title="后退10秒">
+              <Button
+                icon={<LeftOutlined />}
+                onClick={onStepBackward}
+                type="text"
+                className={styles.controlBtn}
+                disabled={!isVideoLoaded}
+              />
+            </Tooltip>
+          </div>
+
+          {/* 播放/暂停 */}
+          <Button
+            icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+            onClick={onPlayPause}
+            type="text"
+            className={`${styles.controlBtn} ${styles.playPauseBtn}`}
+            disabled={!isVideoLoaded && !videoError}
+          />
+
+          <div className={styles.controlGroup}>
+            {/* 前进10秒 */}
+            <Tooltip title="前进10秒">
+              <Button
+                icon={<RightOutlined />}
+                onClick={onStepForward}
+                type="text"
+                className={styles.controlBtn}
+                disabled={!isVideoLoaded}
+              />
+            </Tooltip>
+
+            {/* 下一句字幕 */}
+            <Tooltip title="下一句字幕">
+              <Button
+                icon={<StepForwardOutlined />}
+                onClick={onNextSubtitle}
+                type="text"
+                className={styles.controlBtn}
+                disabled={!isVideoLoaded}
+              />
+            </Tooltip>
+          </div>
+        </div>
+
+        {/* 右侧控制区 - 系统控制 */}
         <div className={styles.controlsRight}>
-          <Space size="small">
+          <div className={styles.controlGroup}>
             {/* 音量控制 */}
             <div
-              className={styles.volumeControlCompact}
+              className={styles.volumeControl}
               onMouseEnter={() => setShowVolumeSlider(true)}
               onMouseLeave={() => setShowVolumeSlider(false)}
             >
@@ -165,7 +255,7 @@ export function VideoControls({
                 <Button
                   icon={volume > 0 ? <SoundFilled /> : <SoundOutlined />}
                   type="text"
-                  className={styles.controlBtnCompact}
+                  className={styles.controlBtn}
                 />
               </Tooltip>
 
@@ -185,42 +275,39 @@ export function VideoControls({
               )}
             </div>
 
+            {/* 全屏按钮 */}
+            <Tooltip title={isFullscreen ? '退出全屏' : '进入全屏'}>
+              <Button
+                icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                onClick={onFullscreenToggle}
+                type="text"
+                className={styles.controlBtn}
+              />
+            </Tooltip>
+
             {/* 设置按钮 */}
-            <div className={styles.settingsControlCompact}>
-              <Tooltip title="播放设置">
+            <div className={styles.settingsControl}>
+              <Tooltip title="更多设置">
                 <Button
                   icon={<SettingOutlined />}
                   type="text"
-                  className={styles.controlBtnCompact}
+                  className={styles.controlBtn}
                   onClick={() => setShowSettings(!showSettings)}
                 />
               </Tooltip>
 
               {showSettings && (
                 <div className={styles.settingsPopup}>
-                  <div className={styles.settingsItem}>
-                    <ThunderboltOutlined className={styles.settingsIcon} />
-                    <Text className={styles.settingsLabel}>播放速度</Text>
-                    <Select
-                      value={playbackRate}
-                      onChange={onPlaybackRateChange}
-                      className={styles.settingsSelect}
-                      disabled={!isVideoLoaded}
-                      size="small"
-                      options={[
-                        { value: 0.5, label: '0.5x' },
-                        { value: 0.75, label: '0.75x' },
-                        { value: 1, label: '1x' },
-                        { value: 1.25, label: '1.25x' },
-                        { value: 1.5, label: '1.5x' },
-                        { value: 2, label: '2x' }
-                      ]}
-                    />
+                  <div className={styles.settingsContent}>
+                    <Text className={styles.settingsTitle}>播放设置</Text>
+                    <div className={styles.settingsItem}>
+                      <Text className={styles.settingsLabel}>更多功能即将推出...</Text>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
-          </Space>
+          </div>
         </div>
       </div>
     </>
