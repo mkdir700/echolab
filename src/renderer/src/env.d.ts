@@ -37,6 +37,24 @@ interface DictionaryAPI {
     status?: number
   }>
   sha256: (text: string) => Promise<string | null>
+  eudicHtmlRequest: (
+    word: string,
+    context?: string
+  ) => Promise<{
+    success: boolean
+    data?: {
+      word: string
+      phonetic?: string
+      definitions: Array<{
+        partOfSpeech?: string
+        meaning: string
+        examples?: string[]
+      }>
+      examples?: string[]
+      translations?: string[]
+    }
+    error?: string
+  }>
 }
 
 declare global {

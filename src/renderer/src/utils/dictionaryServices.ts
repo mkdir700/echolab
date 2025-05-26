@@ -24,6 +24,24 @@ declare global {
           status?: number
         }>
         sha256: (text: string) => Promise<string | null>
+        eudicHtmlRequest: (
+          word: string,
+          context?: string
+        ) => Promise<{
+          success: boolean
+          data?: {
+            word: string
+            phonetic?: string
+            definitions: Array<{
+              partOfSpeech?: string
+              meaning: string
+              examples?: string[]
+            }>
+            examples?: string[]
+            translations?: string[]
+          }
+          error?: string
+        }>
       }
     }
   }
@@ -388,6 +406,74 @@ export class YoudaoDictionaryService extends BaseDictionaryService {
   }
 }
 
+// 欧陆词典HTML解析服务类
+export class EudicHtmlDictionaryService extends BaseDictionaryService {
+  constructor() {
+    // HTML解析服务不需要API密钥
+    super('html-parser')
+  }
+
+  getServiceName(): string {
+    return '欧陆词典 (网页版)'
+  }
+
+  protected validateConfig(): boolean {
+    // HTML解析服务总是可用的
+    return true
+  }
+
+  async testConnection(): Promise<DictionaryTestResult> {
+    try {
+      // 使用一个简单的查词请求来测试连接
+      const result = await this.lookupWord('test')
+      if (result.success) {
+        return {
+          success: true,
+          message: '欧陆词典网页版连接测试成功！'
+        }
+      } else {
+        return {
+          success: false,
+          message: `连接失败: ${result.error}`,
+          error: result.error
+        }
+      }
+    } catch (error) {
+      return this.handleNetworkError(error)
+    }
+  }
+
+  async lookupWord(word: string, context?: string): Promise<DictionaryResult> {
+    try {
+      const result = await window.api.dictionary.eudicHtmlRequest(word, context)
+
+      if (result.success && result.data) {
+        return {
+          word: result.data.word,
+          phonetic: result.data.phonetic,
+          definitions: result.data.definitions,
+          translations: result.data.translations,
+          success: true
+        }
+      } else {
+        return {
+          word,
+          definitions: [],
+          success: false,
+          error: result.error || '查词失败'
+        }
+      }
+    } catch (error) {
+      return {
+        word,
+        definitions: [],
+        success: false,
+        error: error instanceof Error ? error.message : '网络错误'
+      }
+    }
+  }
+}
+
 // 词典服务工厂类
 export class DictionaryServiceFactory {
   static createService(
@@ -402,6 +488,9 @@ export class DictionaryServiceFactory {
       case 'youdao':
         if (!settings.youdaoApiKey || !settings.youdaoApiSecret) return null
         return new YoudaoDictionaryService(settings.youdaoApiKey, settings.youdaoApiSecret)
+
+      case 'eudic-html':
+        return new EudicHtmlDictionaryService()
 
       default:
         return null

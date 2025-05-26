@@ -62,7 +62,27 @@ const dictionaryAPI = {
   }> => ipcRenderer.invoke('dictionary:eudic-request', url, options),
 
   // SHA256哈希计算
-  sha256: (text: string): Promise<string | null> => ipcRenderer.invoke('crypto:sha256', text)
+  sha256: (text: string): Promise<string | null> => ipcRenderer.invoke('crypto:sha256', text),
+
+  // 欧陆词典HTML解析请求
+  eudicHtmlRequest: (
+    word: string,
+    context?: string
+  ): Promise<{
+    success: boolean
+    data?: {
+      word: string
+      phonetic?: string
+      definitions: Array<{
+        partOfSpeech?: string
+        meaning: string
+        examples?: string[]
+      }>
+      examples?: string[]
+      translations?: string[]
+    }
+    error?: string
+  }> => ipcRenderer.invoke('dictionary:eudic-html-request', word, context)
 }
 
 // Custom APIs for renderer

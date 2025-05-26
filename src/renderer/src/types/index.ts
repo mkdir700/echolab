@@ -156,7 +156,7 @@ export interface HomePageProps {
 }
 
 // 查单词相关类型定义
-export type DictionaryEngine = 'eudic' | 'youdao'
+export type DictionaryEngine = 'eudic' | 'youdao' | 'eudic-html'
 
 export interface DictionarySettings {
   selectedEngine: DictionaryEngine | null

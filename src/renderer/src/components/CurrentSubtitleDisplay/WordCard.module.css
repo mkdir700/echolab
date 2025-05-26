@@ -172,7 +172,6 @@
 
 .definitionItem {
   display: flex;
-  flex-direction: column;
   gap: 3px;
   padding: 6px 10px;
   background: rgba(255, 255, 255, 0.03);
@@ -184,7 +183,6 @@
   color: rgba(102, 126, 234, 0.9) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  text-transform: uppercase;
   letter-spacing: 0.8px;
 }
 

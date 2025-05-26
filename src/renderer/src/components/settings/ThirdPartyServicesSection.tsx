@@ -36,6 +36,12 @@ const DICTIONARY_ENGINES: DictionaryEngineOption[] = [
     label: '有道词典',
     description: '网易有道在线词典服务',
     requiresAuth: true
+  },
+  {
+    key: 'eudic-html',
+    label: '欧陆词典 (网页版)',
+    description: '通过解析欧陆词典网页获取词典数据，无需API密钥',
+    requiresAuth: false
   }
 ]
 
@@ -225,6 +231,11 @@ export function ThirdPartyServicesSection({
 
     if (settings.dictionary.selectedEngine === 'youdao') {
       return !!(settings.dictionary.youdaoApiKey && settings.dictionary.youdaoApiSecret)
+    }
+
+    if (settings.dictionary.selectedEngine === 'eudic-html') {
+      // HTML解析服务不需要API密钥，总是可用
+      return true
     }
 
     return false

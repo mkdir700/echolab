@@ -158,26 +158,17 @@ export function CurrentSubtitleDisplay({
   // 将中文文本分割成字符
   const splitChineseText = useCallback(
     (text: string) => {
-      return text.split('').map((char, index) => {
-        // 中文字符不允许点击查询翻译
-        const isChineseChar = /[\u4e00-\u9fff]/.test(char)
-        const isClickable = !isChineseChar && char.trim() !== ''
-
-        return (
-          <span
-            key={index}
-            className={`${styles.subtitleWord} ${isClickable ? styles.clickableWord : ''}`}
-            onMouseEnter={() => handleWordHover(true)}
-            onMouseLeave={() => handleWordHover(false)}
-            onClick={isClickable ? (e) => handleWordClick(char, e) : undefined}
-            style={{ cursor: isClickable ? 'pointer' : 'default' }}
-          >
-            {char}
-          </span>
-        )
-      })
+      return (
+        <span
+          className={styles.subtitleWord}
+          onMouseEnter={() => handleWordHover(true)}
+          onMouseLeave={() => handleWordHover(false)}
+        >
+          {text}
+        </span>
+      )
     },
-    [handleWordHover, handleWordClick]
+    [handleWordHover]
   )
 
   // 将英文文本分割成单词
@@ -188,7 +179,10 @@ export function CurrentSubtitleDisplay({
           return <span key={index}>{word}</span>
         }
 
-        const isClickableWord = word.trim() !== ''
+        // 一个单词的首尾不应该有特殊符号
+        const trimWord = word.replace(/^[^\w\s]+|[^\w\s]+$/g, '')
+
+        const isClickableWord = trimWord.trim() !== ''
 
         return (
           <span
@@ -196,7 +190,7 @@ export function CurrentSubtitleDisplay({
             className={`${styles.subtitleWord} ${isClickableWord ? styles.clickableWord : ''}`}
             onMouseEnter={() => handleWordHover(true)}
             onMouseLeave={() => handleWordHover(false)}
-            onClick={isClickableWord ? (e) => handleWordClick(word, e) : undefined}
+            onClick={isClickableWord ? (e) => handleWordClick(trimWord, e) : undefined}
             style={{ cursor: isClickableWord ? 'pointer' : 'default' }}
           >
             {word}
