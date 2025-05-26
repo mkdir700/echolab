@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Card, Typography, Button, Space, Spin, Alert, Divider } from 'antd'
 import { SoundOutlined, CloseOutlined, LoadingOutlined } from '@ant-design/icons'
-import { DictionaryServiceFactory } from '../../utils/dictionaryServices'
-import type { DictionaryResult } from '../../utils/dictionaryServices'
-import type { ThirdPartyServicesSettings } from '../../types'
+import { DictionaryServiceFactory } from '@renderer/utils/dictionaryServices'
+import type { DictionaryResult } from '@renderer/utils/dictionaryServices'
+import type { ThirdPartyServicesSettings } from '@renderer/types'
 
 // 导入样式
 import styles from './WordCard.module.css'
@@ -85,6 +85,16 @@ export function WordCard({ word, targetElement, onClose }: WordCardProps): React
         }
 
         const result = await service.lookupWord(word.toLowerCase().trim())
+        // 如果查询结果为空，则认为查询失败
+        if (!result.success) {
+          setDictionaryResult({
+            word,
+            definitions: [],
+            success: false,
+            error: '未找到该单词'
+          })
+          return
+        }
         setDictionaryResult(result)
       } catch (error) {
         setDictionaryResult({

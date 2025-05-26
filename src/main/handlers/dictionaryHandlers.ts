@@ -98,8 +98,14 @@ export function setupDictionaryHandlers(): void {
 
       if (response.ok) {
         const html = await response.text()
-        console.log('欧陆词典HTML响应:', html)
+        // console.log('欧陆词典HTML响应:', html)
         const parsedData = parseEudicHtml(html, word)
+        // 如果没有找到任何释义，记录警告
+        if (parsedData.definitions.length === 0) {
+          console.warn('警告: 未能从HTML中解析出任何释义')
+          //   console.log('HTML内容预览:', html.substring(0, 500))
+          return { success: false, error: '未能从HTML中解析出任何释义' }
+        }
         return { success: true, data: parsedData }
       } else {
         return {
@@ -347,12 +353,6 @@ function parseEudicHtml(
       examples: examples.length,
       translations: translations.length
     })
-
-    // 如果没有找到任何释义，记录警告
-    if (definitions.length === 0) {
-      console.warn('警告: 未能从HTML中解析出任何释义')
-      console.log('HTML内容预览:', html.substring(0, 500))
-    }
 
     return {
       word,
