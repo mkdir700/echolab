@@ -9,14 +9,14 @@ import {
 } from '@ant-design/icons'
 import type { SubtitleItem } from '@renderer/types/shared'
 import type { DisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
-import { WordCard } from './WordCard'
+import { WordCard } from '@renderer/components/WordCard/WordCard'
 
 // 导入样式
-import styles from './CurrentSubtitleDisplay.module.css'
+import styles from './Subtitle.module.css'
 
 const { Text } = Typography
 
-interface CurrentSubtitleDisplayProps {
+interface SubtitleProps {
   currentSubtitle: SubtitleItem | null
   isPlaying: boolean
   displayMode: DisplayMode
@@ -35,7 +35,7 @@ const DISPLAY_MODE_CONFIG = {
   bilingual: { label: '双语', icon: <TranslationOutlined />, color: '#fa8c16' }
 }
 
-export function CurrentSubtitleDisplay({
+export function Subtitle({
   currentSubtitle,
   isPlaying,
   displayMode,
@@ -43,7 +43,7 @@ export function CurrentSubtitleDisplay({
   onToggleDisplayMode,
   onWordHover,
   onPauseOnHover
-}: CurrentSubtitleDisplayProps): React.JSX.Element {
+}: SubtitleProps): React.JSX.Element {
   const [showModeSelector, setShowModeSelector] = useState(false)
   const [expandDirection, setExpandDirection] = useState<'up' | 'down'>('up')
   const [selectedWord, setSelectedWord] = useState<{
@@ -115,6 +115,7 @@ export function CurrentSubtitleDisplay({
     (isHovering: boolean) => {
       onWordHover(isHovering)
       if (isHovering && isPlaying) {
+        console.log('触发暂停视频')
         onPauseOnHover()
       }
     },
@@ -216,16 +217,20 @@ export function CurrentSubtitleDisplay({
   )
 
   // 获取当前模式的配置
-  const currentModeConfig = DISPLAY_MODE_CONFIG[displayMode]
+  // 确保 displayMode 是有效的，如果不是则使用默认值 'bilingual'
+  const validDisplayMode = Object.keys(DISPLAY_MODE_CONFIG).includes(displayMode)
+    ? displayMode
+    : 'bilingual'
+  const currentModeConfig = DISPLAY_MODE_CONFIG[validDisplayMode]
 
   // 根据显示模式渲染字幕内容
   const renderSubtitleContent = useMemo(() => {
     if (!currentSubtitle || displayMode === 'none') {
       return (
         <div className={styles.subtitlePlaceholder}>
-          <Text className={styles.subtitleHidden}>
+          {/* <Text className={styles.subtitleHidden}>
             {displayMode === 'none' ? '字幕已隐藏' : '当前没有字幕'}
-          </Text>
+          </Text> */}
         </div>
       )
     }
@@ -299,78 +304,76 @@ export function CurrentSubtitleDisplay({
   }, [currentSubtitle, displayMode, splitTextIntoWords])
 
   return (
-    <div className={styles.currentSubtitleDisplay}>
-      <div className={styles.subtitleDisplayContent}>
-        {/* 浮动控制按钮 */}
-        <div className={styles.subtitleDisplayControlsFloating} ref={controlsRef}>
-          <Space size="small">
-            {/* 模式指示器 - 仅显示图标 */}
-            <Tooltip title={`当前模式: ${currentModeConfig.label}`}>
-              <Button
-                type="text"
-                size="small"
-                icon={currentModeConfig.icon}
-                style={{ color: currentModeConfig.color }}
-              />
-            </Tooltip>
+    <div className={styles.subtitleContainer}>
+      {/* 浮动控制按钮 */}
+      <div className={styles.subtitleDisplayControlsFloating} ref={controlsRef}>
+        <Space size="small">
+          {/* 模式指示器 - 仅显示图标 */}
+          <Tooltip title={`当前模式: ${currentModeConfig.label}`}>
+            <Button
+              type="text"
+              size="small"
+              icon={currentModeConfig.icon}
+              style={{ color: currentModeConfig.color }}
+            />
+          </Tooltip>
 
-            {/* 快速切换按钮 */}
-            <Tooltip title="快速切换显示模式 (Ctrl+M)">
-              <Button
-                type="text"
-                size="small"
-                icon={<MenuUnfoldOutlined />}
-                onClick={onToggleDisplayMode}
-                style={{ color: currentModeConfig.color }}
-              />
-            </Tooltip>
+          {/* 快速切换按钮 */}
+          <Tooltip title="快速切换显示模式 (Ctrl+M)">
+            <Button
+              type="text"
+              size="small"
+              icon={<MenuUnfoldOutlined />}
+              onClick={onToggleDisplayMode}
+              style={{ color: currentModeConfig.color }}
+            />
+          </Tooltip>
 
-            {/* 模式选择器切换按钮 */}
-            <Tooltip title="显示所有选项">
-              <Button
-                type="text"
-                size="small"
-                icon={<GlobalOutlined />}
-                onClick={handleToggleSelector}
-                className={showModeSelector ? 'active' : ''}
-              />
-            </Tooltip>
-          </Space>
+          {/* 模式选择器切换按钮 */}
+          <Tooltip title="显示所有选项">
+            <Button
+              type="text"
+              size="small"
+              icon={<GlobalOutlined />}
+              onClick={handleToggleSelector}
+              className={showModeSelector ? 'active' : ''}
+            />
+          </Tooltip>
+        </Space>
 
-          {/* 展开的模式选择器 */}
-          {showModeSelector && (
-            <div
-              className={`${styles.subtitleModeSelector} ${expandDirection === 'down' ? styles.expandDown : ''}`}
-              ref={selectorRef}
-            >
-              <Space direction="vertical" size="small">
-                {Object.entries(DISPLAY_MODE_CONFIG).map(([mode, config]) => (
-                  <Button
-                    key={mode}
-                    type={displayMode === mode ? 'primary' : 'text'}
-                    size="small"
-                    icon={config.icon}
-                    onClick={() => {
-                      onDisplayModeChange(mode as DisplayMode)
-                      handleCloseSelector()
-                    }}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      color: displayMode === mode ? '#fff' : config.color
-                    }}
-                  >
-                    {config.label}
-                  </Button>
-                ))}
-              </Space>
-            </div>
-          )}
-        </div>
-
-        {/* 字幕内容 */}
-        <div className={styles.subtitleContentWrapper}>{renderSubtitleContent}</div>
+        {/* 展开的模式选择器 */}
+        {showModeSelector && (
+          <div
+            className={`${styles.subtitleModeSelector} ${expandDirection === 'down' ? styles.expandDown : ''}`}
+            ref={selectorRef}
+          >
+            <Space direction="vertical" size="small">
+              {Object.entries(DISPLAY_MODE_CONFIG).map(([mode, config]) => (
+                <Button
+                  key={mode}
+                  type={displayMode === mode ? 'primary' : 'text'}
+                  size="small"
+                  icon={config.icon}
+                  onClick={() => {
+                    onDisplayModeChange(mode as DisplayMode)
+                    handleCloseSelector()
+                  }}
+                  style={{
+                    width: '100%',
+                    textAlign: 'left',
+                    color: displayMode === mode ? '#fff' : config.color
+                  }}
+                >
+                  {config.label}
+                </Button>
+              ))}
+            </Space>
+          </div>
+        )}
       </div>
+
+      {/* 字幕内容区域 */}
+      <div className={styles.subtitleContent}>{renderSubtitleContent}</div>
 
       {/* 单词卡片 - 使用固定定位渲染在根级别 */}
       {selectedWord && (

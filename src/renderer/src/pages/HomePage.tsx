@@ -1,7 +1,6 @@
 import React from 'react'
-import { VideoSection } from '@renderer/components/VideoSection/VideoSection'
+import { VideoPlayer } from '@renderer/components/VideoPlayer/VideoPlayer'
 import { SubtitleControls } from '@renderer/components/SubtitleControls/SubtitleControls'
-import { CurrentSubtitleDisplay } from '@renderer/components/CurrentSubtitleDisplay/CurrentSubtitleDisplay'
 import { SidebarSection } from '@renderer/components/SidebarSection'
 import { HomePageProps } from '@renderer/types'
 
@@ -13,9 +12,7 @@ export const HomePage = React.memo<HomePageProps>(function HomePage({
   sidebarResize,
   subtitleDisplayMode,
   subtitleControl,
-  autoScroll,
-  handleWordHover,
-  handlePauseOnHover
+  autoScroll
 }) {
   return (
     <div className="main-container">
@@ -24,7 +21,7 @@ export const HomePage = React.memo<HomePageProps>(function HomePage({
         style={{ width: `calc(100% - ${sidebarResize.sidebarWidth}px)` }}
       >
         {/* 上部：视频播放区域 */}
-        <VideoSection
+        <VideoPlayer
           videoFile={fileUpload.videoFile}
           playerRef={videoPlayer.playerRef}
           isPlaying={videoPlayer.isPlaying}
@@ -34,6 +31,8 @@ export const HomePage = React.memo<HomePageProps>(function HomePage({
           duration={videoPlayer.duration}
           isVideoLoaded={videoPlayer.isVideoLoaded}
           videoError={videoPlayer.videoError}
+          currentSubtitle={subtitles.getCurrentSubtitle(videoPlayer.currentTime)}
+          displayMode={subtitleDisplayMode.displayMode}
           onProgress={videoPlayer.handleProgress}
           onDuration={videoPlayer.handleVideoDuration}
           onReady={videoPlayer.handleVideoReady}
@@ -44,6 +43,8 @@ export const HomePage = React.memo<HomePageProps>(function HomePage({
           onStepForward={videoPlayer.handleStepForward}
           onPlaybackRateChange={videoPlayer.handlePlaybackRateChange}
           onVolumeChange={videoPlayer.handleVolumeChange}
+          onDisplayModeChange={subtitleDisplayMode.setDisplayMode}
+          onToggleDisplayMode={subtitleDisplayMode.toggleDisplayMode}
         />
 
         {/* 字幕控制区域 */}
@@ -56,17 +57,6 @@ export const HomePage = React.memo<HomePageProps>(function HomePage({
           onToggleAutoPause={subtitleControl.toggleAutoPause}
           onGoToPrevious={subtitleControl.goToPreviousSubtitle}
           onGoToNext={subtitleControl.goToNextSubtitle}
-        />
-
-        {/* 下部：当前字幕展示区域 */}
-        <CurrentSubtitleDisplay
-          currentSubtitle={subtitles.getCurrentSubtitle(videoPlayer.currentTime)}
-          isPlaying={videoPlayer.isPlaying}
-          displayMode={subtitleDisplayMode.displayMode}
-          onDisplayModeChange={subtitleDisplayMode.setDisplayMode}
-          onToggleDisplayMode={subtitleDisplayMode.toggleDisplayMode}
-          onWordHover={handleWordHover}
-          onPauseOnHover={handlePauseOnHover}
         />
       </div>
 

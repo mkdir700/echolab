@@ -41,6 +41,7 @@ export function useVideoPlayer(): UseVideoPlayerReturn {
   // 播放/暂停
   const handlePlayPause = useCallback((): void => {
     if (state.isVideoLoaded && !state.videoError) {
+      console.log('🎬 播放/暂停回调触发')
       setState((prev) => ({ ...prev, isPlaying: !prev.isPlaying }))
     } else if (state.videoError) {
       message.error('视频加载失败，请重新选择视频文件')

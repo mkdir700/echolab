@@ -256,7 +256,7 @@ export function WordCard({ word, targetElement, onClose }: WordCardProps): React
         position: 'fixed' as const,
         left: `${cardLeft}px`,
         top: `${cardTop}px`,
-        zIndex: 1001,
+        zIndex: 9999 /* 确保单词卡片在最顶层 */,
         width: `${cardWidth}px`,
         maxHeight: `${cardHeight}px`
       },

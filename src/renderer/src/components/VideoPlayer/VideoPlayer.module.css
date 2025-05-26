@@ -53,11 +53,55 @@
   transform: translateY(-2px);
 }
 
+/* 字幕覆盖层样式 - 嵌入在视频内部，YouTube 风格 */
+.subtitleOverlay {
+  position: absolute;
+  bottom: 10%; /* 距离视频底部10%的位置 */
+  left: 0;
+  right: 0;
+  z-index: 10; /* 在视频上方，但在控制器下方 */
+  width: 100%;
+  pointer-events: none; /* 容器本身不接收点击事件 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--spacing-lg);
+}
+
+/* 控制组件覆盖层样式 - 覆盖在视频上，但允许字幕点击 */
+.controlsOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 20; /* 确保控制器在字幕上方 */
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* 默认不接收点击事件，让字幕可以被点击 */
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .videoSection {
     padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-sm) var(--spacing-lg);
     flex: 2; /* 移动端视频区域占2份 */
     min-height: 150px;
+  }
+
+  .subtitleOverlay {
+    bottom: 12%; /* 移动端稍微提高字幕位置 */
+    padding: 0 var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .videoSection {
+    padding: var(--spacing-md);
+  }
+
+  .subtitleOverlay {
+    bottom: 15%; /* 小屏幕进一步提高字幕位置，避免与控制器重叠 */
+    padding: 0 var(--spacing-sm);
   }
 } 

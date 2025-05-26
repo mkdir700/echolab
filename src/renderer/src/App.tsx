@@ -277,22 +277,6 @@ function App(): React.JSX.Element {
     return success
   }, [fileUpload.handleVideoFileSelect, videoPlayer.resetVideoState, subtitleControl.resetState])
 
-  // 处理字幕单词hover时的暂停功能
-  const handleWordHover = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (_isHovering: boolean) => {
-      // 这里可以添加其他hover效果，比如改变视觉状态
-      // 暂时不需要处理hover状态，但保留接口用于未来扩展
-    },
-    []
-  )
-
-  const handlePauseOnHover = useCallback(() => {
-    if (videoPlayer.isPlaying) {
-      videoPlayer.handlePlayPause()
-    }
-  }, [videoPlayer.isPlaying, videoPlayer.handlePlayPause])
-
   // 渲染页面内容 - 使用冻结模式，首页始终保持挂载
   const renderPageContent = (): React.JSX.Element => {
     return (
@@ -313,8 +297,6 @@ function App(): React.JSX.Element {
             subtitleDisplayMode={subtitleDisplayMode}
             subtitleControl={subtitleControl}
             autoScroll={autoScroll}
-            handleWordHover={handleWordHover}
-            handlePauseOnHover={handlePauseOnHover}
           />
         </div>
 

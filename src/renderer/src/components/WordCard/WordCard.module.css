@@ -4,6 +4,8 @@
   animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   filter: drop-shadow(0 16px 48px rgba(0, 0, 0, 0.4));
   position: relative;
+  z-index: 9999; /* 确保单词卡片在最顶层 */
+  pointer-events: auto; /* 确保卡片可以接收点击事件 */
 }
 
 .cardContent {
@@ -19,6 +21,8 @@
   min-width: 240px;
   position: relative;
   overflow: visible !important;
+  z-index: 9999; /* 确保卡片内容在最顶层 */
+  pointer-events: auto; /* 确保卡片内容可以接收点击事件 */
 }
 
 /* 指向目标单词的小角 */
@@ -32,7 +36,7 @@
   border-right: 8px solid transparent;
   border-top: 8px solid rgba(20, 24, 35, 0.95);
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  z-index: 1001;
+  z-index: 9998; /* 小箭头在卡片下方但仍在最顶层 */
 }
 
 .arrow::before {

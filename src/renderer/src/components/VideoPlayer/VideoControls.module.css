@@ -11,6 +11,7 @@
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
+  pointer-events: auto; /* 确保进度条可以接收点击事件 */
 }
 
 .videoProgressContainer.enhanced {
@@ -86,6 +87,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5;
+  pointer-events: auto; /* 确保中央播放按钮可以接收点击事件 */
 }
 
 .centerPlayBtn {
@@ -142,6 +144,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  pointer-events: auto; /* 确保控制栏可以接收点击事件 */
 }
 
 .videoControlsBar.visible {

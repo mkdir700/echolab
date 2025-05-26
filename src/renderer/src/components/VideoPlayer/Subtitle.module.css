@@ -1,0 +1,353 @@
+/* 现代化字幕显示组件样式 */
+
+/* 主容器 - 完全透明背景 */
+.subtitleContainer {
+  width: 100%;
+  max-width: 90%;
+  pointer-events: none; /* 默认不接收点击事件 */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+/* 字幕内容区域 */
+.subtitleContent {
+  width: 100%;
+  text-align: center;
+  position: relative;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  background: transparent; /* 完全透明背景 */
+  backdrop-filter: none; /* 移除背景模糊 */
+  transition: all var(--transition);
+  pointer-events: none; /* 字幕内容区域不接收点击事件 */
+}
+
+/* 字幕文本样式 - 现代化设计 */
+.subtitleText {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 1.5rem !important;
+  line-height: 1.6 !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.6),
+    0 0 8px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.02em;
+  display: inline;
+  transition: all var(--transition-fast);
+}
+
+/* 英文字幕样式 */
+.subtitleText.english {
+  font-size: 1.75rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 2px 6px rgba(0, 0, 0, 0.7),
+    0 0 12px rgba(0, 0, 0, 0.5);
+}
+
+/* 中文字幕样式 */
+.subtitleText.chinese {
+  font-size: 1.4rem !important;
+  font-weight: 500 !important;
+  color: #f0f0f0 !important;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.8),
+    0 2px 4px rgba(0, 0, 0, 0.6);
+  opacity: 0.95;
+}
+
+/* 双语显示布局 */
+.subtitleContentBilingual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: var(--spacing-xs);
+}
+
+/* 单行字幕布局 */
+.subtitleContentOriginal,
+.subtitleContentChinese,
+.subtitleContentEnglish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.subtitleLine {
+  width: 100%;
+  text-align: center;
+  margin: 0;
+}
+
+/* 字幕单词交互效果 */
+.subtitleWord {
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all var(--transition-fast);
+  position: relative;
+  display: inline-block;
+  pointer-events: auto; /* 单词可以接收点击事件 */
+}
+
+.subtitleWord:hover {
+  background-color: rgba(102, 126, 234, 0.3);
+  color: #ffffff !important;
+  transform: scale(1.05);
+  font-weight: 700 !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 2px 6px rgba(102, 126, 234, 0.6),
+    0 0 12px rgba(102, 126, 234, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+/* 可点击单词样式 */
+.clickableWord {
+  cursor: pointer !important;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.6);
+  transition: all var(--transition-fast);
+  pointer-events: auto !important; /* 确保可点击单词能接收点击事件 */
+}
+
+.clickableWord:hover {
+  background-color: rgba(102, 126, 234, 0.4) !important;
+  color: #ffffff !important;
+  transform: scale(1.08) !important;
+  font-weight: 700 !important;
+  text-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 2px 6px rgba(102, 126, 234, 0.8),
+    0 0 16px rgba(102, 126, 234, 0.6) !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(12px);
+}
+
+/* 隐藏状态 */
+.subtitleHidden {
+  color: rgba(255, 255, 255, 0.3) !important;
+  font-style: italic;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 占位符样式 */
+.subtitlePlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 60px;
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* 浮动控制按钮 - 现代化设计 */
+.subtitleDisplayControlsFloating {
+  position: absolute;
+  top: -60px;
+  right: 0;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 8px 12px;
+  backdrop-filter: blur(20px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all var(--transition);
+  opacity: 0.8;
+  pointer-events: auto;
+}
+
+.subtitleDisplayControlsFloating:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.4),
+    0 3px 8px rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.subtitleDisplayControlsFloating :global(.ant-btn) {
+  border: none !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  padding: 6px 8px !important;
+  transition: all var(--transition-fast);
+  border-radius: 8px !important;
+}
+
+.subtitleDisplayControlsFloating :global(.ant-btn:hover) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  transform: scale(1.05);
+}
+
+.subtitleDisplayControlsFloating :global(.ant-btn.active) {
+  background: rgba(102, 126, 234, 0.3) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 8px rgba(102, 126, 234, 0.4);
+}
+
+/* 模式选择器 */
+.subtitleModeSelector {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 8px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(24px);
+  padding: 8px;
+  z-index: 25;
+  min-width: 140px;
+  max-height: 200px;
+  overflow-y: auto;
+  animation: fadeInUp 0.3s ease;
+  pointer-events: auto;
+}
+
+.subtitleModeSelector.expandDown {
+  bottom: auto;
+  top: 100%;
+  margin-bottom: 0;
+  margin-top: 8px;
+  animation: fadeInDown 0.3s ease;
+}
+
+.subtitleModeSelector :global(.ant-btn) {
+  border: none !important;
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  margin-bottom: 4px;
+  transition: all var(--transition);
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+}
+
+.subtitleModeSelector :global(.ant-btn:last-child) {
+  margin-bottom: 0;
+}
+
+.subtitleModeSelector :global(.ant-btn:hover) {
+  background: rgba(102, 126, 234, 0.3) !important;
+  color: #ffffff !important;
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* 滚动条样式 */
+.subtitleModeSelector::-webkit-scrollbar {
+  width: 4px;
+}
+
+.subtitleModeSelector::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.subtitleModeSelector::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.subtitleModeSelector::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.6);
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .subtitleContainer {
+    max-width: 95%;
+  }
+
+  .subtitleText {
+    font-size: 1.2rem !important;
+  }
+  
+  .subtitleText.english {
+    font-size: 1.4rem !important;
+  }
+  
+  .subtitleText.chinese {
+    font-size: 1.1rem !important;
+  }
+
+  .subtitleDisplayControlsFloating {
+    top: -50px;
+    padding: 6px 10px;
+    border-radius: 10px;
+  }
+
+  .subtitleDisplayControlsFloating :global(.ant-btn) {
+    padding: 4px 6px !important;
+    font-size: 12px;
+  }
+
+  .subtitleModeSelector {
+    min-width: 120px;
+    max-height: 160px;
+  }
+
+  .subtitleModeSelector :global(.ant-btn) {
+    padding: 6px 10px !important;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .subtitleText {
+    font-size: 1rem !important;
+  }
+  
+  .subtitleText.english {
+    font-size: 1.2rem !important;
+  }
+  
+  .subtitleText.chinese {
+    font-size: 0.95rem !important;
+  }
+} 

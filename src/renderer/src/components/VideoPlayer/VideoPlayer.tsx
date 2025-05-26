@@ -3,12 +3,15 @@ import ReactPlayer from 'react-player'
 import { VideoPlaceholder } from './VideoPlaceholder'
 import { LoadingIndicator } from '../LoadingIndicator'
 import { ErrorIndicator } from '../ErrorIndicator'
-import { VideoControls } from '../VideoControls/VideoControls'
+import { VideoControls } from './VideoControls'
+import { Subtitle } from './Subtitle'
+import type { SubtitleItem } from '@renderer/types/shared'
+import type { DisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
 
 // 导入样式
-import styles from './VideoSection.module.css'
+import styles from './VideoPlayer.module.css'
 
-interface VideoSectionProps {
+interface VideoPlayerProps {
   videoFile: string | null
   playerRef: React.RefObject<ReactPlayer | null>
   isPlaying: boolean
@@ -18,6 +21,8 @@ interface VideoSectionProps {
   duration: number
   isVideoLoaded: boolean
   videoError: string | null
+  currentSubtitle: SubtitleItem | null
+  displayMode: DisplayMode
   onProgress: (state: {
     played: number
     playedSeconds: number
@@ -33,9 +38,11 @@ interface VideoSectionProps {
   onStepForward: () => void
   onPlaybackRateChange: (value: number) => void
   onVolumeChange: (value: number) => void
+  onDisplayModeChange: (mode: DisplayMode) => void
+  onToggleDisplayMode: () => void
 }
 
-export function VideoSection({
+export function VideoPlayer({
   videoFile,
   playerRef,
   isPlaying,
@@ -45,6 +52,8 @@ export function VideoSection({
   duration,
   isVideoLoaded,
   videoError,
+  currentSubtitle,
+  displayMode,
   onProgress,
   onDuration,
   onReady,
@@ -54,10 +63,13 @@ export function VideoSection({
   onPlayPause,
   onStepForward,
   onPlaybackRateChange,
-  onVolumeChange
-}: VideoSectionProps): React.JSX.Element {
+  onVolumeChange,
+  onDisplayModeChange,
+  onToggleDisplayMode
+}: VideoPlayerProps): React.JSX.Element {
   const [showControls, setShowControls] = useState(false)
   const [isUserInteracting, setIsUserInteracting] = useState(false)
+  const [isPausedByHover, setIsPausedByHover] = useState(false)
   const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // 智能控制显示逻辑
@@ -68,11 +80,12 @@ export function VideoSection({
     }
   }
 
+  // 鼠标离开时，如果用户没有交互，则隐藏控制栏
   const handleMouseLeave = (): void => {
     if (!isUserInteracting) {
       hideControlsTimeoutRef.current = setTimeout(() => {
         setShowControls(false)
-      }, 2000) // 2秒后隐藏
+      }, 200000) // 2秒后隐藏
     }
   }
 
@@ -131,7 +144,12 @@ export function VideoSection({
         setShowControls(false)
       }, 3000)
     }
-  }, [isPlaying, isUserInteracting])
+
+    // 如果是因为悬停暂停的，当播放状态变为播放时，重置悬停状态
+    if (isPlaying && isPausedByHover) {
+      setIsPausedByHover(false)
+    }
+  }, [isPlaying, isUserInteracting, isPausedByHover])
 
   return (
     <div className={styles.videoSection}>
@@ -181,8 +199,34 @@ export function VideoSection({
             {/* 错误状态提示 */}
             {videoError && <ErrorIndicator error={videoError} />}
 
-            {/* 现代化视频控制组件 */}
-            <div onMouseEnter={handleUserInteractionStart} onMouseLeave={handleUserInteractionEnd}>
+            {/* 字幕显示组件 - 嵌入在视频内部，距离底部10% */}
+            <div className={styles.subtitleOverlay}>
+              <Subtitle
+                currentSubtitle={currentSubtitle}
+                isPlaying={isPlaying}
+                displayMode={displayMode}
+                onDisplayModeChange={onDisplayModeChange}
+                onToggleDisplayMode={onToggleDisplayMode}
+                onWordHover={(isHovering) => {
+                  if (isHovering) {
+                    setShowControls(true)
+                  }
+                }}
+                onPauseOnHover={() => {
+                  if (isPlaying) {
+                    onPlayPause()
+                    setIsPausedByHover(true)
+                  }
+                }}
+              />
+            </div>
+
+            {/* 视频控制组件 - 覆盖在视频上，但不影响字幕位置 */}
+            <div
+              className={styles.controlsOverlay}
+              onMouseEnter={handleUserInteractionStart}
+              onMouseLeave={handleUserInteractionEnd}
+            >
               <VideoControls
                 showControls={showControls}
                 duration={duration}

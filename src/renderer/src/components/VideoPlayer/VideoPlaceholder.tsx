@@ -1,7 +1,7 @@
 import React from 'react'
 import { Space, Typography } from 'antd'
 import { VideoCameraOutlined } from '@ant-design/icons'
-import styles from './VideoSection.module.css'
+import styles from './VideoPlayer.module.css'
 
 const { Text } = Typography
 

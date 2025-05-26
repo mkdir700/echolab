@@ -151,8 +151,6 @@ export interface HomePageProps {
     scrollToCurrentSubtitle: (index: number) => void
     handleCenterCurrentSubtitle: () => void
   }
-  handleWordHover: (isHovering: boolean) => void
-  handlePauseOnHover: () => void
 }
 
 // 查单词相关类型定义
