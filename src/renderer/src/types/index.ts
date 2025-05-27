@@ -208,3 +208,12 @@ export interface ThirdPartyServicesSettings {
 export interface Settings {
   thirdPartyServices: ThirdPartyServicesSettings
 }
+
+// 重新导出共享类型，方便渲染进程使用
+export type {
+  PlayItem as RecentPlayItem,
+  StoreSettings,
+  StoreAPI,
+  ApiResponse,
+  ApiResponseWithCount
+} from '@types_/shared'

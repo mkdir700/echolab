@@ -30,6 +30,7 @@
     "@electron-toolkit/utils": "^4.0.0",
     "antd": "^5.25.2",
     "cheerio": "^1.0.0",
+    "electron-store": "^10.0.1",
     "electron-updater": "^6.3.9",
     "react-player": "^2.16.0"
   },

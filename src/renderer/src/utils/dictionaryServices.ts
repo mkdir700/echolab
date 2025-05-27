@@ -1,52 +1,5 @@
 import type { DictionaryEngine, DictionarySettings } from '@renderer/types'
 
-// 临时类型声明，确保API可用
-declare global {
-  interface Window {
-    api: {
-      fileSystem: unknown
-      dictionary: {
-        youdaoRequest: (
-          url: string,
-          params: Record<string, string>
-        ) => Promise<{
-          success: boolean
-          data?: unknown
-          error?: string
-        }>
-        eudicRequest: (
-          url: string,
-          options: RequestInit
-        ) => Promise<{
-          success: boolean
-          data?: unknown
-          error?: string
-          status?: number
-        }>
-        sha256: (text: string) => Promise<string | null>
-        eudicHtmlRequest: (
-          word: string,
-          context?: string
-        ) => Promise<{
-          success: boolean
-          data?: {
-            word: string
-            phonetic?: string
-            definitions: Array<{
-              partOfSpeech?: string
-              meaning: string
-              examples?: string[]
-            }>
-            examples?: string[]
-            translations?: string[]
-          }
-          error?: string
-        }>
-      }
-    }
-  }
-}
-
 // 词典查询结果接口
 export interface DictionaryResult {
   word: string

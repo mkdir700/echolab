@@ -5,3 +5,9 @@ export interface SubtitleItem {
   englishText?: string
   chineseText?: string
 }
+
+export interface VideoState {
+  videoFilePath: string
+  videoFileName: string
+  currentTime: number
+}

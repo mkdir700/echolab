@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import type { PlayItem, StoreSettings, ApiResponse, ApiResponseWithCount } from '../types/shared'
 
 // 文件系统 API
 const fileSystemAPI = {
@@ -85,10 +86,51 @@ const dictionaryAPI = {
   }> => ipcRenderer.invoke('dictionary:eudic-html-request', word, context)
 }
 
+// 存储 API
+const storeAPI = {
+  // 获取所有最近播放项
+  getRecentPlays: (): Promise<PlayItem[]> => ipcRenderer.invoke('store:get-recent-plays'),
+
+  // 添加或更新最近播放项
+  addRecentPlay: (item: Omit<PlayItem, 'id' | 'lastOpenedAt'>): Promise<ApiResponse> =>
+    ipcRenderer.invoke('store:add-recent-play', item),
+
+  // 更新最近播放项
+  updateRecentPlay: (id: string, updates: Partial<Omit<PlayItem, 'id'>>): Promise<ApiResponse> =>
+    ipcRenderer.invoke('store:update-recent-play', id, updates),
+
+  // 删除最近播放项
+  removeRecentPlay: (id: string): Promise<ApiResponse> =>
+    ipcRenderer.invoke('store:remove-recent-play', id),
+
+  // 清空最近播放列表
+  clearRecentPlays: (): Promise<ApiResponse> => ipcRenderer.invoke('store:clear-recent-plays'),
+
+  // 根据文件路径获取最近播放项
+  getRecentPlayByPath: (filePath: string): Promise<PlayItem | null> =>
+    ipcRenderer.invoke('store:get-recent-play-by-path', filePath),
+
+  // 获取设置
+  getSettings: (): Promise<StoreSettings> => ipcRenderer.invoke('store:get-settings'),
+
+  // 更新设置
+  updateSettings: (settings: Partial<StoreSettings>): Promise<ApiResponse> =>
+    ipcRenderer.invoke('store:update-settings', settings),
+
+  // 批量删除多个项目
+  removeMultipleRecentPlays: (ids: string[]): Promise<ApiResponseWithCount> =>
+    ipcRenderer.invoke('store:remove-multiple-recent-plays', ids),
+
+  // 搜索最近播放项
+  searchRecentPlays: (query: string): Promise<PlayItem[]> =>
+    ipcRenderer.invoke('store:search-recent-plays', query)
+}
+
 // Custom APIs for renderer
 const api = {
   fileSystem: fileSystemAPI,
-  dictionary: dictionaryAPI
+  dictionary: dictionaryAPI,
+  store: storeAPI
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

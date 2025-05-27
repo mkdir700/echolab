@@ -1,7 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createWindow } from './window/windowManager'
-import { setupFileSystemHandlers, setupDictionaryHandlers } from './handlers'
+import { setupFileSystemHandlers, setupDictionaryHandlers, setupStoreHandlers } from './handlers'
 
 // 🔥 关键修复：命令行参数必须在 app.whenReady() 之前设置！
 // 启用 H.265/HEVC 支持的关键配置
@@ -56,6 +56,9 @@ app.whenReady().then(() => {
 
   // 设置词典服务相关的 IPC 处理器
   setupDictionaryHandlers()
+
+  // 设置存储相关的 IPC 处理器
+  setupStoreHandlers()
 
   createWindow()
 

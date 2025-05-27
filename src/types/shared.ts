@@ -1,0 +1,48 @@
+// 共享类型定义文件 - 供主进程和渲染进程共同使用
+
+// 播放项接口
+export interface PlayItem {
+  id: string // 唯一ID
+  filePath: string // 文件路径
+  fileName: string // 文件名
+  lastOpenedAt: number // 最后打开时间
+  duration?: number // 视频时长
+  currentTime?: number // 当前播放时间
+  subtitleFile?: string // 字幕文件路径
+  subtitleIndex?: number // 字幕索引
+}
+
+// 存储设置接口
+export interface StoreSettings {
+  maxRecentItems: number
+}
+
+// 存储结构接口
+export interface StoreSchema {
+  recentPlays: PlayItem[]
+  settings: StoreSettings
+}
+
+// API 响应类型
+export interface ApiResponse {
+  success: boolean
+  error?: string
+}
+
+export interface ApiResponseWithCount extends ApiResponse {
+  removedCount: number
+}
+
+// Store API 接口定义
+export interface StoreAPI {
+  getRecentPlays: () => Promise<PlayItem[]>
+  addRecentPlay: (item: Omit<PlayItem, 'id' | 'lastOpenedAt'>) => Promise<ApiResponse>
+  updateRecentPlay: (id: string, updates: Partial<Omit<PlayItem, 'id'>>) => Promise<ApiResponse>
+  removeRecentPlay: (id: string) => Promise<ApiResponse>
+  clearRecentPlays: () => Promise<ApiResponse>
+  getRecentPlayByPath: (filePath: string) => Promise<PlayItem | null>
+  getSettings: () => Promise<StoreSettings>
+  updateSettings: (settings: Partial<StoreSettings>) => Promise<ApiResponse>
+  removeMultipleRecentPlays: (ids: string[]) => Promise<ApiResponseWithCount>
+  searchRecentPlays: (query: string) => Promise<PlayItem[]>
+}
