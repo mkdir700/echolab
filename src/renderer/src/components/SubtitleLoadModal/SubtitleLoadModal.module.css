@@ -1,0 +1,320 @@
+/* SubtitleLoadModal 样式 */
+
+.subtitleModal {
+  /* Modal 整体样式 */
+}
+
+.subtitleModal .ant-modal-content {
+  border-radius: var(--border-radius-lg) !important;
+  overflow: hidden;
+}
+
+.subtitleModal .ant-modal-header {
+  background: var(--card-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: var(--spacing-lg) var(--spacing-xl) !important;
+}
+
+.subtitleModal .ant-modal-body {
+  padding: 0 !important;
+  background: var(--card-bg) !important;
+}
+
+/* Modal 标题 */
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-primary) !important;
+  font-size: var(--font-size-lg) !important;
+  font-weight: 600 !important;
+}
+
+.titleIcon {
+  color: var(--accent-color) !important;
+  font-size: var(--font-size-xl) !important;
+}
+
+/* Modal 内容 */
+.modalContent {
+  padding: var(--spacing-xl);
+}
+
+/* 视频信息区域 */
+.videoInfo {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: var(--darker-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.videoInfo .ant-typography {
+  margin: 0 !important;
+}
+
+.fileName {
+  color: var(--text-secondary) !important;
+  font-family: var(--font-mono) !important;
+  font-size: var(--font-size-sm) !important;
+  word-break: break-all;
+}
+
+/* 检查状态 */
+.checkingSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-2xl);
+  text-align: center;
+}
+
+.checkingText {
+  color: var(--text-secondary) !important;
+  font-size: var(--font-size-base) !important;
+}
+
+/* 找到字幕文件区域 */
+.foundSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* 未找到字幕文件区域 */
+.notFoundSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Alert 样式 */
+.alert {
+  border-radius: var(--border-radius) !important;
+}
+
+.alert.ant-alert-success {
+  background: rgba(82, 196, 26, 0.1) !important;
+  border: 1px solid rgba(82, 196, 26, 0.3) !important;
+}
+
+.alert.ant-alert-warning {
+  background: rgba(250, 173, 20, 0.1) !important;
+  border: 1px solid rgba(250, 173, 20, 0.3) !important;
+}
+
+/* 字幕文件列表 */
+.subtitleList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--spacing-sm);
+  background: var(--darker-bg);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.subtitleItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.subtitleItem:hover {
+  border-color: var(--accent-color);
+  background: var(--accent-color-light);
+}
+
+.subtitleItem.selected {
+  border-color: var(--accent-color) !important;
+  background: var(--accent-color-light) !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
+.fileIcon {
+  color: var(--accent-color) !important;
+  font-size: var(--font-size-lg) !important;
+  flex-shrink: 0;
+}
+
+.subtitleName {
+  flex: 1;
+  color: var(--text-primary) !important;
+  font-size: var(--font-size-base) !important;
+  font-weight: 500 !important;
+}
+
+.selectedIcon {
+  color: var(--success-color) !important;
+  font-size: var(--font-size-lg) !important;
+  flex-shrink: 0;
+}
+
+/* 操作按钮区域 */
+.actionButtons {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.loadButton {
+  background: var(--primary-gradient) !important;
+  border: none !important;
+  border-radius: var(--border-radius) !important;
+  font-weight: 600 !important;
+  min-width: 160px;
+}
+
+.loadButton:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.uploadButton {
+  background: var(--accent-color) !important;
+  border: none !important;
+  border-radius: var(--border-radius) !important;
+  font-weight: 600 !important;
+  min-width: 160px;
+}
+
+.uploadButton:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.skipButton {
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius) !important;
+  color: var(--text-secondary) !important;
+  background: var(--card-bg) !important;
+  min-width: 120px;
+}
+
+.skipButton:hover {
+  border-color: var(--accent-color) !important;
+  color: var(--accent-color) !important;
+}
+
+/* 上传区域 */
+.uploadSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.uploadTip {
+  color: var(--text-secondary) !important;
+  font-size: var(--font-size-base) !important;
+  text-align: center;
+  margin: 0 !important;
+}
+
+.uploadDragger {
+  background: var(--darker-bg) !important;
+  border: 2px dashed var(--border-color) !important;
+  border-radius: var(--border-radius-lg) !important;
+}
+
+.uploadDragger:hover {
+  border-color: var(--accent-color) !important;
+}
+
+.uploadDragger .ant-upload-drag-icon {
+  color: var(--accent-color) !important;
+}
+
+.uploadDragger .ant-upload-text {
+  color: var(--text-primary) !important;
+  font-size: var(--font-size-base) !important;
+  font-weight: 500 !important;
+}
+
+.uploadDragger .ant-upload-hint {
+  color: var(--text-muted) !important;
+  font-size: var(--font-size-sm) !important;
+}
+
+.uploadActions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+.uploadActions .ant-btn {
+  border-radius: var(--border-radius) !important;
+  min-width: 80px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .subtitleModal {
+    width: 90% !important;
+    max-width: 500px !important;
+  }
+
+  .modalContent {
+    padding: var(--spacing-lg);
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .loadButton,
+  .uploadButton,
+  .skipButton {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .uploadActions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .uploadActions .ant-btn {
+    width: 100%;
+    max-width: 120px;
+  }
+}
+
+/* 加载状态 */
+.loadButton.ant-btn-loading {
+  pointer-events: none;
+}
+
+.loadButton.ant-btn-loading .ant-btn-loading-icon {
+  color: white !important;
+}
+
+/* 滚动条样式 */
+.subtitleList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.subtitleList::-webkit-scrollbar-track {
+  background: var(--darker-bg);
+  border-radius: 3px;
+}
+
+.subtitleList::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+.subtitleList::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+} 

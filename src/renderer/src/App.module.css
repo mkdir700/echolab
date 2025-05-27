@@ -7,6 +7,16 @@
   flex-direction: column;
 }
 
+/* 播放页面全屏布局 */
+.playPageFullscreen {
+  height: 100vh;
+  width: 100vw;
+  background: var(--darker-bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 /* 主内容区域 */
 .appContent {
   background: var(--darker-bg) !important;

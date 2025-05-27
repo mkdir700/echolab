@@ -89,37 +89,4 @@
   flex-shrink: 0;
 }
 
-/* 视频文件信息样式 */
-.videoFileInfo {
-  display: flex;
-  align-items: center;
-  margin-left: var(--spacing-lg);
-  min-width: 0;
-  flex: 1;
-  gap: var(--spacing-sm);
-}
-
-.videoIcon {
-  color: #ffffff;
-  opacity: 0.8;
-  flex-shrink: 0;
-}
-
-.videoFilename {
-  color: #ffffff !important;
-  opacity: 0.8 !important;
-  font-size: var(--font-size-sm) !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-  flex: 1;
-  cursor: pointer;
-}
-
-.videoStatus {
-  color: var(--success-color) !important;
-  font-size: var(--font-size-sm) !important;
-  flex-shrink: 0;
-  white-space: nowrap;
-} 
+/* 预留空间，可以添加其他样式 */ 

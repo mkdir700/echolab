@@ -75,19 +75,14 @@ export interface SubtitleListProps {
 }
 
 export interface AppHeaderProps {
-  videoFileName: string
-  isVideoLoaded: boolean
-  subtitlesCount: number
   currentPage: PageType
-  onVideoFileSelect: () => Promise<boolean>
-  onSubtitleUpload: (file: File) => boolean
   onPageChange: (page: PageType) => void
 }
 
 export type ThrottledFunction<T extends (...args: never[]) => unknown> = T
 
 // 页面类型定义
-export type PageType = 'home' | 'favorites' | 'about' | 'settings'
+export type PageType = 'home' | 'play' | 'favorites' | 'about' | 'settings'
 
 export interface NavigationItem {
   key: PageType
@@ -142,6 +137,7 @@ export interface PlayPageProps {
     scrollToCurrentSubtitle: (index: number) => void
     handleCenterCurrentSubtitle: () => void
   }
+  onBack: () => void
 }
 
 // 查单词相关类型定义

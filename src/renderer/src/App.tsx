@@ -1,10 +1,11 @@
 import React, { useRef, useCallback, useEffect, useMemo, useState } from 'react'
-import { Layout, Typography } from 'antd'
+import { Layout } from 'antd'
 
 // 导入自定义 Hook
 import { useVideoPlayer } from '@renderer/hooks/useVideoPlayer'
 import { useSubtitles } from '@renderer/hooks/useSubtitles'
 import { useFileUpload } from '@renderer/hooks/useFileUpload'
+import { useRecentFiles } from '@renderer/hooks/useRecentFiles'
 
 import { useKeyboardShortcuts } from '@renderer/hooks/useKeyboardShortcuts'
 import { useAutoScroll } from '@renderer/hooks/useAutoScroll'
@@ -15,20 +16,22 @@ import { useAppState } from '@renderer/hooks/useAppState'
 
 // 导入组件
 import { AppHeader } from '@renderer/components/AppHeader'
+import { HomePage } from '@renderer/pages/HomePage'
 import { PlayPage } from '@renderer/pages/PlayPage'
 import { FavoritesPage } from '@renderer/pages/FavoritesPage'
 import { AboutPage } from '@renderer/pages/AboutPage'
 import { SettingsPage } from '@renderer/pages/SettingsPage'
+import { SubtitleLoadModal } from '@renderer/components/SubtitleLoadModal'
 import { ShortcutProvider } from '@renderer/contexts/ShortcutContext'
 
 // 导入类型
 import { PageType } from '@renderer/types'
+import type { SubtitleItem } from '@renderer/types/shared'
 
 // 导入样式
 import styles from './App.module.css'
 
 const { Content } = Layout
-const { Text } = Typography
 
 // 快捷键处理组件 - 必须在 ShortcutProvider 内部
 function KeyboardShortcutHandler({
@@ -61,18 +64,26 @@ function App(): React.JSX.Element {
   // 页面状态管理
   const [currentPage, setCurrentPage] = useState<PageType>('home')
 
+  // 字幕检查Modal状态
+  const [showSubtitleModal, setShowSubtitleModal] = useState(false)
+  const [pendingVideoInfo, setPendingVideoInfo] = useState<{
+    filePath: string
+    fileName: string
+  } | null>(null)
+
   // 状态恢复标志 - 使用 ref 确保只执行一次
   const [isInitialized, setIsInitialized] = useState(false)
   const initializationRef = useRef(false)
   const restorationCompleteRef = useRef(false)
 
   // 应用状态持久化
-  const { saveAppState, restoreAppState, enableAutoSave } = useAppState()
+  const { appState, saveAppState, restoreAppState, enableAutoSave } = useAppState()
 
   // 使用自定义 Hooks
   const videoPlayer = useVideoPlayer()
   const subtitles = useSubtitles()
   const fileUpload = useFileUpload()
+  const recentFiles = useRecentFiles()
   const sidebarResize = useSidebarResize(containerRef)
   const subtitleDisplayMode = useSubtitleDisplayMode()
 
@@ -117,7 +128,7 @@ function App(): React.JSX.Element {
     onAutoScrollChange: subtitles.setAutoScrollEnabled
   })
 
-  // 应用启动时恢复状态 - 确保只执行一次
+  // 应用启动时初始化 - 不自动恢复视频数据
   useEffect(() => {
     // 防止重复执行
     if (initializationRef.current) {
@@ -131,23 +142,11 @@ function App(): React.JSX.Element {
       try {
         const savedState = await restoreAppState()
         if (savedState) {
-          console.log('✅ 恢复保存的应用状态')
+          console.log('✅ 恢复保存的应用状态（不包括视频数据）')
 
-          // 恢复字幕状态
-          if (savedState.subtitles.length > 0) {
-            subtitles.restoreSubtitles(
-              savedState.subtitles,
-              savedState.currentSubtitleIndex,
-              savedState.isAutoScrollEnabled
-            )
-          }
-
-          // 恢复视频状态
-          videoPlayer.restoreVideoState(
-            savedState.currentTime,
-            savedState.playbackRate,
-            savedState.volume
-          )
+          // 只恢复UI相关的状态，不恢复视频和字幕数据
+          // 恢复侧边栏宽度
+          sidebarResize.restoreSidebarWidth(savedState.sidebarWidth)
 
           // 恢复字幕显示模式
           subtitleDisplayMode.restoreDisplayMode(savedState.displayMode)
@@ -155,35 +154,21 @@ function App(): React.JSX.Element {
           // 恢复字幕控制状态
           subtitleControl.restoreState(savedState.isSingleLoop, savedState.isAutoPause)
 
-          // 恢复侧边栏宽度
-          sidebarResize.restoreSidebarWidth(savedState.sidebarWidth)
-
-          // 恢复视频文件（如果有保存的路径）
-          if (savedState.videoFilePath && savedState.videoFileName) {
-            const restored = await fileUpload.restoreVideoFile(
-              savedState.videoFilePath,
-              savedState.videoFileName
-            )
-            if (!restored) {
-              console.warn('⚠️ 无法恢复视频文件，可能文件已被移动或删除')
-            }
-          }
-
-          // 等待足够长的时间确保所有状态都已恢复
-          setTimeout(() => {
-            restorationCompleteRef.current = true
-            setIsInitialized(true)
-            enableAutoSave(true)
-            console.log('✅ 应用初始化完成，自动保存已启用')
-          }, 1000) // 给状态恢复1秒的时间
+          // 恢复视频播放器的基础设置（音量、播放速度）
+          videoPlayer.restoreVideoState(
+            0, // 不恢复播放时间，从头开始
+            savedState.playbackRate,
+            savedState.volume
+          )
         } else {
           console.log('📝 使用默认应用状态')
-          // 没有保存状态时立即启用自动保存
-          restorationCompleteRef.current = true
-          setIsInitialized(true)
-          enableAutoSave(true)
-          console.log('✅ 应用初始化完成')
         }
+
+        // 立即启用自动保存
+        restorationCompleteRef.current = true
+        setIsInitialized(true)
+        enableAutoSave(true)
+        console.log('✅ 应用初始化完成，自动保存已启用')
       } catch (error) {
         console.error('❌ 应用初始化失败:', error)
         // 出错时也要启用自动保存
@@ -203,22 +188,23 @@ function App(): React.JSX.Element {
       return
     }
 
-    // 只有本地文件才保存路径信息
-    const shouldSaveVideoPath = fileUpload.isLocalFile && fileUpload.originalFilePath
+    // 只有在播放页面且有视频文件时才保存视频相关数据
+    const isInPlayPage = currentPage === 'play'
+    const hasVideoFile = fileUpload.isLocalFile && fileUpload.originalFilePath
 
     // 收集当前状态
     const currentState = {
-      // 视频相关 - 只有本地文件才保存路径
-      videoFilePath: shouldSaveVideoPath ? fileUpload.originalFilePath : undefined,
-      videoFileName: fileUpload.videoFileName,
-      currentTime: videoPlayer.currentTime,
+      // 视频相关 - 只有在播放页面且有本地文件时才保存
+      videoFilePath: isInPlayPage && hasVideoFile ? fileUpload.originalFilePath : undefined,
+      videoFileName: isInPlayPage && hasVideoFile ? fileUpload.videoFileName : '',
+      currentTime: isInPlayPage && hasVideoFile ? videoPlayer.currentTime : 0,
       playbackRate: videoPlayer.playbackRate,
       volume: videoPlayer.volume,
 
-      // 字幕相关
-      subtitles: subtitles.subtitles,
-      currentSubtitleIndex: currentSubtitleIndexMemo,
-      isAutoScrollEnabled: subtitles.isAutoScrollEnabled,
+      // 字幕相关 - 只有在播放页面时才保存
+      subtitles: isInPlayPage ? subtitles.subtitles : [],
+      currentSubtitleIndex: isInPlayPage ? currentSubtitleIndexMemo : 0,
+      isAutoScrollEnabled: isInPlayPage ? subtitles.isAutoScrollEnabled : true,
       displayMode: subtitleDisplayMode.displayMode,
 
       // 控制配置
@@ -234,6 +220,7 @@ function App(): React.JSX.Element {
   }, [
     // 初始化状态
     isInitialized,
+    currentPage,
     // 视频相关
     fileUpload.originalFilePath,
     fileUpload.videoFileName,
@@ -272,20 +259,177 @@ function App(): React.JSX.Element {
     if (success) {
       // 重置字幕控制状态
       subtitleControl.resetState()
+
+      // 如果是本地文件，检查字幕文件
+      if (fileUpload.isLocalFile && fileUpload.originalFilePath) {
+        setPendingVideoInfo({
+          filePath: fileUpload.originalFilePath,
+          fileName: fileUpload.videoFileName
+        })
+        setShowSubtitleModal(true)
+      } else {
+        // 非本地文件直接进入播放页面
+        setCurrentPage('play')
+      }
+
+      // 添加到最近文件列表
+      const updatedRecentFiles = recentFiles.addRecentFile(
+        fileUpload.originalFilePath || '',
+        fileUpload.videoFileName,
+        videoPlayer.duration,
+        appState.recentFiles || []
+      )
+      saveAppState({ recentFiles: updatedRecentFiles })
     }
     return success
-  }, [fileUpload.handleVideoFileSelect, videoPlayer.resetVideoState, subtitleControl.resetState])
+  }, [
+    fileUpload.handleVideoFileSelect,
+    fileUpload.isLocalFile,
+    fileUpload.originalFilePath,
+    fileUpload.videoFileName,
+    videoPlayer.resetVideoState,
+    videoPlayer.duration,
+    subtitleControl.resetState,
+    recentFiles.addRecentFile,
+    saveAppState,
+    appState.recentFiles
+  ])
 
-  // 渲染页面内容 - 使用冻结模式，首页始终保持挂载
+  // 处理打开最近文件 - 恢复该文件的缓存数据
+  const handleOpenRecentFile = useCallback(
+    async (filePath: string, fileName: string): Promise<boolean> => {
+      const success = await recentFiles.openRecentFile(
+        filePath,
+        fileName,
+        fileUpload.restoreVideoFile
+      )
+      if (success) {
+        // 尝试恢复该文件的缓存数据
+        try {
+          const savedState = await restoreAppState()
+          if (savedState && savedState.videoFilePath === filePath) {
+            console.log('✅ 恢复该视频文件的缓存数据')
+
+            // 恢复字幕状态
+            if (savedState.subtitles.length > 0) {
+              subtitles.restoreSubtitles(
+                savedState.subtitles,
+                savedState.currentSubtitleIndex,
+                savedState.isAutoScrollEnabled
+              )
+            }
+
+            // 恢复视频播放时间
+            videoPlayer.restoreVideoState(
+              savedState.currentTime,
+              savedState.playbackRate,
+              savedState.volume
+            )
+          } else {
+            console.log('📝 该文件没有缓存数据，使用默认状态')
+            // 重置字幕控制状态
+            subtitleControl.resetState()
+          }
+        } catch (error) {
+          console.warn('⚠️ 恢复缓存数据失败:', error)
+          // 重置字幕控制状态
+          subtitleControl.resetState()
+        }
+
+        // 更新最近文件列表（移到最前面）
+        const updatedRecentFiles = recentFiles.addRecentFile(
+          filePath,
+          fileName,
+          videoPlayer.duration,
+          appState.recentFiles || []
+        )
+        saveAppState({ recentFiles: updatedRecentFiles })
+        // 切换到播放页面
+        setCurrentPage('play')
+      }
+      return success
+    },
+    [
+      recentFiles.openRecentFile,
+      recentFiles.addRecentFile,
+      fileUpload.restoreVideoFile,
+      subtitleControl.resetState,
+      subtitles.restoreSubtitles,
+      videoPlayer.restoreVideoState,
+      videoPlayer.duration,
+      restoreAppState,
+      saveAppState,
+      appState.recentFiles
+    ]
+  )
+
+  // 处理移除最近文件
+  const handleRemoveRecentFile = useCallback(
+    (filePath: string) => {
+      // 从应用状态获取当前的最近文件列表
+      const currentRecentFiles = appState?.recentFiles || []
+      const updatedRecentFiles = recentFiles.removeRecentFile(filePath, currentRecentFiles)
+      saveAppState({ recentFiles: updatedRecentFiles })
+    },
+    [recentFiles.removeRecentFile, saveAppState, appState]
+  )
+
+  // 处理清空最近文件列表
+  const handleClearRecentFiles = useCallback(() => {
+    const updatedRecentFiles = recentFiles.clearRecentFiles()
+    saveAppState({ recentFiles: updatedRecentFiles })
+  }, [recentFiles.clearRecentFiles, saveAppState])
+
+  // 处理字幕Modal的回调
+  const handleSubtitleModalCancel = useCallback(() => {
+    setShowSubtitleModal(false)
+    setPendingVideoInfo(null)
+    // 取消时直接进入播放页面
+    setCurrentPage('play')
+  }, [])
+
+  const handleSubtitleModalSkip = useCallback(() => {
+    setShowSubtitleModal(false)
+    setPendingVideoInfo(null)
+    // 跳过字幕加载，直接进入播放页面
+    setCurrentPage('play')
+  }, [])
+
+  const handleSubtitlesLoaded = useCallback(
+    (loadedSubtitles: SubtitleItem[]) => {
+      // 加载字幕到应用状态
+      subtitles.restoreSubtitles(loadedSubtitles, 0, true)
+      setShowSubtitleModal(false)
+      setPendingVideoInfo(null)
+      // 进入播放页面
+      setCurrentPage('play')
+    },
+    [subtitles]
+  )
+
+  // 渲染页面内容 - 使用冻结模式，播放页面始终保持挂载
   const renderPageContent = (): React.JSX.Element => {
     return (
       <>
-        {/* 首页 - 始终挂载，通过 display 控制显示 */}
+        {/* 主页 */}
+        {currentPage === 'home' && (
+          <div className={styles.pageContainer}>
+            <HomePage
+              recentFiles={appState.recentFiles || []}
+              onVideoFileSelect={handleVideoFileSelect}
+              onOpenRecentFile={handleOpenRecentFile}
+              onRemoveRecentFile={handleRemoveRecentFile}
+              onClearRecentFiles={handleClearRecentFiles}
+            />
+          </div>
+        )}
+
+        {/* 播放页面 - 始终挂载，通过 display 控制显示 */}
         <div
           ref={containerRef}
           className={styles.pageContainer}
           style={{
-            display: currentPage === 'home' ? 'block' : 'none'
+            display: currentPage === 'play' ? 'block' : 'none'
           }}
         >
           <PlayPage
@@ -295,10 +439,11 @@ function App(): React.JSX.Element {
             sidebarResize={sidebarResize}
             subtitleDisplayMode={subtitleDisplayMode}
             autoScroll={autoScroll}
+            onBack={() => setCurrentPage('home')}
           />
         </div>
 
-        {/* 其他页面 - 条件渲染，覆盖在首页之上 */}
+        {/* 其他页面 - 条件渲染，覆盖在播放页面之上 */}
         {currentPage === 'favorites' && (
           <div className={`${styles.pageContainer} ${styles.otherPage}`}>
             <FavoritesPage />
@@ -327,31 +472,27 @@ function App(): React.JSX.Element {
         subtitleControl={subtitleControl}
       />
 
-      <Layout className={styles.appLayout}>
-        <AppHeader
-          videoFileName={fileUpload.videoFileName}
-          isVideoLoaded={videoPlayer.isVideoLoaded}
-          subtitlesCount={subtitlesLength}
-          currentPage={currentPage}
-          onVideoFileSelect={handleVideoFileSelect}
-          onSubtitleUpload={subtitles.handleSubtitleUpload}
-          onPageChange={setCurrentPage}
-        />
+      {currentPage === 'play' ? (
+        // 播放页面 - 全屏布局，不显示全局header
+        <div className={styles.playPageFullscreen}>{renderPageContent()}</div>
+      ) : (
+        // 其他页面 - 标准布局，显示全局header
+        <Layout className={styles.appLayout}>
+          <AppHeader currentPage={currentPage} onPageChange={setCurrentPage} />
 
-        <Content className={styles.appContent}>
-          {renderPageContent()}
+          <Content className={styles.appContent}>{renderPageContent()}</Content>
+        </Layout>
+      )}
 
-          {/* 快捷键提示 - 仅在首页显示 */}
-          {currentPage === 'home' && (
-            <div className={styles.shortcutsHint}>
-              <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                💡 快捷键: 空格-播放/暂停 | ←→-快退/快进 | ↑↓-音量 | Ctrl+M-字幕模式 |
-                H/L-上一句/下一句 | R-单句循环 | Ctrl+P-自动暂停
-              </Text>
-            </div>
-          )}
-        </Content>
-      </Layout>
+      {/* 字幕检查Modal */}
+      <SubtitleLoadModal
+        visible={showSubtitleModal}
+        videoFilePath={pendingVideoInfo?.filePath || ''}
+        videoFileName={pendingVideoInfo?.fileName || ''}
+        onCancel={handleSubtitleModalCancel}
+        onSkip={handleSubtitleModalSkip}
+        onSubtitlesLoaded={handleSubtitlesLoaded}
+      />
     </ShortcutProvider>
   )
 }

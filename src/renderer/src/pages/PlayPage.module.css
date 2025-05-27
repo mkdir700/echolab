@@ -3,11 +3,20 @@
 /* 主容器 - 无缝全屏布局 */
 .playPageContainer {
   display: flex;
+  flex-direction: column;
   height: 100%;
   width: 100%;
   background: var(--darker-bg);
   position: relative;
   overflow: hidden;
+}
+
+/* 播放页面内容区域 - 包含视频和侧边栏 */
+.playPageContent {
+  display: flex;
+  flex: 1;
+  height: 0; /* 确保flex子元素不会超出容器 */
+  min-height: 0;
 }
 
 /* 主内容区域 - 视频和控制器 */

@@ -24,8 +24,20 @@ export interface AppStateData {
   // UI状态
   sidebarWidth: number
 
+  // 最近文件列表
+  recentFiles: RecentFileItem[]
+
   // 元数据
   lastSavedAt: number
+}
+
+// 最近文件项接口
+export interface RecentFileItem {
+  filePath: string
+  fileName: string
+  lastOpenedAt: number
+  duration?: number
+  thumbnail?: string
 }
 
 // 默认状态
@@ -40,6 +52,7 @@ const DEFAULT_STATE: AppStateData = {
   isSingleLoop: false,
   isAutoPause: false,
   sidebarWidth: 400,
+  recentFiles: [],
   lastSavedAt: Date.now()
 }
 
