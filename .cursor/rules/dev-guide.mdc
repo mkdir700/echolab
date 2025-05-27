@@ -1,0 +1,155 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# EchoLab 开发指南
+
+## 类型定义管理规则
+
+### 核心原则：统一类型定义
+**重要：所有 Electron API 的类型定义必须统一在 `src/preload/index.d.ts` 中管理。**
+
+### 类型定义层次结构
+
+1. **主要类型定义文件**
+   - `src/preload/index.d.ts` - **唯一的全局 API 类型定义文件**
+   - `src/types/shared.ts` - 主进程和渲染进程共享的业务类型
+
+2. **禁止的做法**
+   - ❌ 不要在 `src/renderer/src/env.d.ts` 中重复定义 API 类型
+   - ❌ 不要在 `src/renderer/src/types/global.d.ts` 中重复定义 API 类型  
+   - ❌ 不要在业务文件中使用 `declare global` 重新声明 API 类型
+   - ❌ 不要创建多个全局类型定义文件
+
+### API 类型定义规范
+
+当需要添加新的 Electron API 时，按以下步骤操作：
+
+1. **在 `src/preload/index.ts` 中实现 API**
+   ```typescript
+   const newAPI = {
+     someMethod: (param: string): Promise<Result> => 
+       ipcRenderer.invoke('new:some-method', param)
+   }
+   ```
+
+2. **在 `src/preload/index.d.ts` 中添加类型定义**
+   ```typescript
+   interface NewAPI {
+     someMethod: (param: string) => Promise<Result>
+   }
+   
+   declare global {
+     interface Window {
+       api: {
+         // ... 现有 API
+         newAPI: NewAPI
+       }
+     }
+   }
+   ```
+
+3. **在 `src/types/shared.ts` 中定义业务类型**
+   ```typescript
+   export interface Result {
+     success: boolean
+     data?: unknown
+     error?: string
+   }
+   ```
+
+### 类型导入规范
+
+在渲染进程中使用类型时：
+
+```typescript
+// ✅ 正确：从 shared 导入业务类型
+import type { RecentPlayItem, StoreSettings } from '@renderer/types'
+
+// ✅ 正确：全局 API 类型自动可用，无需导入
+const result = await window.api.store.getRecentPlays()
+
+// ❌ 错误：不要导入或重新声明全局类型
+import '@renderer/types/global' // 已删除
+```
+
+### 文件结构约定
+
+```
+src/
+├── preload/
+│   ├── index.ts          # API 实现
+│   └── index.d.ts        # 🔑 唯一的全局类型定义
+├── types/
+│   └── shared.ts         # 业务类型定义
+└── renderer/src/
+    ├── types/
+    │   └── index.ts      # 渲染进程特有类型
+    └── hooks/
+        └── useRecentPlays.ts  # 业务逻辑，直接使用全局类型
+```
+
+## 组件开发规范
+
+### 1. 组件命名和结构
+- 使用 PascalCase：`VideoPlayer.tsx`
+- 组件文件名与组件名一致
+- 每个组件一个文件，复杂组件可建立文件夹
+
+### 2. Hook 开发规范
+- 使用 camelCase，以 `use` 开头：`useVideoPlayer.ts`
+- 返回对象包含状态和操作方法
+- 使用 TypeScript 严格类型定义
+
+### 3. 错误处理规范
+- 所有异步操作必须包含 try-catch
+- 提供用户友好的错误信息
+- 记录详细的控制台日志
+
+## 性能优化指南
+
+### 1. React 性能优化
+- 合理使用 `useMemo` 和 `useCallback`
+- 使用 `React.memo` 避免不必要的重渲染
+- 大数据列表使用虚拟滚动
+
+### 2. 类型检查优化
+- 避免使用 `any` 类型
+- 为所有 Props 定义接口
+- 使用严格的 TypeScript 配置
+
+## 代码质量保证
+
+### 1. 开发工具链
+```bash
+pnpm lint        # ESLint 检查
+pnpm format      # Prettier 格式化  
+pnpm typecheck   # TypeScript 类型检查
+```
+
+### 2. 提交前检查
+- 运行类型检查：`pnpm typecheck`
+- 运行代码格式化：`pnpm format`
+- 确保没有 ESLint 错误
+
+## 调试和测试
+
+### 1. 开发模式调试
+- Electron DevTools 自动打开
+- React DevTools 支持
+- 详细的控制台日志
+
+### 2. 类型安全验证
+- 定期运行 `pnpm typecheck:web` 和 `pnpm typecheck:node`
+- 确保主进程和渲染进程类型一致性
+
+## 总结
+
+**关键要点：**
+1. 🔑 **统一类型定义**：所有全局 API 类型只在 `src/preload/index.d.ts` 中定义
+2. 🚫 **避免重复**：不要在多个文件中重复定义相同的类型
+3. 📁 **清晰分层**：全局类型 vs 业务类型 vs 组件类型
+4. 🔍 **类型安全**：严格的 TypeScript 配置和定期检查
+
+遵循这些规则可以确保代码库的类型安全性和可维护性。
