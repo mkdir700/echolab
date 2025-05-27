@@ -95,6 +95,10 @@ export interface PlayPageProps {
     videoFile: string | null
     videoFileName: string
     handleVideoUpload: (file: File, resetVideoState?: () => void) => boolean
+    handleVideoFileSelect: () => Promise<boolean>
+    isLocalFile: boolean
+    originalFilePath?: string
+    restoreVideoFile: (filePath: string, fileName: string) => Promise<boolean>
   }
   videoPlayer: {
     playerRef: React.RefObject<ReactPlayer | null>
@@ -115,12 +119,15 @@ export interface PlayPageProps {
     handleStepForward: () => void
     handlePlaybackRateChange: (rate: number) => void
     handleVolumeChange: (volume: number) => void
+    resetVideoState: () => void
+    restoreVideoState: (currentTime: number, playbackRate: number, volume: number) => void
   }
   subtitles: {
     subtitles: SubtitleItem[]
     isAutoScrollEnabled: boolean
     currentSubtitleIndex: number
     getCurrentSubtitle: (time: number) => SubtitleItem | null
+    restoreSubtitles: (subtitles: SubtitleItem[], currentIndex: number, autoScroll: boolean) => void
   }
   sidebarResize: {
     sidebarWidth: number
@@ -138,6 +145,24 @@ export interface PlayPageProps {
     handleCenterCurrentSubtitle: () => void
   }
   onBack: () => void
+  onSaveAppState?: (
+    partialState: Partial<{
+      recentFiles: Array<{
+        filePath: string
+        fileName: string
+        lastOpenedAt: number
+        duration?: number
+      }>
+    }>
+  ) => void
+  appState?: {
+    recentFiles?: Array<{
+      filePath: string
+      fileName: string
+      lastOpenedAt: number
+      duration?: number
+    }>
+  }
 }
 
 // 查单词相关类型定义

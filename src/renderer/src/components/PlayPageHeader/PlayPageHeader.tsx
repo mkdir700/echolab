@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Button, Typography, Tooltip } from 'antd'
 import { ArrowLeftOutlined, VideoCameraOutlined } from '@ant-design/icons'
+import { performanceMonitor } from '@renderer/utils/performance'
 import styles from './PlayPageHeader.module.css'
 
 const { Text } = Typography
@@ -23,7 +24,17 @@ function truncateFileName(fileName: string, maxLength: number = 50): string {
   return `${nameWithoutExt.slice(0, maxNameLength)}...${extension}`
 }
 
-export function PlayPageHeader({ videoFileName, onBack }: PlayPageHeaderProps): React.JSX.Element {
+// 使用React.memo优化组件，避免不必要的重渲染
+export const PlayPageHeader = React.memo<PlayPageHeaderProps>(function PlayPageHeader({
+  videoFileName,
+  onBack
+}) {
+  // 优化的返回按钮点击处理
+  const handleBackClick = useCallback(() => {
+    performanceMonitor.start('page-transition-to-home')
+    onBack()
+  }, [onBack])
+
   return (
     <div className={styles.header}>
       {/* 背景装饰 */}
@@ -35,7 +46,7 @@ export function PlayPageHeader({ videoFileName, onBack }: PlayPageHeaderProps): 
           <Button
             type="text"
             icon={<ArrowLeftOutlined />}
-            onClick={onBack}
+            onClick={handleBackClick}
             className={styles.backButton}
             size="large"
           />
@@ -58,4 +69,4 @@ export function PlayPageHeader({ videoFileName, onBack }: PlayPageHeaderProps): 
       <div className={styles.headerRight}>{/* 可以添加其他功能按钮，如设置、全屏等 */}</div>
     </div>
   )
-}
+})

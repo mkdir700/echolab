@@ -38,12 +38,36 @@
   background: var(--darker-bg);
   z-index: var(--z-index-base);
   overflow: hidden;
+  /* 添加页面切换过渡效果 */
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
 }
 
 .pageContainer.otherPage {
   z-index: calc(var(--z-index-base) + 1);
   background: var(--darker-bg);
   overflow: auto;
+}
+
+/* 页面切换状态 */
+.pageContainer.transitioning {
+  opacity: 0.8;
+  transform: translateY(10px);
+}
+
+.pageContainer.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+/* 播放页面特殊优化 */
+.pageContainer.playPage {
+  /* 播放页面使用硬件加速 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 /* 主容器 - 左右布局 */

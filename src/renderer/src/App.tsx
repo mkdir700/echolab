@@ -21,15 +21,17 @@ import { PlayPage } from '@renderer/pages/PlayPage'
 import { FavoritesPage } from '@renderer/pages/FavoritesPage'
 import { AboutPage } from '@renderer/pages/AboutPage'
 import { SettingsPage } from '@renderer/pages/SettingsPage'
-import { SubtitleLoadModal } from '@renderer/components/SubtitleLoadModal'
+
 import { ShortcutProvider } from '@renderer/contexts/ShortcutContext'
 
 // 导入类型
 import { PageType } from '@renderer/types'
-import type { SubtitleItem } from '@renderer/types/shared'
 
 // 导入样式
 import styles from './App.module.css'
+
+// 导入性能监控工具
+import { performanceMonitor } from '@renderer/utils/performance'
 
 const { Content } = Layout
 
@@ -63,13 +65,6 @@ function App(): React.JSX.Element {
 
   // 页面状态管理
   const [currentPage, setCurrentPage] = useState<PageType>('home')
-
-  // 字幕检查Modal状态
-  const [showSubtitleModal, setShowSubtitleModal] = useState(false)
-  const [pendingVideoInfo, setPendingVideoInfo] = useState<{
-    filePath: string
-    fileName: string
-  } | null>(null)
 
   // 状态恢复标志 - 使用 ref 确保只执行一次
   const [isInitialized, setIsInitialized] = useState(false)
@@ -181,70 +176,91 @@ function App(): React.JSX.Element {
     initializeApp()
   }, []) // 空依赖数组，确保只执行一次
 
-  // 自动保存应用状态
-  useEffect(() => {
-    // 如果还没有初始化完成或状态恢复未完成，跳过自动保存
-    if (!isInitialized || !restorationCompleteRef.current) {
-      return
+  // 自动保存应用状态 - 优化版本
+  const saveStateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // 防抖保存函数
+  const debouncedSaveState = useCallback(() => {
+    if (saveStateTimeoutRef.current) {
+      clearTimeout(saveStateTimeoutRef.current)
     }
 
-    // 只有在播放页面且有视频文件时才保存视频相关数据
-    const isInPlayPage = currentPage === 'play'
-    const hasVideoFile = fileUpload.isLocalFile && fileUpload.originalFilePath
+    saveStateTimeoutRef.current = setTimeout(() => {
+      // 如果还没有初始化完成或状态恢复未完成，跳过自动保存
+      if (!isInitialized || !restorationCompleteRef.current) {
+        return
+      }
 
-    // 收集当前状态
-    const currentState = {
-      // 视频相关 - 只有在播放页面且有本地文件时才保存
-      videoFilePath: isInPlayPage && hasVideoFile ? fileUpload.originalFilePath : undefined,
-      videoFileName: isInPlayPage && hasVideoFile ? fileUpload.videoFileName : '',
-      currentTime: isInPlayPage && hasVideoFile ? videoPlayer.currentTime : 0,
-      playbackRate: videoPlayer.playbackRate,
-      volume: videoPlayer.volume,
+      // 只有在播放页面且有视频文件时才保存视频相关数据
+      const isInPlayPage = currentPage === 'play'
+      const hasVideoFile = fileUpload.isLocalFile && fileUpload.originalFilePath
 
-      // 字幕相关 - 只有在播放页面时才保存
-      subtitles: isInPlayPage ? subtitles.subtitles : [],
-      currentSubtitleIndex: isInPlayPage ? currentSubtitleIndexMemo : 0,
-      isAutoScrollEnabled: isInPlayPage ? subtitles.isAutoScrollEnabled : true,
-      displayMode: subtitleDisplayMode.displayMode,
+      // 收集当前状态
+      const currentState = {
+        // 视频相关 - 只有在播放页面且有本地文件时才保存
+        videoFilePath: isInPlayPage && hasVideoFile ? fileUpload.originalFilePath : undefined,
+        videoFileName: isInPlayPage && hasVideoFile ? fileUpload.videoFileName : '',
+        currentTime: isInPlayPage && hasVideoFile ? videoPlayer.currentTime : 0,
+        playbackRate: videoPlayer.playbackRate,
+        volume: videoPlayer.volume,
 
-      // 控制配置
-      isSingleLoop: subtitleControl.isSingleLoop,
-      isAutoPause: subtitleControl.isAutoPause,
+        // 字幕相关 - 只有在播放页面时才保存
+        subtitles: isInPlayPage ? subtitles.subtitles : [],
+        currentSubtitleIndex: isInPlayPage ? currentSubtitleIndexMemo : 0,
+        isAutoScrollEnabled: isInPlayPage ? subtitles.isAutoScrollEnabled : true,
+        displayMode: subtitleDisplayMode.displayMode,
 
-      // UI状态
-      sidebarWidth: sidebarResize.sidebarWidth
-    }
+        // 控制配置
+        isSingleLoop: subtitleControl.isSingleLoop,
+        isAutoPause: subtitleControl.isAutoPause,
 
-    // 保存状态（带防抖）
-    saveAppState(currentState)
+        // UI状态
+        sidebarWidth: sidebarResize.sidebarWidth
+      }
+
+      // 保存状态（带防抖）
+      saveAppState(currentState)
+    }, 2000) // 2秒防抖，减少保存频率
   }, [
-    // 初始化状态
     isInitialized,
     currentPage,
-    // 视频相关
     fileUpload.originalFilePath,
     fileUpload.videoFileName,
     fileUpload.isLocalFile,
-    videoPlayer.currentTime,
     videoPlayer.playbackRate,
     videoPlayer.volume,
-
-    // 字幕相关
     subtitles.subtitles,
     currentSubtitleIndexMemo,
     subtitles.isAutoScrollEnabled,
     subtitleDisplayMode.displayMode,
-
-    // 控制配置
     subtitleControl.isSingleLoop,
     subtitleControl.isAutoPause,
-
-    // UI状态
     sidebarResize.sidebarWidth,
-
-    // 依赖
     saveAppState
   ])
+
+  // 监听关键状态变化，触发防抖保存
+  useEffect(() => {
+    debouncedSaveState()
+  }, [
+    currentPage, // 页面切换时立即保存
+    fileUpload.originalFilePath,
+    subtitles.subtitles,
+    subtitleDisplayMode.displayMode,
+    debouncedSaveState
+  ])
+
+  // 单独处理视频时间的保存 - 降低频率
+  useEffect(() => {
+    if (currentPage === 'play' && videoPlayer.isVideoLoaded) {
+      debouncedSaveState()
+    }
+  }, [
+    Math.floor(videoPlayer.currentTime / 5),
+    currentPage,
+    videoPlayer.isVideoLoaded,
+    debouncedSaveState
+  ]) // 每5秒保存一次时间
 
   // 同步当前字幕索引
   useEffect(() => {
@@ -260,17 +276,8 @@ function App(): React.JSX.Element {
       // 重置字幕控制状态
       subtitleControl.resetState()
 
-      // 如果是本地文件，检查字幕文件
-      if (fileUpload.isLocalFile && fileUpload.originalFilePath) {
-        setPendingVideoInfo({
-          filePath: fileUpload.originalFilePath,
-          fileName: fileUpload.videoFileName
-        })
-        setShowSubtitleModal(true)
-      } else {
-        // 非本地文件直接进入播放页面
-        setCurrentPage('play')
-      }
+      // 直接进入播放页面
+      setCurrentPage('play')
 
       // 添加到最近文件列表
       const updatedRecentFiles = recentFiles.addRecentFile(
@@ -284,7 +291,6 @@ function App(): React.JSX.Element {
     return success
   }, [
     fileUpload.handleVideoFileSelect,
-    fileUpload.isLocalFile,
     fileUpload.originalFilePath,
     fileUpload.videoFileName,
     videoPlayer.resetVideoState,
@@ -380,35 +386,17 @@ function App(): React.JSX.Element {
     saveAppState({ recentFiles: updatedRecentFiles })
   }, [recentFiles.clearRecentFiles, saveAppState])
 
-  // 处理字幕Modal的回调
-  const handleSubtitleModalCancel = useCallback(() => {
-    setShowSubtitleModal(false)
-    setPendingVideoInfo(null)
-    // 取消时直接进入播放页面
-    setCurrentPage('play')
+  // 稳定的返回主页回调函数
+  const handleBackToHome = useCallback(() => {
+    setCurrentPage('home')
+    // 在下一个渲染周期结束性能测量
+    requestAnimationFrame(() => {
+      performanceMonitor.end('page-transition-to-home')
+    })
   }, [])
-
-  const handleSubtitleModalSkip = useCallback(() => {
-    setShowSubtitleModal(false)
-    setPendingVideoInfo(null)
-    // 跳过字幕加载，直接进入播放页面
-    setCurrentPage('play')
-  }, [])
-
-  const handleSubtitlesLoaded = useCallback(
-    (loadedSubtitles: SubtitleItem[]) => {
-      // 加载字幕到应用状态
-      subtitles.restoreSubtitles(loadedSubtitles, 0, true)
-      setShowSubtitleModal(false)
-      setPendingVideoInfo(null)
-      // 进入播放页面
-      setCurrentPage('play')
-    },
-    [subtitles]
-  )
 
   // 渲染页面内容 - 使用冻结模式，播放页面始终保持挂载
-  const renderPageContent = (): React.JSX.Element => {
+  const renderPageContent = useMemo((): React.JSX.Element => {
     return (
       <>
         {/* 主页 */}
@@ -432,15 +420,18 @@ function App(): React.JSX.Element {
             display: currentPage === 'play' ? 'block' : 'none'
           }}
         >
-          <PlayPage
-            fileUpload={fileUpload}
-            videoPlayer={videoPlayer}
-            subtitles={subtitles}
-            sidebarResize={sidebarResize}
-            subtitleDisplayMode={subtitleDisplayMode}
-            autoScroll={autoScroll}
-            onBack={() => setCurrentPage('home')}
-          />
+          {/* 只有在播放页面时才渲染PlayPage组件 */}
+          {(currentPage === 'play' || fileUpload.videoFile) && (
+            <PlayPage
+              fileUpload={fileUpload}
+              videoPlayer={videoPlayer}
+              subtitles={subtitles}
+              sidebarResize={sidebarResize}
+              subtitleDisplayMode={subtitleDisplayMode}
+              autoScroll={autoScroll}
+              onBack={handleBackToHome}
+            />
+          )}
         </div>
 
         {/* 其他页面 - 条件渲染，覆盖在播放页面之上 */}
@@ -461,7 +452,21 @@ function App(): React.JSX.Element {
         )}
       </>
     )
-  }
+  }, [
+    currentPage,
+    appState.recentFiles,
+    fileUpload,
+    videoPlayer,
+    subtitles,
+    sidebarResize,
+    subtitleDisplayMode,
+    autoScroll,
+    handleVideoFileSelect,
+    handleOpenRecentFile,
+    handleRemoveRecentFile,
+    handleClearRecentFiles,
+    handleBackToHome
+  ])
 
   return (
     <ShortcutProvider>
@@ -474,25 +479,15 @@ function App(): React.JSX.Element {
 
       {currentPage === 'play' ? (
         // 播放页面 - 全屏布局，不显示全局header
-        <div className={styles.playPageFullscreen}>{renderPageContent()}</div>
+        <div className={styles.playPageFullscreen}>{renderPageContent}</div>
       ) : (
         // 其他页面 - 标准布局，显示全局header
         <Layout className={styles.appLayout}>
           <AppHeader currentPage={currentPage} onPageChange={setCurrentPage} />
 
-          <Content className={styles.appContent}>{renderPageContent()}</Content>
+          <Content className={styles.appContent}>{renderPageContent}</Content>
         </Layout>
       )}
-
-      {/* 字幕检查Modal */}
-      <SubtitleLoadModal
-        visible={showSubtitleModal}
-        videoFilePath={pendingVideoInfo?.filePath || ''}
-        videoFileName={pendingVideoInfo?.fileName || ''}
-        onCancel={handleSubtitleModalCancel}
-        onSkip={handleSubtitleModalSkip}
-        onSubtitlesLoaded={handleSubtitlesLoaded}
-      />
     </ShortcutProvider>
   )
 }

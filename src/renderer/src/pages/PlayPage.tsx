@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { VideoPlayer } from '@renderer/components/VideoPlayer/VideoPlayer'
 import { VideoControlsCompact } from '@renderer/components/VideoPlayer/VideoControlsCompact'
 import { SidebarSection } from '@renderer/components/SidebarSection'
 import { PlayPageHeader } from '@renderer/components/PlayPageHeader'
+import { SubtitleLoadModal } from '@renderer/components/SubtitleLoadModal'
 import { PlayPageProps } from '@renderer/types'
+import type { SubtitleItem } from '@renderer/types/shared'
 import styles from './PlayPage.module.css'
 
 export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
@@ -19,6 +21,13 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [fullscreenToggle, setFullscreenToggle] = useState<(() => void) | null>(null)
 
+  // 字幕检查Modal状态
+  const [showSubtitleModal, setShowSubtitleModal] = useState(false)
+  const [pendingVideoInfo, setPendingVideoInfo] = useState<{
+    filePath: string
+    fileName: string
+  } | null>(null)
+
   // 处理全屏切换函数准备就绪
   const handleFullscreenToggleReady = (toggleFn: () => void): void => {
     setFullscreenToggle(() => toggleFn)
@@ -30,6 +39,28 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
       fullscreenToggle()
     }
   }
+
+  // 处理字幕Modal的回调
+  const handleSubtitleModalCancel = useCallback(() => {
+    setShowSubtitleModal(false)
+    setPendingVideoInfo(null)
+  }, [])
+
+  const handleSubtitleModalSkip = useCallback(() => {
+    setShowSubtitleModal(false)
+    setPendingVideoInfo(null)
+  }, [])
+
+  const handleSubtitlesLoaded = useCallback(
+    (loadedSubtitles: SubtitleItem[]) => {
+      // 加载字幕到应用状态
+      subtitles.restoreSubtitles(loadedSubtitles, 0, true)
+      setShowSubtitleModal(false)
+      setPendingVideoInfo(null)
+    },
+    [subtitles]
+  )
+
   return (
     <div className={styles.playPageContainer}>
       {/* 播放页面独立Header */}
@@ -121,6 +152,15 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
           />
         </div>
       </div>
+
+      {/* 字幕检查Modal - 移入PlayPage */}
+      <SubtitleLoadModal
+        visible={showSubtitleModal}
+        videoFilePath={pendingVideoInfo?.filePath || ''}
+        onCancel={handleSubtitleModalCancel}
+        onSkip={handleSubtitleModalSkip}
+        onSubtitlesLoaded={handleSubtitlesLoaded}
+      />
     </div>
   )
 })
