@@ -136,7 +136,7 @@ export function HomePage({
           onClick={onVideoFileSelect}
           className={styles.addVideoButton}
         >
-          添加视频
+          <span>添加视频</span>
         </Button>
       </div>
 

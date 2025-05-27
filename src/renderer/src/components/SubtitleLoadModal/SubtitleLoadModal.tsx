@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Modal, Button, Typography, Spin, Alert, Upload, message } from 'antd'
+import { Modal, Button, Typography, Spin, Alert, message } from 'antd'
 import {
   FileTextOutlined,
   UploadOutlined,
@@ -11,12 +11,11 @@ import { parseSubtitles } from '@renderer/utils/subtitleParser'
 import type { SubtitleItem } from '@renderer/types/shared'
 import styles from './SubtitleLoadModal.module.css'
 
-const { Title, Text, Paragraph } = Typography
+const { Text } = Typography
 
 interface SubtitleLoadModalProps {
   visible: boolean
   videoFilePath: string
-  videoFileName: string
   onCancel: () => void
   onSkip: () => void
   onSubtitlesLoaded: (subtitles: SubtitleItem[]) => void
@@ -31,7 +30,6 @@ interface SubtitleFileInfo {
 export function SubtitleLoadModal({
   visible,
   videoFilePath,
-  videoFileName,
   onCancel,
   onSkip,
   onSubtitlesLoaded
@@ -40,7 +38,7 @@ export function SubtitleLoadModal({
   const [checking, setChecking] = useState(false)
   const [subtitleFiles, setSubtitleFiles] = useState<SubtitleFileInfo[]>([])
   const [selectedFile, setSelectedFile] = useState<SubtitleFileInfo | null>(null)
-  const [manualUpload, setManualUpload] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   // 检查同目录下的字幕文件
   const checkSubtitleFiles = async (): Promise<void> => {
@@ -57,7 +55,7 @@ export function SubtitleLoadModal({
 
       for (const ext of subtitleExtensions) {
         // 使用正确的路径分隔符
-        const isWindows = navigator.platform.toLowerCase().includes('win')
+        const isWindows = navigator.userAgent.toLowerCase().includes('win')
         const separator = isWindows ? '\\' : '/'
         const subtitlePath = `${videoDir}${separator}${videoBaseName}.${ext}`
         const exists = await FileSystemHelper.checkFileExists(subtitlePath)
@@ -109,32 +107,42 @@ export function SubtitleLoadModal({
     }
   }
 
-  // 处理手动上传字幕文件
-  const handleManualUpload = async (file: File): Promise<boolean> => {
-    setLoading(true)
-    try {
-      const content = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = (e) => resolve(e.target?.result as string)
-        reader.onerror = () => reject(new Error('读取文件失败'))
-        reader.readAsText(file)
-      })
+  // 处理手动选择字幕文件
+  const handleManualFileSelect = (): void => {
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.srt,.vtt,.json'
+    input.onchange = async (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0]
+      if (!file) return
 
-      const subtitles = parseSubtitles(content, file.name)
-      if (subtitles.length === 0) {
-        throw new Error('字幕文件解析失败或为空')
+      setLoading(true)
+      setUploadError(null)
+
+      try {
+        const content = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.onerror = () => reject(new Error('读取文件失败'))
+          reader.readAsText(file)
+        })
+
+        const subtitles = parseSubtitles(content, file.name)
+        if (subtitles.length === 0) {
+          throw new Error('字幕文件解析失败或为空')
+        }
+
+        message.success(`成功加载字幕文件：${file.name}，共 ${subtitles.length} 条字幕`)
+        onSubtitlesLoaded(subtitles)
+      } catch (error) {
+        console.error('加载字幕文件失败:', error)
+        const errorMessage = `加载字幕文件失败：${(error as Error).message}`
+        setUploadError(errorMessage)
+      } finally {
+        setLoading(false)
       }
-
-      message.success(`成功加载字幕文件：${file.name}，共 ${subtitles.length} 条字幕`)
-      onSubtitlesLoaded(subtitles)
-    } catch (error) {
-      console.error('上传字幕文件失败:', error)
-      message.error(`上传字幕文件失败：${(error as Error).message}`)
-    } finally {
-      setLoading(false)
     }
-
-    return false // 阻止默认上传行为
+    input.click()
   }
 
   // 当Modal显示时检查字幕文件
@@ -159,11 +167,6 @@ export function SubtitleLoadModal({
       className={styles.subtitleModal}
     >
       <div className={styles.modalContent}>
-        <div className={styles.videoInfo}>
-          <Title level={4}>视频文件</Title>
-          <Text className={styles.fileName}>{videoFileName}</Text>
-        </div>
-
         {checking ? (
           <div className={styles.checkingSection}>
             <Spin size="large" />
@@ -225,45 +228,33 @@ export function SubtitleLoadModal({
                   className={styles.alert}
                 />
 
-                {!manualUpload ? (
-                  <div className={styles.actionButtons}>
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<UploadOutlined />}
-                      onClick={() => setManualUpload(true)}
-                      className={styles.uploadButton}
-                    >
-                      手动添加字幕文件
-                    </Button>
-                    <Button size="large" onClick={onSkip} className={styles.skipButton}>
-                      稍后添加
-                    </Button>
-                  </div>
-                ) : (
-                  <div className={styles.uploadSection}>
-                    <Paragraph className={styles.uploadTip}>
-                      请选择字幕文件（支持 .srt, .vtt, .json 格式）
-                    </Paragraph>
-                    <Upload.Dragger
-                      accept=".srt,.vtt,.json"
-                      beforeUpload={handleManualUpload}
-                      showUploadList={false}
-                      className={styles.uploadDragger}
-                    >
-                      <p className="ant-upload-drag-icon">
-                        <UploadOutlined />
-                      </p>
-                      <p className="ant-upload-text">点击或拖拽字幕文件到此区域</p>
-                      <p className="ant-upload-hint">支持 SRT、VTT、JSON 格式的字幕文件</p>
-                    </Upload.Dragger>
-
-                    <div className={styles.uploadActions}>
-                      <Button onClick={() => setManualUpload(false)}>返回</Button>
-                      <Button onClick={onSkip}>稍后添加</Button>
-                    </div>
-                  </div>
+                {uploadError && (
+                  <Alert
+                    message="加载失败"
+                    description={uploadError}
+                    type="error"
+                    closable
+                    onClose={() => setUploadError(null)}
+                    className={styles.alert}
+                    style={{ marginBottom: 16 }}
+                  />
                 )}
+
+                <div className={styles.actionButtons}>
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={<UploadOutlined />}
+                    loading={loading}
+                    onClick={handleManualFileSelect}
+                    className={styles.uploadButton}
+                  >
+                    手动添加字幕文件
+                  </Button>
+                  <Button size="large" onClick={onSkip} className={styles.skipButton}>
+                    稍后添加
+                  </Button>
+                </div>
               </div>
             )}
           </>

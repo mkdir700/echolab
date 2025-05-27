@@ -39,7 +39,7 @@ export function VideoConversionGuide({
     <Modal
       title={
         <Space>
-          <InfoCircleOutlined style={{ color: '#1890ff' }} />
+          <InfoCircleOutlined style={{ color: '#667eea' }} />
           <span>视频格式转换指南</span>
         </Space>
       }
@@ -51,6 +51,7 @@ export function VideoConversionGuide({
         </Button>
       ]}
       width={700}
+      className="conversion-guide-modal"
     >
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Alert
@@ -62,31 +63,28 @@ export function VideoConversionGuide({
 
         <div>
           <Title level={4}>🎯 推荐解决方案</Title>
-          <Paragraph>
-            将视频转换为 H.264 编码的 MP4 格式，这是目前兼容性最好的视频格式。
-          </Paragraph>
+          <Paragraph>将视频转换为 H.264 编码的 MP4 格式，这是目前兼容性最好的视频格式。</Paragraph>
         </div>
 
         <Divider />
 
         <div>
           <Title level={4}>🛠️ 方法一：使用 FFmpeg（推荐）</Title>
-          <Paragraph>
-            FFmpeg 是一个强大的开源视频处理工具，支持几乎所有视频格式的转换。
-          </Paragraph>
+          <Paragraph>FFmpeg 是一个强大的开源视频处理工具，支持几乎所有视频格式的转换。</Paragraph>
 
           <div style={{ marginBottom: 16 }}>
             <Text strong>转换命令：</Text>
             <div
               style={{
-                background: '#f6f8fa',
+                background: 'rgba(255, 255, 255, 0.08)',
                 padding: 12,
                 borderRadius: 6,
                 marginTop: 8,
-                fontFamily: 'monospace',
+                fontFamily: 'var(--font-family-mono)',
                 fontSize: 13,
-                border: '1px solid #e1e4e8',
-                position: 'relative'
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                position: 'relative',
+                backdropFilter: 'blur(10px)'
               }}
             >
               <Text copyable={{ text: ffmpegCommand }} style={{ fontSize: 13 }}>
@@ -107,9 +105,15 @@ export function VideoConversionGuide({
           <div style={{ marginBottom: 16 }}>
             <Text strong>参数说明：</Text>
             <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-              <li><Text code>-c:v libx264</Text>：使用 H.264 视频编码器</li>
-              <li><Text code>-crf 23</Text>：设置视频质量（18-28，数值越小质量越高）</li>
-              <li><Text code>-c:a aac</Text>：使用 AAC 音频编码器</li>
+              <li>
+                <Text code>-c:v libx264</Text>：使用 H.264 视频编码器
+              </li>
+              <li>
+                <Text code>-crf 23</Text>：设置视频质量（18-28，数值越小质量越高）
+              </li>
+              <li>
+                <Text code>-c:a aac</Text>：使用 AAC 音频编码器
+              </li>
             </ul>
           </div>
 
@@ -128,17 +132,23 @@ export function VideoConversionGuide({
 
         <div>
           <Title level={4}>🎬 方法二：使用 HandBrake（图形界面）</Title>
-          <Paragraph>
-            HandBrake 是一个免费的开源视频转换器，提供友好的图形界面。
-          </Paragraph>
+          <Paragraph>HandBrake 是一个免费的开源视频转换器，提供友好的图形界面。</Paragraph>
 
           <div style={{ marginBottom: 16 }}>
             <Text strong>推荐设置：</Text>
             <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-              <li>预设：<Text code>{handbrakeSettings.preset}</Text></li>
-              <li>视频编码器：<Text code>{handbrakeSettings.videoCodec}</Text></li>
-              <li>质量：<Text code>{handbrakeSettings.quality}</Text></li>
-              <li>音频编码器：<Text code>{handbrakeSettings.audioCodec}</Text></li>
+              <li>
+                预设：<Text code>{handbrakeSettings.preset}</Text>
+              </li>
+              <li>
+                视频编码器：<Text code>{handbrakeSettings.videoCodec}</Text>
+              </li>
+              <li>
+                质量：<Text code>{handbrakeSettings.quality}</Text>
+              </li>
+              <li>
+                音频编码器：<Text code>{handbrakeSettings.audioCodec}</Text>
+              </li>
             </ul>
           </div>
 
@@ -174,4 +184,4 @@ export function VideoConversionGuide({
       </Space>
     </Modal>
   )
-} 
+}
