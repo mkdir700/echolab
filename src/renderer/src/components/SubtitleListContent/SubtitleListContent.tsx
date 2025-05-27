@@ -32,11 +32,12 @@ export function SubtitleListContent({
       {subtitles.length > 0 && (
         <div
           style={{
-            padding: '8px 12px',
-            borderBottom: '1px solid var(--border-color)',
+            padding: '12px 16px',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.01) 0%, transparent 100%)'
           }}
         >
           <Text style={{ fontSize: 12, color: 'var(--text-muted)' }}>

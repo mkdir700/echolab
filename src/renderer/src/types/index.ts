@@ -137,14 +137,6 @@ export interface PlayPageProps {
     setDisplayMode: (mode: 'none' | 'original' | 'chinese' | 'english' | 'bilingual') => void
     toggleDisplayMode: () => void
   }
-  subtitleControl: {
-    isSingleLoop: boolean
-    isAutoPause: boolean
-    toggleSingleLoop: () => void
-    toggleAutoPause: () => void
-    goToPreviousSubtitle: () => void
-    goToNextSubtitle: () => void
-  }
   autoScroll: {
     subtitleListRef: React.RefObject<HTMLDivElement | null>
     scrollToCurrentSubtitle: (index: number) => void

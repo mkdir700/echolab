@@ -165,17 +165,20 @@
   box-sizing: border-box;
 }
 
-/* 无标题的字幕列表容器 */
+/* 无标题的字幕列表容器 - 现代化沉浸式设计 */
 .subtitleListContainerNoHeader {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(20px);
+  background: var(--darker-bg);
+  /* 移除卡片样式 */
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* 添加顶部微妙的分割线 */
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .subtitleListContainerNoHeader .subtitleListContent {

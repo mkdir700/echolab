@@ -295,7 +295,6 @@ function App(): React.JSX.Element {
             subtitles={subtitles}
             sidebarResize={sidebarResize}
             subtitleDisplayMode={subtitleDisplayMode}
-            subtitleControl={subtitleControl}
             autoScroll={autoScroll}
           />
         </div>

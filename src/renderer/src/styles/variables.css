@@ -10,11 +10,20 @@
   --text-primary: #ffffff;
   --text-secondary: #b0b0b0;
   --text-muted: #808080;
+  --text-disabled: #666666;
   --accent-color: #667eea;
+  --accent-hover: #7c8ef0;
+  --accent-active: #5a6fd8;
   --accent-color-light: rgba(102, 126, 234, 0.15);
   --success-color: #52c41a;
   --warning-color: #faad14;
   --error-color: #ff4d4f;
+  
+  /* 交互状态颜色 */
+  --hover-bg: rgba(255, 255, 255, 0.08);
+  --active-bg: rgba(255, 255, 255, 0.12);
+  --border-color: rgba(255, 255, 255, 0.15);
+  --input-bg: rgba(255, 255, 255, 0.03);
 
   /* 间距系统 */
   --spacing-xs: 4px;
