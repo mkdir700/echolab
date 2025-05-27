@@ -32,7 +32,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   // 使用 hooks 获取所需的状态和方法
   const videoPlayer = useVideoPlayer()
   const subtitles = useSubtitles()
-  const fileUpload = usePlayingVideoContext()
+  const playingVideoContext = usePlayingVideoContext()
   const sidebarResize = useSidebarResize(containerRef)
   const subtitleDisplayMode = useSubtitleDisplayMode()
   const { updateRecentPlay, getRecentPlayByPath, addRecentPlay } = useRecentPlays()
@@ -168,11 +168,11 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   // 恢复保存的字幕数据和状态，或添加新视频到最近播放
   useEffect(() => {
     const initialize = async (): Promise<void> => {
-      if (!fileUpload.originalFilePath || !fileUpload.videoFile) return
+      if (!playingVideoContext.originalFilePath || !playingVideoContext.videoFile) return
 
       try {
         // 获取保存的播放记录
-        const recent = await getRecentPlayByPath(fileUpload.originalFilePath)
+        const recent = await getRecentPlayByPath(playingVideoContext.originalFilePath)
         if (recent) {
           console.log('🔄 恢复保存的数据:', recent)
           console.log('🔍 检查字幕数据:', {
@@ -211,13 +211,13 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
         } else {
           // 如果没有找到保存的记录，说明这是一个新选择的视频文件，添加到最近播放列表
           console.log('📹 检测到新视频文件，添加到最近播放:', {
-            originalFilePath: fileUpload.originalFilePath,
-            videoFileName: fileUpload.videoFileName
+            originalFilePath: playingVideoContext.originalFilePath,
+            videoFileName: playingVideoContext.videoFileName
           })
 
           await addRecentPlay({
-            filePath: fileUpload.originalFilePath,
-            fileName: fileUpload.videoFileName || '',
+            filePath: playingVideoContext.originalFilePath,
+            fileName: playingVideoContext.videoFileName || '',
             duration: 0,
             currentTime: 0,
             subtitleFile: undefined,
@@ -230,8 +230,8 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
 
       // 如果没有保存的字幕数据，则自动检测并导入同名字幕文件
       if (subtitles.subtitles.length === 0 && !showSubtitleModal) {
-        const videoPath = fileUpload.originalFilePath
-        const videoName = fileUpload.videoFileName || ''
+        const videoPath = playingVideoContext.originalFilePath
+        const videoName = playingVideoContext.videoFileName || ''
         const videoDir = FileSystemHelper.getDirectoryPath(videoPath)
         const videoBaseName = FileSystemHelper.getFileName(videoPath).replace(/\.[^/.]+$/, '')
         const subtitleExtensions = ['srt', 'vtt', 'json']
@@ -277,12 +277,17 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
 
     initialize()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fileUpload.originalFilePath, fileUpload.videoFile, getRecentPlayByPath, addRecentPlay])
+  }, [
+    playingVideoContext.originalFilePath,
+    playingVideoContext.videoFile,
+    getRecentPlayByPath,
+    addRecentPlay
+  ])
 
   // 自动保存播放进度和字幕索引到最近播放
   useEffect(() => {
     // 只有当有原始文件路径时才保存进度（本地文件）
-    if (!fileUpload.originalFilePath || !fileUpload.videoFile) return
+    if (!playingVideoContext.originalFilePath || !playingVideoContext.videoFile) return
 
     let timer: NodeJS.Timeout | null = null
     let isUnmounted = false
@@ -292,11 +297,11 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
     let recentId: string | undefined
 
     async function saveProgress(force = false): Promise<void> {
-      if (!fileUpload.originalFilePath) return
+      if (!playingVideoContext.originalFilePath) return
 
       // 查找当前视频的 recentPlay 项（使用原始文件路径）
       if (!recentId) {
-        const recent = await getRecentPlayByPath(fileUpload.originalFilePath)
+        const recent = await getRecentPlayByPath(playingVideoContext.originalFilePath)
         if (recent && recent.id) {
           recentId = recent.id
         } else {
@@ -320,7 +325,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
           currentTime: videoPlayer.currentTime,
           subtitleIndex: actualCurrentSubtitleIndex,
           subtitlesCount: subtitles.subtitles.length,
-          filePath: fileUpload.originalFilePath
+          filePath: playingVideoContext.originalFilePath
         })
 
         const success = await updateRecentPlay(recentId, {
@@ -360,8 +365,8 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
       }
     }
   }, [
-    fileUpload.originalFilePath,
-    fileUpload.videoFile,
+    playingVideoContext.originalFilePath,
+    playingVideoContext.videoFile,
     videoPlayer.currentTime,
     videoPlayer.duration,
     subtitles.currentSubtitleIndex,
@@ -373,7 +378,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   return (
     <div ref={containerRef} className={styles.playPageContainer}>
       {/* 播放页面独立Header */}
-      <PlayPageHeader videoFileName={fileUpload.videoFileName} onBack={handleBack} />
+      <PlayPageHeader videoFileName={playingVideoContext.videoFileName} onBack={handleBack} />
 
       <div className={styles.playPageContent}>
         <div
@@ -383,7 +388,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
           {/* 视频播放区域 - 占据主要空间 */}
           <div className={styles.videoPlayerSection}>
             <VideoPlayer
-              videoFile={fileUpload.videoFile}
+              videoFile={playingVideoContext.videoFile}
               playerRef={videoPlayer.playerRef}
               isPlaying={videoPlayer.isPlaying}
               volume={videoPlayer.volume}
@@ -410,7 +415,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
           </div>
 
           {/* 视频控制区域 - 仅在非全屏模式下显示 */}
-          {fileUpload.videoFile && !isFullscreen && (
+          {playingVideoContext.videoFile && !isFullscreen && (
             <div className={styles.videoControlsSection}>
               <VideoControlsCompact
                 duration={videoPlayer.duration}
