@@ -15,7 +15,7 @@ import { useAutoScroll } from '@renderer/hooks/useAutoScroll'
 import { useSubtitleControl } from '@renderer/hooks/useSubtitleControl'
 import { useKeyboardShortcuts } from '@renderer/hooks/useKeyboardShortcuts'
 import { useRecentPlays } from '@renderer/hooks/useRecentPlays'
-import { usePlaybackSettings } from '@renderer/hooks/usePlaybackSettings'
+import { usePlaybackSettingsContext } from '@renderer/contexts/usePlaybackSettingsContext'
 
 import type { SubtitleItem } from '@types_/shared'
 import styles from './PlayPage.module.css'
@@ -33,10 +33,10 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   const videoPlayer = useVideoPlayer()
   const subtitles = useSubtitles()
   const playingVideoContext = usePlayingVideoContext()
+  const playbackSettingsContext = usePlaybackSettingsContext()
   const sidebarResize = useSidebarResize(containerRef)
   const subtitleDisplayMode = useSubtitleDisplayMode()
   const { updateRecentPlay, getRecentPlayByPath, addRecentPlay } = useRecentPlays()
-  const playbackSettings = usePlaybackSettings()
 
   // 计算当前字幕索引
   const currentSubtitleIndex = subtitles.getCurrentSubtitleIndex(videoPlayer.currentTime)
@@ -85,8 +85,8 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   const autoScroll = useAutoScroll({
     currentSubtitleIndex,
     subtitlesLength: subtitles.subtitles.length,
-    isAutoScrollEnabled: playbackSettings.playbackSettings?.isAutoScrollEnabled ?? true,
-    onAutoScrollChange: playbackSettings.setAutoScrollEnabled
+    isAutoScrollEnabled: playbackSettingsContext.playbackSettings.isAutoScrollEnabled,
+    onAutoScrollChange: playbackSettingsContext.setAutoScrollEnabled
   })
 
   // 快捷键处理 - 在 PlayPage 中处理字幕控制相关的快捷键
@@ -199,7 +199,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
             subtitles.restoreSubtitles(
               recent.subtitles,
               recent.subtitleIndex || 0,
-              playbackSettings.playbackSettings?.isAutoScrollEnabled ?? true
+              playbackSettingsContext.playbackSettings?.isAutoScrollEnabled ?? true
             )
             hasRestoredSubtitles = true
           }
@@ -457,7 +457,9 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
         <div className={styles.sidebarSection} style={{ width: `${sidebarResize.sidebarWidth}px` }}>
           <SidebarSection
             subtitles={subtitles.subtitles}
-            isAutoScrollEnabled={playbackSettings.playbackSettings?.isAutoScrollEnabled ?? true}
+            isAutoScrollEnabled={
+              playbackSettingsContext.playbackSettings?.isAutoScrollEnabled ?? true
+            }
             currentSubtitleIndex={subtitles.currentSubtitleIndex}
             currentTime={videoPlayer.currentTime}
             subtitleListRef={autoScroll.subtitleListRef}

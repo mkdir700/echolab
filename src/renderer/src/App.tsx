@@ -11,6 +11,7 @@ import { SettingsPage } from '@renderer/pages/SettingsPage'
 
 import { ShortcutProvider } from '@renderer/contexts/ShortcutContext'
 import { PlayingVideoProvider } from '@renderer/contexts/PlayingVideoContext'
+import { PlaybackSettingsProvider } from '@renderer/contexts/PlaybackSettingsContext'
 
 // 导入类型
 import { PageType } from '@renderer/types'
@@ -84,20 +85,22 @@ function App(): React.JSX.Element {
   }, [currentPage, handleNavigateToPlay, handleBackToHome])
 
   return (
-    <ShortcutProvider>
-      <PlayingVideoProvider>
-        {currentPage === 'play' ? (
-          // 播放页面 - 全屏布局，不显示全局header
-          <div className={styles.playPageFullscreen}>{renderPageContent}</div>
-        ) : (
-          // 其他页面 - 标准布局，显示全局header
-          <Layout className={styles.appLayout}>
-            <AppHeader currentPage={currentPage} onPageChange={setCurrentPage} />
-            <Content className={styles.appContent}>{renderPageContent}</Content>
-          </Layout>
-        )}
-      </PlayingVideoProvider>
-    </ShortcutProvider>
+    <PlaybackSettingsProvider>
+      <ShortcutProvider>
+        <PlayingVideoProvider>
+          {currentPage === 'play' ? (
+            // 播放页面 - 全屏布局，不显示全局header
+            <div className={styles.playPageFullscreen}>{renderPageContent}</div>
+          ) : (
+            // 其他页面 - 标准布局，显示全局header
+            <Layout className={styles.appLayout}>
+              <AppHeader currentPage={currentPage} onPageChange={setCurrentPage} />
+              <Content className={styles.appContent}>{renderPageContent}</Content>
+            </Layout>
+          )}
+        </PlayingVideoProvider>
+      </ShortcutProvider>
+    </PlaybackSettingsProvider>
   )
 }
 

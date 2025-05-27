@@ -53,26 +53,32 @@ export function usePlaybackSettings(): UsePlaybackSettingsReturn {
     refreshPlaybackSettings()
   }, [refreshPlaybackSettings])
 
-  // 更新播放设置
+  // 更新播放设置 - 立即保存到存储
   const updatePlaybackSettings = useCallback(
     async (newSettings: Partial<PlaybackSettings>): Promise<boolean> => {
       try {
         setError(null)
+
+        // 先更新本地状态，提供即时反馈
+        const updatedSettings = { ...playbackSettings, ...newSettings }
+        setPlaybackSettings(updatedSettings)
+
+        // 立即保存到存储
         const result = await window.api.store.updateSettings({
-          playback: {
-            ...playbackSettings,
-            ...newSettings
-          }
+          playback: updatedSettings
         })
 
         if (result.success) {
-          setPlaybackSettings((prev) => ({ ...prev, ...newSettings }))
           return true
         } else {
+          // 如果保存失败，回滚本地状态
+          setPlaybackSettings(playbackSettings)
           setError(result.error || '更新播放设置失败')
           return false
         }
       } catch (err) {
+        // 如果保存失败，回滚本地状态
+        setPlaybackSettings(playbackSettings)
         const errorMessage = err instanceof Error ? err.message : '更新播放设置失败'
         setError(errorMessage)
         console.error('更新播放设置失败:', err)
