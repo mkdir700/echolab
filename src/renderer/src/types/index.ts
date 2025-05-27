@@ -99,7 +99,7 @@ export interface PlayPageProps {
   fileUpload: {
     videoFile: string | null
     videoFileName: string
-    handleVideoUpload: (file: File) => boolean
+    handleVideoUpload: (file: File, resetVideoState?: () => void) => boolean
   }
   videoPlayer: {
     playerRef: React.RefObject<ReactPlayer | null>

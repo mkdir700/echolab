@@ -6,6 +6,7 @@ import { DataManagementSection } from '@renderer/components/Settings/DataManagem
 import { SettingsNavigation } from '@renderer/components/Settings/SettingsNavigation'
 import { PlaceholderSection } from '@renderer/components/Settings/PlaceholderSection'
 import { ThirdPartyServicesSection } from '@renderer/components/Settings/ThirdPartyServicesSection'
+import { VideoConversionSection } from '@renderer/components/Settings/VideoConversionSection'
 
 const { Title } = Typography
 
@@ -20,6 +21,8 @@ export function SettingsPage(): React.JSX.Element {
         return <DataManagementSection />
       case 'appearance':
         return <PlaceholderSection title="外观设置" description="主题、字体大小等外观相关设置" />
+      case 'video':
+        return <VideoConversionSection />
       case 'dictionary':
         return <ThirdPartyServicesSection />
       case 'about':

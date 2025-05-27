@@ -28,9 +28,27 @@ export function setupFileSystemHandlers(): void {
   ipcMain.handle('fs:get-file-url', async (_, filePath: string): Promise<string | null> => {
     try {
       await access(filePath, constants.F_OK)
-      // 在 Windows 上需要特殊处理路径
-      const normalizedPath = process.platform === 'win32' ? filePath.replace(/\\/g, '/') : filePath
-      return `file://${normalizedPath}`
+
+      // 使用 URL 构造函数来正确处理文件路径
+      let fileUrl: string
+
+      if (process.platform === 'win32') {
+        // Windows 路径处理：使用 file:// 协议和正确的路径格式
+        // 将反斜杠替换为正斜杠
+        const normalizedPath = filePath.replace(/\\/g, '/')
+        // 使用 URL 构造函数自动处理编码
+        fileUrl = new URL(`file:///${normalizedPath}`).href
+      } else {
+        // Unix-like 系统
+        fileUrl = new URL(`file://${filePath}`).href
+      }
+
+      console.log('生成文件URL:', {
+        originalPath: filePath,
+        fileUrl
+      })
+
+      return fileUrl
     } catch (error) {
       console.error('获取文件URL失败:', error)
       return null

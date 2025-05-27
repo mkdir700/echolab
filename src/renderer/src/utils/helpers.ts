@@ -46,6 +46,11 @@ export function getMediaErrorMessage(error: Error | MediaError | string | null):
     return error
   }
 
+  // 处理 Event 对象（如你遇到的错误）
+  if (error && typeof error === 'object' && 'type' in error && error.type === 'error') {
+    return '视频文件加载失败，请检查文件路径和格式是否正确'
+  }
+
   if (error instanceof MediaError) {
     switch (error.code) {
       case MediaError.MEDIA_ERR_ABORTED:
@@ -53,15 +58,19 @@ export function getMediaErrorMessage(error: Error | MediaError | string | null):
       case MediaError.MEDIA_ERR_NETWORK:
         return '网络错误，无法加载视频'
       case MediaError.MEDIA_ERR_DECODE:
-        return '视频解码失败，可能是编解码器不支持'
+        return '视频解码失败，可能是 H.265/HEVC 编解码器不支持。建议转换为 H.264 格式'
       case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-        return '不支持的视频格式或源'
+        return '不支持的视频格式或源。如果是 H.265 视频，请转换为 H.264 格式'
       default:
-        return '未知的视频错误'
+        return `未知的视频错误 (代码: ${error.code})`
     }
   }
 
   if (error instanceof Error) {
+    // 检查是否是文件路径相关的错误
+    if (error.message.includes('file://') || error.message.includes('ERR_FILE_NOT_FOUND')) {
+      return '视频文件路径错误或文件不存在，请重新选择视频文件'
+    }
     return error.message || '视频加载失败'
   }
 

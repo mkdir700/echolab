@@ -3,19 +3,46 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createWindow } from './window/windowManager'
 import { setupFileSystemHandlers, setupDictionaryHandlers } from './handlers'
 
+// 🔥 关键修复：命令行参数必须在 app.whenReady() 之前设置！
+// 启用 H.265/HEVC 支持的关键配置
+app.commandLine.appendSwitch('disable-web-security')
+app.commandLine.appendSwitch('allow-file-access-from-files')
+app.commandLine.appendSwitch('enable-local-file-accesses')
+app.commandLine.appendSwitch('disable-site-isolation-trials')
+
+// 启用硬件加速和视频解码
+app.commandLine.appendSwitch('enable-gpu-rasterization')
+app.commandLine.appendSwitch('enable-zero-copy')
+app.commandLine.appendSwitch('enable-hardware-overlays')
+app.commandLine.appendSwitch('enable-oop-rasterization')
+app.commandLine.appendSwitch('enable-accelerated-video-decode')
+app.commandLine.appendSwitch('enable-accelerated-video-encode')
+
+// 启用 H.265/HEVC 相关特性
+app.commandLine.appendSwitch(
+  'enable-features',
+  'VaapiVideoDecoder,VaapiVideoEncoder,PlatformHEVCDecoderSupport,MediaFoundationH264Encoding,MediaFoundationH265Encoding'
+)
+
+// Windows 特定的 H.265 支持
+if (process.platform === 'win32') {
+  app.commandLine.appendSwitch('enable-media-foundation-video-capture')
+  app.commandLine.appendSwitch('enable-win32-keyboard-lock')
+  // 强制使用 Media Foundation 进行视频解码
+  app.commandLine.appendSwitch('enable-features', 'MediaFoundationVideoCapture')
+}
+
+// macOS 特定的 H.265 支持
+if (process.platform === 'darwin') {
+  app.commandLine.appendSwitch('enable-features', 'VideoToolboxVP9Decoder,VideoToolboxH264Decoder')
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.electron')
-
-  // 启用媒体相关的命令行开关
-  app.commandLine.appendSwitch('enable-features', 'VaapiVideoDecoder')
-  app.commandLine.appendSwitch('disable-web-security')
-  app.commandLine.appendSwitch('allow-file-access-from-files')
-  app.commandLine.appendSwitch('enable-local-file-accesses')
-  app.commandLine.appendSwitch('disable-site-isolation-trials')
 
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.

@@ -188,8 +188,17 @@ export function VideoPlayer({
               playbackRate={playbackRate}
               onProgress={onProgress}
               onDuration={onDuration}
-              onReady={onReady}
-              onError={onError}
+              onReady={() => {
+                console.log('🎬 ReactPlayer onReady 触发')
+                onReady()
+              }}
+              onError={(error) => {
+                console.error('🚨 ReactPlayer onError 触发:', error)
+                onError(error)
+              }}
+              onLoadStart={() => {
+                console.log('🔄 视频开始加载...')
+              }}
               onClick={handleVideoClick}
               controls={false}
               progressInterval={100}
@@ -199,8 +208,8 @@ export function VideoPlayer({
                   attributes: {
                     controlsList: 'nodownload',
                     disablePictureInPicture: false,
-                    preload: 'metadata',
-                    crossOrigin: 'anonymous'
+                    preload: 'metadata'
+                    // 移除 crossOrigin 设置，因为本地文件不需要 CORS
                   },
                   forceHLS: false,
                   forceDASH: false,

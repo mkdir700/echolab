@@ -20,6 +20,8 @@ interface UseVideoPlayerReturn extends VideoPlayerState {
   handleVideoDuration: (duration: number) => void
   resetVideoState: () => void
   restoreVideoState: (currentTime: number, playbackRate: number, volume: number) => void
+  startLoadingTimeout: () => void
+  clearLoadingTimeout: () => void
 }
 
 export function useVideoPlayer(): UseVideoPlayerReturn {
@@ -139,6 +141,49 @@ export function useVideoPlayer(): UseVideoPlayerReturn {
     message.success('视频加载完成，可以开始播放了！')
   }, [])
 
+  // 添加视频加载超时检测
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const startLoadingTimeout = useCallback((): void => {
+    // 清除之前的超时
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current)
+    }
+
+    // 设置30秒超时
+    loadingTimeoutRef.current = setTimeout(() => {
+      console.warn('⚠️ 视频加载超时 (30秒)')
+      setState((prev) => ({
+        ...prev,
+        videoError: '视频加载超时。如果是 H.265 视频，请尝试转换为 H.264 格式',
+        isVideoLoaded: false,
+        isPlaying: false
+      }))
+
+      message.error({
+        content: '视频加载超时，可能是编解码器不支持导致的',
+        duration: 6,
+        key: 'loading-timeout'
+      })
+
+      // 延迟显示转换建议
+      setTimeout(() => {
+        message.info({
+          content: '建议将 H.265 视频转换为 H.264 格式，或查看设置中的"视频转换指南"',
+          duration: 8,
+          key: 'conversion-suggestion'
+        })
+      }, 2000)
+    }, 30000) // 30秒超时
+  }, [])
+
+  const clearLoadingTimeout = useCallback((): void => {
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current)
+      loadingTimeoutRef.current = null
+    }
+  }, [])
+
   // 视频错误处理
   const handleVideoError = useCallback((error: Error | MediaError | string | null): void => {
     console.error('Video player error:', error)
@@ -155,7 +200,30 @@ export function useVideoPlayer(): UseVideoPlayerReturn {
     // 清除待恢复状态
     pendingRestoreTimeRef.current = null
 
-    message.error(`视频加载失败: ${errorMessage}`)
+    // 检查是否是编解码器相关错误
+    const isCodecError =
+      error instanceof MediaError &&
+      (error.code === MediaError.MEDIA_ERR_DECODE ||
+        error.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED)
+
+    if (isCodecError) {
+      message.error({
+        content: `视频加载失败: ${errorMessage}`,
+        duration: 6,
+        key: 'video-error'
+      })
+
+      // 延迟显示转换指导提示
+      setTimeout(() => {
+        message.info({
+          content: '如需帮助转换视频格式，请查看应用设置中的"视频转换指南"',
+          duration: 8,
+          key: 'conversion-guide-hint'
+        })
+      }, 2000)
+    } else {
+      message.error(`视频加载失败: ${errorMessage}`)
+    }
   }, [])
 
   // 视频时长设置
@@ -228,6 +296,8 @@ export function useVideoPlayer(): UseVideoPlayerReturn {
     handleVideoError,
     handleVideoDuration,
     resetVideoState,
-    restoreVideoState
+    restoreVideoState,
+    startLoadingTimeout,
+    clearLoadingTimeout
   }
 }

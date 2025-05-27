@@ -268,10 +268,9 @@ function App(): React.JSX.Element {
 
   // 处理视频文件选择（包含状态重置）
   const handleVideoFileSelect = useCallback(async (): Promise<boolean> => {
-    const success = await fileUpload.handleVideoFileSelect()
+    const success = await fileUpload.handleVideoFileSelect(videoPlayer.resetVideoState)
     if (success) {
-      // 重置视频播放器和字幕控制状态
-      videoPlayer.resetVideoState()
+      // 重置字幕控制状态
       subtitleControl.resetState()
     }
     return success
