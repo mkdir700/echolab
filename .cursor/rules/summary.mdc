@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: true
+alwaysApply: false
 ---
 1. 完成需求后进行评估
     在每个需求完成后，评估该需求的实现细节和架构设计。
