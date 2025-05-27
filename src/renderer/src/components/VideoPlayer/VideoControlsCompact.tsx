@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button, Slider, Typography, Select, Tooltip } from 'antd'
 import {
   PlayCircleOutlined,
@@ -15,13 +15,24 @@ import {
   VerticalAlignBottomOutlined,
   FullscreenOutlined,
   LeftOutlined,
-  RightOutlined
+  RightOutlined,
+  TranslationOutlined
 } from '@ant-design/icons'
+import type { DisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
 
 // 导入样式
 import styles from './VideoControlsCompact.module.css'
 
 const { Text } = Typography
+
+// 显示模式配置
+const DISPLAY_MODE_CONFIG = {
+  none: { label: '隐藏', color: '#ff4d4f' },
+  original: { label: '原始', color: '#1890ff' },
+  chinese: { label: '中文', color: '#52c41a' },
+  english: { label: 'English', color: '#722ed1' },
+  bilingual: { label: '双语', color: '#fa8c16' }
+}
 
 interface VideoControlsCompactProps {
   duration: number
@@ -34,6 +45,7 @@ interface VideoControlsCompactProps {
   isLooping: boolean
   autoSkipSilence: boolean
   subtitlePosition: 'top' | 'bottom'
+  displayMode: DisplayMode
   onSeek: (value: number) => void
   onStepBackward: () => void
   onPlayPause: () => void
@@ -46,6 +58,7 @@ interface VideoControlsCompactProps {
   onFullscreenToggle: () => void
   onPreviousSubtitle: () => void
   onNextSubtitle: () => void
+  onDisplayModeChange: (mode: DisplayMode) => void
 }
 
 export function VideoControlsCompact({
@@ -59,6 +72,7 @@ export function VideoControlsCompact({
   isLooping,
   autoSkipSilence,
   subtitlePosition,
+  displayMode,
   onSeek,
   onStepBackward,
   onPlayPause,
@@ -70,10 +84,13 @@ export function VideoControlsCompact({
   onSubtitlePositionToggle,
   onFullscreenToggle,
   onPreviousSubtitle,
-  onNextSubtitle
+  onNextSubtitle,
+  onDisplayModeChange
 }: VideoControlsCompactProps): React.JSX.Element {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [showSubtitleModeSelector, setShowSubtitleModeSelector] = useState(false)
+  const subtitleModeSelectorRef = useRef<HTMLDivElement>(null)
 
   // 格式化时间显示
   const formatTime = (time: number): string => {
@@ -81,6 +98,32 @@ export function VideoControlsCompact({
     const seconds = Math.floor(time % 60)
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
+
+  // 点击外部关闭字幕模式选择器
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent): void => {
+      if (
+        subtitleModeSelectorRef.current &&
+        !subtitleModeSelectorRef.current.contains(event.target as Node)
+      ) {
+        setShowSubtitleModeSelector(false)
+      }
+    }
+
+    if (showSubtitleModeSelector) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return (): void => {
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
+    }
+    return undefined
+  }, [showSubtitleModeSelector])
+
+  // 获取当前模式的配置
+  const validDisplayMode = Object.keys(DISPLAY_MODE_CONFIG).includes(displayMode)
+    ? displayMode
+    : 'bilingual'
+  const currentModeConfig = DISPLAY_MODE_CONFIG[validDisplayMode]
 
   return (
     <div className={styles.compactControlsContainer}>
@@ -146,6 +189,46 @@ export function VideoControlsCompact({
               size="small"
             />
           </Tooltip>
+
+          {/* 字幕显示模式控制 */}
+          <div className={styles.subtitleModeControl}>
+            {/* 字幕模式切换按钮 */}
+            <Tooltip title={`字幕模式: ${currentModeConfig.label} (点击切换)`}>
+              <Button
+                type="text"
+                size="small"
+                icon={<TranslationOutlined />}
+                onClick={() => setShowSubtitleModeSelector(!showSubtitleModeSelector)}
+                style={{ color: currentModeConfig.color }}
+                className={`${styles.controlBtn} ${showSubtitleModeSelector ? styles.activeBtn : ''}`}
+              />
+            </Tooltip>
+
+            {/* 展开的模式选择器 */}
+            {showSubtitleModeSelector && (
+              <div className={styles.subtitleModeSelector} ref={subtitleModeSelectorRef}>
+                {Object.entries(DISPLAY_MODE_CONFIG).map(([mode, config]) => (
+                  <Button
+                    key={mode}
+                    type={displayMode === mode ? 'primary' : 'text'}
+                    size="small"
+                    onClick={() => {
+                      onDisplayModeChange(mode as DisplayMode)
+                      setShowSubtitleModeSelector(false)
+                    }}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      color: displayMode === mode ? '#fff' : config.color,
+                      marginBottom: '4px'
+                    }}
+                  >
+                    {config.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 中央播放控制 */}

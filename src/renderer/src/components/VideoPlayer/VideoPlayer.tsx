@@ -39,8 +39,6 @@ interface VideoPlayerProps {
   onStepForward: () => void
   onPlaybackRateChange: (value: number) => void
   onVolumeChange: (value: number) => void
-  onDisplayModeChange: (mode: DisplayMode) => void
-  onToggleDisplayMode: () => void
   // 全屏状态回调
   onFullscreenChange?: (isFullscreen: boolean) => void
   // 获取全屏切换函数的回调
@@ -69,8 +67,6 @@ export function VideoPlayer({
   onStepForward,
   onPlaybackRateChange,
   onVolumeChange,
-  onDisplayModeChange,
-  onToggleDisplayMode,
   onFullscreenChange,
   onFullscreenToggleReady
 }: VideoPlayerProps): React.JSX.Element {
@@ -225,8 +221,6 @@ export function VideoPlayer({
                 currentSubtitle={currentSubtitle}
                 isPlaying={isPlaying}
                 displayMode={displayMode}
-                onDisplayModeChange={onDisplayModeChange}
-                onToggleDisplayMode={onToggleDisplayMode}
                 onWordHover={(isHovering) => {
                   if (isHovering) {
                     setShowControls(true)

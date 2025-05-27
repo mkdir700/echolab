@@ -392,4 +392,80 @@
   .settingsPopup {
     display: none;
   }
+}
+
+/* 字幕模式控制 */
+.subtitleModeControl {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.subtitleModeSelector {
+  position: absolute;
+  top: -200px;
+  left: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 8px;
+  min-width: 120px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  z-index: 1000;
+  animation: fadeInUp 0.2s ease-out;
+}
+
+.subtitleModeSelector :global(.ant-btn) {
+  border: none !important;
+  border-radius: var(--border-radius-md) !important;
+  font-size: 12px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  transition: var(--transition);
+}
+
+.subtitleModeSelector :global(.ant-btn):hover {
+  background: var(--hover-bg) !important;
+}
+
+.subtitleModeSelector :global(.ant-btn-primary) {
+  background: var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+}
+
+.subtitleModeSelector :global(.ant-btn-primary):hover {
+  background: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 响应式设计 - 移动端适配 */
+@media (max-width: 768px) {
+  .subtitleModeControl {
+    gap: 2px;
+  }
+
+  .subtitleModeSelector {
+    top: -160px;
+    min-width: 100px;
+    padding: 6px;
+  }
+
+  .subtitleModeSelector :global(.ant-btn) {
+    font-size: 11px !important;
+    height: 28px !important;
+    padding: 0 8px !important;
+  }
 } 

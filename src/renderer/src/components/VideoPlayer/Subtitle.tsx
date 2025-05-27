@@ -1,12 +1,5 @@
-import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
-import { Button, Typography, Tooltip, Space } from 'antd'
-import {
-  EyeInvisibleOutlined,
-  GlobalOutlined,
-  FontSizeOutlined,
-  TranslationOutlined,
-  MenuUnfoldOutlined
-} from '@ant-design/icons'
+import React, { useState, useCallback, useMemo } from 'react'
+import { Typography } from 'antd'
 import type { SubtitleItem } from '@renderer/types/shared'
 import type { DisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
 import { WordCard } from '@renderer/components/WordCard/WordCard'
@@ -20,95 +13,21 @@ interface SubtitleProps {
   currentSubtitle: SubtitleItem | null
   isPlaying: boolean
   displayMode: DisplayMode
-  onDisplayModeChange: (mode: DisplayMode) => void
-  onToggleDisplayMode: () => void
   onWordHover: (isHovering: boolean) => void
   onPauseOnHover: () => void
-}
-
-// 显示模式配置
-const DISPLAY_MODE_CONFIG = {
-  none: { label: '隐藏', icon: <EyeInvisibleOutlined />, color: '#ff4d4f' },
-  original: { label: '原始', icon: <FontSizeOutlined />, color: '#1890ff' },
-  chinese: { label: '中文', icon: <GlobalOutlined />, color: '#52c41a' },
-  english: { label: 'English', icon: <GlobalOutlined />, color: '#722ed1' },
-  bilingual: { label: '双语', icon: <TranslationOutlined />, color: '#fa8c16' }
 }
 
 export function Subtitle({
   currentSubtitle,
   isPlaying,
   displayMode,
-  onDisplayModeChange,
-  onToggleDisplayMode,
   onWordHover,
   onPauseOnHover
 }: SubtitleProps): React.JSX.Element {
-  const [showModeSelector, setShowModeSelector] = useState(false)
-  const [expandDirection, setExpandDirection] = useState<'up' | 'down'>('up')
   const [selectedWord, setSelectedWord] = useState<{
     word: string
     element: HTMLElement
   } | null>(null)
-  const selectorRef = useRef<HTMLDivElement>(null)
-  const controlsRef = useRef<HTMLDivElement>(null)
-
-  // 计算展开方向
-  const calculateExpandDirection = useCallback(() => {
-    if (!controlsRef.current) return 'up'
-
-    const rect = controlsRef.current.getBoundingClientRect()
-    const viewportHeight = window.innerHeight
-    const spaceAbove = rect.top
-    const spaceBelow = viewportHeight - rect.bottom
-
-    // 选择器需要大约 200px 的高度
-    const requiredSpace = 200
-
-    // 如果上方空间充足，优先向上展开
-    if (spaceAbove >= requiredSpace) {
-      return 'up'
-    }
-    // 如果下方空间充足，向下展开
-    if (spaceBelow >= requiredSpace) {
-      return 'down'
-    }
-    // 都不够的情况下，选择空间更大的方向
-    return spaceAbove > spaceBelow ? 'up' : 'down'
-  }, [])
-
-  // 点击外部关闭选择器
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent): void => {
-      if (selectorRef.current && !selectorRef.current.contains(event.target as Node)) {
-        setShowModeSelector(false)
-      }
-    }
-
-    if (showModeSelector) {
-      document.addEventListener('mousedown', handleClickOutside)
-      return (): void => {
-        document.removeEventListener('mousedown', handleClickOutside)
-      }
-    }
-    return undefined
-  }, [showModeSelector])
-
-  // 处理选择器展开
-  const handleToggleSelector = useCallback(() => {
-    if (!showModeSelector) {
-      const direction = calculateExpandDirection()
-      setExpandDirection(direction)
-      setShowModeSelector(true)
-    } else {
-      setShowModeSelector(false)
-    }
-  }, [showModeSelector, calculateExpandDirection])
-
-  // 处理选择器关闭（带动画）
-  const handleCloseSelector = useCallback(() => {
-    setShowModeSelector(false)
-  }, [])
 
   // 处理单词hover事件
   const handleWordHover = useCallback(
@@ -216,13 +135,6 @@ export function Subtitle({
     [isChinese, splitChineseText, splitEnglishText]
   )
 
-  // 获取当前模式的配置
-  // 确保 displayMode 是有效的，如果不是则使用默认值 'bilingual'
-  const validDisplayMode = Object.keys(DISPLAY_MODE_CONFIG).includes(displayMode)
-    ? displayMode
-    : 'bilingual'
-  const currentModeConfig = DISPLAY_MODE_CONFIG[validDisplayMode]
-
   // 根据显示模式渲染字幕内容
   const renderSubtitleContent = useMemo(() => {
     if (!currentSubtitle || displayMode === 'none') {
@@ -305,73 +217,6 @@ export function Subtitle({
 
   return (
     <div className={styles.subtitleContainer}>
-      {/* 浮动控制按钮 */}
-      <div className={styles.subtitleDisplayControlsFloating} ref={controlsRef}>
-        <Space size="small">
-          {/* 模式指示器 - 仅显示图标 */}
-          <Tooltip title={`当前模式: ${currentModeConfig.label}`}>
-            <Button
-              type="text"
-              size="small"
-              icon={currentModeConfig.icon}
-              style={{ color: currentModeConfig.color }}
-            />
-          </Tooltip>
-
-          {/* 快速切换按钮 */}
-          <Tooltip title="快速切换显示模式 (Ctrl+M)">
-            <Button
-              type="text"
-              size="small"
-              icon={<MenuUnfoldOutlined />}
-              onClick={onToggleDisplayMode}
-              style={{ color: currentModeConfig.color }}
-            />
-          </Tooltip>
-
-          {/* 模式选择器切换按钮 */}
-          <Tooltip title="显示所有选项">
-            <Button
-              type="text"
-              size="small"
-              icon={<GlobalOutlined />}
-              onClick={handleToggleSelector}
-              className={showModeSelector ? 'active' : ''}
-            />
-          </Tooltip>
-        </Space>
-
-        {/* 展开的模式选择器 */}
-        {showModeSelector && (
-          <div
-            className={`${styles.subtitleModeSelector} ${expandDirection === 'down' ? styles.expandDown : ''}`}
-            ref={selectorRef}
-          >
-            <Space direction="vertical" size="small">
-              {Object.entries(DISPLAY_MODE_CONFIG).map(([mode, config]) => (
-                <Button
-                  key={mode}
-                  type={displayMode === mode ? 'primary' : 'text'}
-                  size="small"
-                  icon={config.icon}
-                  onClick={() => {
-                    onDisplayModeChange(mode as DisplayMode)
-                    handleCloseSelector()
-                  }}
-                  style={{
-                    width: '100%',
-                    textAlign: 'left',
-                    color: displayMode === mode ? '#fff' : config.color
-                  }}
-                >
-                  {config.label}
-                </Button>
-              ))}
-            </Space>
-          </div>
-        )}
-      </div>
-
       {/* 字幕内容区域 */}
       <div className={styles.subtitleContent}>{renderSubtitleContent}</div>
 

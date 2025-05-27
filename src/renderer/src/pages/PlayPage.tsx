@@ -58,8 +58,6 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
             onStepForward={videoPlayer.handleStepForward}
             onPlaybackRateChange={videoPlayer.handlePlaybackRateChange}
             onVolumeChange={videoPlayer.handleVolumeChange}
-            onDisplayModeChange={subtitleDisplayMode.setDisplayMode}
-            onToggleDisplayMode={subtitleDisplayMode.toggleDisplayMode}
             onFullscreenChange={setIsFullscreen}
             onFullscreenToggleReady={handleFullscreenToggleReady}
           />
@@ -79,6 +77,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
               isLooping={false}
               autoSkipSilence={false}
               subtitlePosition="bottom"
+              displayMode={subtitleDisplayMode.displayMode}
               onSeek={videoPlayer.handleSeek}
               onStepBackward={videoPlayer.handleStepBackward}
               onPlayPause={videoPlayer.handlePlayPause}
@@ -91,6 +90,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
               onFullscreenToggle={handleFullscreenToggle}
               onPreviousSubtitle={() => {}}
               onNextSubtitle={() => {}}
+              onDisplayModeChange={subtitleDisplayMode.setDisplayMode}
             />
           </div>
         )}
