@@ -279,13 +279,14 @@
   width: 4px !important;
 }
 
-.volumeSliderVertical :global(.ant-slider-handle) {
+/* 不需要自定义该样式 */
+/* .volumeSliderVertical :global(.ant-slider-handle) {
   background: white !important;
   border: 2px solid white !important;
   width: 12px !important;
   height: 12px !important;
   margin-left: -4px !important;
-}
+} */
 
 .volumeText {
   color: white;

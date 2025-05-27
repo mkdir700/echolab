@@ -5,6 +5,7 @@ import { LoadingIndicator } from '../LoadingIndicator'
 import { ErrorIndicator } from '../ErrorIndicator'
 import { VideoControls } from './VideoControls'
 import { Subtitle } from './Subtitle'
+import { useFullscreen } from '@renderer/hooks/useFullscreen'
 import type { SubtitleItem } from '@renderer/types/shared'
 import type { DisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
 
@@ -40,6 +41,10 @@ interface VideoPlayerProps {
   onVolumeChange: (value: number) => void
   onDisplayModeChange: (mode: DisplayMode) => void
   onToggleDisplayMode: () => void
+  // 全屏状态回调
+  onFullscreenChange?: (isFullscreen: boolean) => void
+  // 获取全屏切换函数的回调
+  onFullscreenToggleReady?: (toggleFullscreen: () => void) => void
 }
 
 export function VideoPlayer({
@@ -65,12 +70,27 @@ export function VideoPlayer({
   onPlaybackRateChange,
   onVolumeChange,
   onDisplayModeChange,
-  onToggleDisplayMode
+  onToggleDisplayMode,
+  onFullscreenChange,
+  onFullscreenToggleReady
 }: VideoPlayerProps): React.JSX.Element {
   const [showControls, setShowControls] = useState(false)
   const [isUserInteracting, setIsUserInteracting] = useState(false)
   const [isPausedByHover, setIsPausedByHover] = useState(false)
   const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // 全屏状态管理
+  const { isFullscreen, toggleFullscreen } = useFullscreen()
+
+  // 监听全屏状态变化并通知父组件
+  useEffect(() => {
+    onFullscreenChange?.(isFullscreen)
+  }, [isFullscreen, onFullscreenChange])
+
+  // 将全屏切换函数传递给父组件
+  useEffect(() => {
+    onFullscreenToggleReady?.(toggleFullscreen)
+  }, [toggleFullscreen, onFullscreenToggleReady])
 
   // 智能控制显示逻辑
   const handleMouseEnter = (): void => {
@@ -221,39 +241,41 @@ export function VideoPlayer({
               />
             </div>
 
-            {/* 视频控制组件 - 覆盖在视频上，但不影响字幕位置 */}
-            <div
-              className={styles.controlsOverlay}
-              onMouseEnter={handleUserInteractionStart}
-              onMouseLeave={handleUserInteractionEnd}
-            >
-              <VideoControls
-                showControls={showControls}
-                duration={duration}
-                currentTime={currentTime}
-                isVideoLoaded={isVideoLoaded}
-                isPlaying={isPlaying}
-                videoError={videoError}
-                playbackRate={playbackRate}
-                volume={volume}
-                isLooping={false}
-                autoSkipSilence={false}
-                subtitlePosition="bottom"
-                isFullscreen={false}
-                onSeek={onSeek}
-                onStepBackward={onStepBackward}
-                onPlayPause={onPlayPause}
-                onStepForward={onStepForward}
-                onPlaybackRateChange={onPlaybackRateChange}
-                onVolumeChange={onVolumeChange}
-                onLoopToggle={() => {}}
-                onAutoSkipToggle={() => {}}
-                onSubtitlePositionToggle={() => {}}
-                onFullscreenToggle={() => {}}
-                onPreviousSubtitle={() => {}}
-                onNextSubtitle={() => {}}
-              />
-            </div>
+            {/* 视频控制组件 - 仅在全屏模式下显示 */}
+            {isFullscreen && (
+              <div
+                className={styles.controlsOverlay}
+                onMouseEnter={handleUserInteractionStart}
+                onMouseLeave={handleUserInteractionEnd}
+              >
+                <VideoControls
+                  showControls={showControls}
+                  duration={duration}
+                  currentTime={currentTime}
+                  isVideoLoaded={isVideoLoaded}
+                  isPlaying={isPlaying}
+                  videoError={videoError}
+                  playbackRate={playbackRate}
+                  volume={volume}
+                  isLooping={false}
+                  autoSkipSilence={false}
+                  subtitlePosition="bottom"
+                  isFullscreen={isFullscreen}
+                  onSeek={onSeek}
+                  onStepBackward={onStepBackward}
+                  onPlayPause={onPlayPause}
+                  onStepForward={onStepForward}
+                  onPlaybackRateChange={onPlaybackRateChange}
+                  onVolumeChange={onVolumeChange}
+                  onLoopToggle={() => {}}
+                  onAutoSkipToggle={() => {}}
+                  onSubtitlePositionToggle={() => {}}
+                  onFullscreenToggle={toggleFullscreen}
+                  onPreviousSubtitle={() => {}}
+                  onNextSubtitle={() => {}}
+                />
+              </div>
+            )}
           </>
         ) : (
           <VideoPlaceholder />

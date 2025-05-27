@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { VideoPlayer } from '@renderer/components/VideoPlayer/VideoPlayer'
 import { VideoControlsCompact } from '@renderer/components/VideoPlayer/VideoControlsCompact'
 import { SidebarSection } from '@renderer/components/SidebarSection'
@@ -13,6 +13,21 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
   subtitleDisplayMode,
   autoScroll
 }) {
+  // 全屏状态管理
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [fullscreenToggle, setFullscreenToggle] = useState<(() => void) | null>(null)
+
+  // 处理全屏切换函数准备就绪
+  const handleFullscreenToggleReady = (toggleFn: () => void): void => {
+    setFullscreenToggle(() => toggleFn)
+  }
+
+  // 全屏切换处理函数
+  const handleFullscreenToggle = (): void => {
+    if (fullscreenToggle) {
+      fullscreenToggle()
+    }
+  }
   return (
     <div className={styles.playPageContainer}>
       <div
@@ -45,11 +60,13 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
             onVolumeChange={videoPlayer.handleVolumeChange}
             onDisplayModeChange={subtitleDisplayMode.setDisplayMode}
             onToggleDisplayMode={subtitleDisplayMode.toggleDisplayMode}
+            onFullscreenChange={setIsFullscreen}
+            onFullscreenToggleReady={handleFullscreenToggleReady}
           />
         </div>
 
-        {/* 视频控制区域 - 紧贴视频底部 */}
-        {fileUpload.videoFile && (
+        {/* 视频控制区域 - 仅在非全屏模式下显示 */}
+        {fileUpload.videoFile && !isFullscreen && (
           <div className={styles.videoControlsSection}>
             <VideoControlsCompact
               duration={videoPlayer.duration}
@@ -71,7 +88,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({
               onLoopToggle={() => {}}
               onAutoSkipToggle={() => {}}
               onSubtitlePositionToggle={() => {}}
-              onFullscreenToggle={() => {}}
+              onFullscreenToggle={handleFullscreenToggle}
               onPreviousSubtitle={() => {}}
               onNextSubtitle={() => {}}
             />
