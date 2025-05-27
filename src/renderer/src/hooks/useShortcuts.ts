@@ -4,7 +4,7 @@ import { ShortcutContext, type ShortcutContextType } from '../contexts/shortcut-
 export function useShortcuts(): ShortcutContextType {
   const context = useContext(ShortcutContext)
   if (!context) {
-    throw new Error('useShortcuts must be used within a ShortcutProvider')
+    throw new Error('useShortcuts 必须在 ShortcutProvider 内部使用')
   }
   return context
 }

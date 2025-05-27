@@ -1,18 +1,33 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ipcMain } from 'electron'
-import Store from 'electron-store'
-import type { PlayItem, StoreSchema, ApiResponse, ApiResponseWithCount } from '../../types/shared'
+import StoreModule from 'electron-store'
+import type StoreType from 'electron-store'
+const Store = (StoreModule as any).default || StoreModule
+import type {
+  RecentPlayItem,
+  StoreSchema,
+  ApiResponse,
+  ApiResponseWithCount
+} from '../../types/shared'
 
 // 创建 store 实例
-const store = new Store<StoreSchema>({
+const store = new Store({
   name: 'echolab-recent-plays',
   defaults: {
     recentPlays: [],
     settings: {
-      maxRecentItems: 20
+      maxRecentItems: 20,
+      playback: {
+        isAutoScrollEnabled: true,
+        displayMode: 'bilingual',
+        volume: 0.8,
+        playbackRate: 1.0,
+        isSingleLoop: false,
+        isAutoPause: false
+      }
     }
   }
-})
+}) as StoreType<StoreSchema>
 
 // 生成唯一 ID
 function generateId(): string {
@@ -22,9 +37,9 @@ function generateId(): string {
 // 设置最近播放列表相关的 IPC 处理器
 export function setupStoreHandlers(): void {
   // 获取所有最近播放项
-  ipcMain.handle('store:get-recent-plays', (): PlayItem[] => {
+  ipcMain.handle('store:get-recent-plays', (): RecentPlayItem[] => {
     try {
-      const recentPlays = (store as any).get('recentPlays', []) as PlayItem[]
+      const recentPlays = (store as any).get('recentPlays', []) as RecentPlayItem[]
       // 按最后打开时间降序排序
       return recentPlays.sort((a, b) => b.lastOpenedAt - a.lastOpenedAt)
     } catch (error) {
@@ -36,18 +51,25 @@ export function setupStoreHandlers(): void {
   // 添加或更新最近播放项
   ipcMain.handle(
     'store:add-recent-play',
-    (_, item: Omit<PlayItem, 'id' | 'lastOpenedAt'>): ApiResponse => {
+    (_, item: Omit<RecentPlayItem, 'id' | 'lastOpenedAt'>): ApiResponse => {
       try {
-        const recentPlays = (store as any).get('recentPlays', []) as PlayItem[]
+        const recentPlays = (store as any).get('recentPlays', []) as RecentPlayItem[]
         const settings = (store as any).get('settings', { maxRecentItems: 20 }) as {
           maxRecentItems: number
         }
         const maxItems = settings.maxRecentItems
 
+        console.log('📝 添加/更新最近播放项:', {
+          filePath: item.filePath,
+          hasSubtitles: !!item.subtitles,
+          subtitlesLength: item.subtitles?.length || 0,
+          subtitleIndex: item.subtitleIndex
+        })
+
         // 检查是否已存在相同文件路径的项
         const existingIndex = recentPlays.findIndex((play) => play.filePath === item.filePath)
 
-        const newItem: PlayItem = {
+        const newItem: RecentPlayItem = {
           ...item,
           id: existingIndex >= 0 ? recentPlays[existingIndex].id : generateId(),
           lastOpenedAt: Date.now()
@@ -78,14 +100,23 @@ export function setupStoreHandlers(): void {
   // 更新最近播放项
   ipcMain.handle(
     'store:update-recent-play',
-    (_, id: string, updates: Partial<Omit<PlayItem, 'id'>>): ApiResponse => {
+    (_, id: string, updates: Partial<Omit<RecentPlayItem, 'id'>>): ApiResponse => {
       try {
-        const recentPlays = (store as any).get('recentPlays', []) as PlayItem[]
+        const recentPlays = (store as any).get('recentPlays', []) as RecentPlayItem[]
         const index = recentPlays.findIndex((play) => play.id === id)
 
         if (index === -1) {
           return { success: false, error: '未找到指定的播放项' }
         }
+
+        console.log('🔄 更新最近播放项:', {
+          id,
+          updates,
+          hasSubtitles: updates.subtitles ? updates.subtitles.length : 'undefined',
+          originalSubtitles: recentPlays[index].subtitles
+            ? recentPlays[index].subtitles.length
+            : 'undefined'
+        })
 
         // 更新项目，但保持 lastOpenedAt 不变（除非明确指定）
         recentPlays[index] = {
@@ -93,6 +124,11 @@ export function setupStoreHandlers(): void {
           ...updates
         }
         ;(store as any).set('recentPlays', recentPlays)
+
+        console.log(
+          '✅ 更新完成，最终字幕数量:',
+          recentPlays[index].subtitles ? recentPlays[index].subtitles.length : 'undefined'
+        )
         return { success: true }
       } catch (error) {
         console.error('更新最近播放项失败:', error)
@@ -104,7 +140,7 @@ export function setupStoreHandlers(): void {
   // 删除最近播放项
   ipcMain.handle('store:remove-recent-play', (_, id: string): ApiResponse => {
     try {
-      const recentPlays = (store as any).get('recentPlays', []) as PlayItem[]
+      const recentPlays = (store as any).get('recentPlays', []) as RecentPlayItem[]
       const filteredPlays = recentPlays.filter((play) => play.id !== id)
 
       if (filteredPlays.length === recentPlays.length) {
@@ -131,9 +167,9 @@ export function setupStoreHandlers(): void {
   })
 
   // 根据文件路径获取最近播放项
-  ipcMain.handle('store:get-recent-play-by-path', (_, filePath: string): PlayItem | null => {
+  ipcMain.handle('store:get-recent-play-by-path', (_, filePath: string): RecentPlayItem | null => {
     try {
-      const recentPlays = (store as any).get('recentPlays', []) as PlayItem[]
+      const recentPlays = (store as any).get('recentPlays', []) as RecentPlayItem[]
       return recentPlays.find((play) => play.filePath === filePath) || null
     } catch (error) {
       console.error('根据路径获取最近播放项失败:', error)
@@ -144,10 +180,30 @@ export function setupStoreHandlers(): void {
   // 获取设置
   ipcMain.handle('store:get-settings', () => {
     try {
-      return (store as any).get('settings', { maxRecentItems: 20 })
+      return (store as any).get('settings', {
+        maxRecentItems: 20,
+        playback: {
+          isAutoScrollEnabled: true,
+          displayMode: 'bilingual',
+          volume: 0.8,
+          playbackRate: 1.0,
+          isSingleLoop: false,
+          isAutoPause: false
+        }
+      })
     } catch (error) {
       console.error('获取设置失败:', error)
-      return { maxRecentItems: 20 }
+      return {
+        maxRecentItems: 20,
+        playback: {
+          isAutoScrollEnabled: true,
+          displayMode: 'bilingual',
+          volume: 0.8,
+          playbackRate: 1.0,
+          isSingleLoop: false,
+          isAutoPause: false
+        }
+      }
     }
   })
 
@@ -156,15 +212,33 @@ export function setupStoreHandlers(): void {
     'store:update-settings',
     (_, settings: Partial<StoreSchema['settings']>): ApiResponse => {
       try {
-        const currentSettings = (store as any).get('settings', { maxRecentItems: 20 }) as {
-          maxRecentItems: number
+        const currentSettings = (store as any).get('settings', {
+          maxRecentItems: 20,
+          playback: {
+            isAutoScrollEnabled: true,
+            displayMode: 'bilingual',
+            volume: 0.8,
+            playbackRate: 1.0,
+            isSingleLoop: false,
+            isAutoPause: false
+          }
+        })
+
+        // 深度合并设置，特别处理 playback 对象
+        const newSettings = {
+          ...currentSettings,
+          ...settings,
+          playback: {
+            ...currentSettings.playback,
+            ...(settings.playback || {})
+          }
         }
-        const newSettings = { ...currentSettings, ...settings }
+
         ;(store as any).set('settings', newSettings)
 
         // 如果更新了最大项目数，需要裁剪现有列表
         if (settings.maxRecentItems !== undefined) {
-          const recentPlays = (store as any).get('recentPlays', []) as PlayItem[]
+          const recentPlays = (store as any).get('recentPlays', []) as RecentPlayItem[]
           if (recentPlays.length > settings.maxRecentItems) {
             const trimmedPlays = recentPlays.slice(0, settings.maxRecentItems)
             ;(store as any).set('recentPlays', trimmedPlays)
@@ -182,7 +256,7 @@ export function setupStoreHandlers(): void {
   // 批量操作：删除多个项目
   ipcMain.handle('store:remove-multiple-recent-plays', (_, ids: string[]): ApiResponseWithCount => {
     try {
-      const recentPlays = (store as any).get('recentPlays', []) as PlayItem[]
+      const recentPlays = (store as any).get('recentPlays', []) as RecentPlayItem[]
       const filteredPlays = recentPlays.filter((play) => !ids.includes(play.id))
       const removedCount = recentPlays.length - filteredPlays.length
 
@@ -199,9 +273,9 @@ export function setupStoreHandlers(): void {
   })
 
   // 搜索最近播放项
-  ipcMain.handle('store:search-recent-plays', (_, query: string): PlayItem[] => {
+  ipcMain.handle('store:search-recent-plays', (_, query: string): RecentPlayItem[] => {
     try {
-      const recentPlays = (store as any).get('recentPlays', []) as PlayItem[]
+      const recentPlays = (store as any).get('recentPlays', []) as RecentPlayItem[]
       const lowerQuery = query.toLowerCase()
 
       return recentPlays
@@ -219,4 +293,4 @@ export function setupStoreHandlers(): void {
 }
 
 // 导出类型供其他模块使用
-export type { PlayItem as RecentPlayItem, StoreSchema }
+export type { RecentPlayItem as RecentPlayItem, StoreSchema }

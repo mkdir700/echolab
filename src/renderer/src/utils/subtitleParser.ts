@@ -1,10 +1,5 @@
-export interface SubtitleItem {
-  startTime: number
-  endTime: number
-  text: string
-  englishText?: string
-  chineseText?: string
-}
+// SubtitleItem 已移动到 src/types/shared.ts 中统一定义
+import type { SubtitleItem } from '@types_/shared'
 
 // 将时间字符串转换为秒数
 function parseTimeToSeconds(timeStr: string): number {

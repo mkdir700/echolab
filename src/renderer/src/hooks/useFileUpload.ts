@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from 'react'
 import { message } from 'antd'
-import { VideoFileState } from '../types'
+import type { VideoFileState } from '../types'
 import { isValidVideoFile, cleanupBlobUrl } from '../utils/helpers'
 import { FileSystemHelper } from '../utils/fileSystemHelper'
 
-interface UseFileUploadReturn extends VideoFileState {
+export interface UseFileUploadReturn extends VideoFileState {
   handleVideoUpload: (file: File, resetVideoState?: () => void) => boolean
   handleVideoFileSelect: (resetVideoState?: () => void) => Promise<boolean>
   clearVideoFile: () => void

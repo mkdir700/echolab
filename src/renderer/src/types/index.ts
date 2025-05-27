@@ -1,5 +1,5 @@
-import { SubtitleItem } from '@renderer/utils/subtitleParser'
-import ReactPlayer from 'react-player'
+// SubtitleItem 现在从共享类型中导入
+import type { SubtitleItem } from '@types_/shared'
 
 export interface VideoPlayerState {
   isPlaying: boolean
@@ -90,80 +90,7 @@ export interface NavigationItem {
   icon: React.ReactNode
 }
 
-export interface PlayPageProps {
-  fileUpload: {
-    videoFile: string | null
-    videoFileName: string
-    handleVideoUpload: (file: File, resetVideoState?: () => void) => boolean
-    handleVideoFileSelect: () => Promise<boolean>
-    isLocalFile: boolean
-    originalFilePath?: string
-    restoreVideoFile: (filePath: string, fileName: string) => Promise<boolean>
-  }
-  videoPlayer: {
-    playerRef: React.RefObject<ReactPlayer | null>
-    isPlaying: boolean
-    volume: number
-    playbackRate: number
-    currentTime: number
-    duration: number
-    isVideoLoaded: boolean
-    videoError: string | null
-    handleProgress: (progress: { played: number; playedSeconds: number }) => void
-    handleVideoDuration: (duration: number) => void
-    handleVideoReady: () => void
-    handleVideoError: (error: Error | MediaError | string | null) => void
-    handleSeek: (time: number) => void
-    handleStepBackward: () => void
-    handlePlayPause: () => void
-    handleStepForward: () => void
-    handlePlaybackRateChange: (rate: number) => void
-    handleVolumeChange: (volume: number) => void
-    resetVideoState: () => void
-    restoreVideoState: (currentTime: number, playbackRate: number, volume: number) => void
-  }
-  subtitles: {
-    subtitles: SubtitleItem[]
-    isAutoScrollEnabled: boolean
-    currentSubtitleIndex: number
-    getCurrentSubtitle: (time: number) => SubtitleItem | null
-    restoreSubtitles: (subtitles: SubtitleItem[], currentIndex: number, autoScroll: boolean) => void
-  }
-  sidebarResize: {
-    sidebarWidth: number
-    isDragging: boolean
-    handleMouseDown: (e: React.MouseEvent) => void
-  }
-  subtitleDisplayMode: {
-    displayMode: 'none' | 'original' | 'chinese' | 'english' | 'bilingual'
-    setDisplayMode: (mode: 'none' | 'original' | 'chinese' | 'english' | 'bilingual') => void
-    toggleDisplayMode: () => void
-  }
-  autoScroll: {
-    subtitleListRef: React.RefObject<HTMLDivElement | null>
-    scrollToCurrentSubtitle: (index: number) => void
-    handleCenterCurrentSubtitle: () => void
-  }
-  onBack: () => void
-  onSaveAppState?: (
-    partialState: Partial<{
-      recentFiles: Array<{
-        filePath: string
-        fileName: string
-        lastOpenedAt: number
-        duration?: number
-      }>
-    }>
-  ) => void
-  appState?: {
-    recentFiles?: Array<{
-      filePath: string
-      fileName: string
-      lastOpenedAt: number
-      duration?: number
-    }>
-  }
-}
+// PlayPageProps 已移除 - PlayPage 现在直接使用 hooks
 
 // 查单词相关类型定义
 export type DictionaryEngine = 'eudic' | 'youdao' | 'eudic-html'
@@ -211,8 +138,9 @@ export interface Settings {
 
 // 重新导出共享类型，方便渲染进程使用
 export type {
-  PlayItem as RecentPlayItem,
+  RecentPlayItem as RecentPlayItem,
   StoreSettings,
+  PlaybackSettings,
   StoreAPI,
   ApiResponse,
   ApiResponseWithCount

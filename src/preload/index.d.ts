@@ -1,5 +1,10 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import type { PlayItem, StoreSettings, ApiResponse, ApiResponseWithCount } from '../types/shared'
+import type {
+  RecentPlayItem,
+  StoreSettings,
+  ApiResponse,
+  ApiResponseWithCount
+} from '../types/shared'
 
 interface FileSystemAPI {
   checkFileExists: (filePath: string) => Promise<boolean>
@@ -59,16 +64,19 @@ interface DictionaryAPI {
 }
 
 interface StoreAPI {
-  getRecentPlays: () => Promise<PlayItem[]>
-  addRecentPlay: (item: Omit<PlayItem, 'id' | 'lastOpenedAt'>) => Promise<ApiResponse>
-  updateRecentPlay: (id: string, updates: Partial<Omit<PlayItem, 'id'>>) => Promise<ApiResponse>
+  getRecentPlays: () => Promise<RecentPlayItem[]>
+  addRecentPlay: (item: Omit<RecentPlayItem, 'id' | 'lastOpenedAt'>) => Promise<ApiResponse>
+  updateRecentPlay: (
+    id: string,
+    updates: Partial<Omit<RecentPlayItem, 'id'>>
+  ) => Promise<ApiResponse>
   removeRecentPlay: (id: string) => Promise<ApiResponse>
   clearRecentPlays: () => Promise<ApiResponse>
-  getRecentPlayByPath: (filePath: string) => Promise<PlayItem | null>
+  getRecentPlayByPath: (filePath: string) => Promise<RecentPlayItem | null>
   getSettings: () => Promise<StoreSettings>
   updateSettings: (settings: Partial<StoreSettings>) => Promise<ApiResponse>
   removeMultipleRecentPlays: (ids: string[]) => Promise<ApiResponseWithCount>
-  searchRecentPlays: (query: string) => Promise<PlayItem[]>
+  searchRecentPlays: (query: string) => Promise<RecentPlayItem[]>
 }
 
 declare global {

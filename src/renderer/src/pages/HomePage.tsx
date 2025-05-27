@@ -8,18 +8,17 @@ import {
   PlusOutlined,
   DeleteOutlined
 } from '@ant-design/icons'
-import { RecentFileItem } from '@renderer/hooks/useAppState'
+import { useVideoPlayer } from '@renderer/hooks/useVideoPlayer'
+import { usePlayingVideoContext } from '@renderer/contexts/usePlayingVideoContext'
+import { useRecentPlays } from '@renderer/hooks/useRecentPlays'
 import { formatTime } from '@renderer/utils/helpers'
+import type { RecentPlayItem } from '@renderer/types'
 import styles from './HomePage.module.css'
 
 const { Title, Text } = Typography
 
 interface HomePageProps {
-  recentFiles: RecentFileItem[]
-  onVideoFileSelect: () => Promise<boolean>
-  onOpenRecentFile: (filePath: string, fileName: string) => Promise<boolean>
-  onRemoveRecentFile: (filePath: string) => void
-  onClearRecentFiles: () => void
+  onNavigateToPlay: () => void
 }
 
 // 推荐视频假数据
@@ -54,24 +53,100 @@ const recommendedVideos = [
   }
 ]
 
-export function HomePage({
-  recentFiles,
-  onVideoFileSelect,
-  onOpenRecentFile,
-  onRemoveRecentFile,
-  onClearRecentFiles
-}: HomePageProps): React.JSX.Element {
+export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element {
+  // 使用自定义 Hooks
+  const videoPlayer = useVideoPlayer()
+  const fileUpload = usePlayingVideoContext()
+  const { recentPlays, removeRecentPlay, clearRecentPlays, addRecentPlay } = useRecentPlays()
+
+  // 处理视频文件选择
+  const handleVideoFileSelect = useCallback(async (): Promise<boolean> => {
+    const success = await fileUpload.handleVideoFileSelect(videoPlayer.resetVideoState)
+    if (success) {
+      onNavigateToPlay()
+    }
+    return success
+  }, [fileUpload, videoPlayer.resetVideoState, onNavigateToPlay])
+
   // 处理打开最近文件
   const handleOpenRecentFile = useCallback(
-    async (item: RecentFileItem) => {
-      const success = await onOpenRecentFile(item.filePath, item.fileName)
-      if (!success) {
-        // 如果文件无法打开，询问是否从列表中移除
-        onRemoveRecentFile(item.filePath)
+    async (item: RecentPlayItem) => {
+      console.log('🎬 开始处理最近文件:', item)
+      try {
+        // 检查文件是否存在
+        console.log('🔍 检查文件是否存在:', item.filePath)
+        const exists = await window.api.fileSystem.checkFileExists(item.filePath)
+        console.log('📁 文件存在检查结果:', exists)
+        if (!exists) {
+          // 文件不存在，询问是否从列表中移除
+          Modal.confirm({
+            title: '文件不存在',
+            content: `文件 "${item.fileName}" 不存在，是否从最近播放列表中移除？`,
+            okText: '移除',
+            cancelText: '取消',
+            onOk: () => {
+              removeRecentPlay(item.id)
+            }
+          })
+          return false
+        }
+
+        console.log('🎬 准备设置视频文件:', {
+          filePath: item.filePath,
+          fileName: item.fileName,
+          currentTime: item.currentTime
+        })
+
+        // 将文件路径转换为 URL
+        const fileUrl = await window.api.fileSystem.getFileUrl(item.filePath)
+        if (!fileUrl) {
+          console.error('❌ 无法获取视频文件 URL:', item.filePath)
+          return false
+        }
+
+        console.log('🔗 生成的视频文件 URL:', fileUrl)
+        // 设置视频文件
+        fileUpload.setVideoFile(fileUrl, item.fileName, item.filePath)
+
+        // 如果有保存的播放时间，恢复播放位置
+        if (item.currentTime && item.currentTime > 0) {
+          console.log('⏰ HomePage 恢复播放进度:', item.currentTime)
+          videoPlayer.restoreVideoState(item.currentTime, 1, 0.8)
+        }
+
+        // 更新最近播放记录的最后打开时间，但保持原有的播放进度和字幕数据
+        await addRecentPlay({
+          filePath: item.filePath,
+          fileName: item.fileName,
+          duration: item.duration,
+          currentTime: item.currentTime, // 保持原有的播放进度
+          subtitleFile: item.subtitleFile,
+          subtitleIndex: item.subtitleIndex,
+          subtitles: item.subtitles // 保持原有的字幕数据
+        })
+
+        onNavigateToPlay()
+        return true
+      } catch (error) {
+        console.error('打开最近文件失败:', error)
+        return false
       }
     },
-    [onOpenRecentFile, onRemoveRecentFile]
+    [videoPlayer, fileUpload, removeRecentPlay, addRecentPlay, onNavigateToPlay]
   )
+
+  // 处理移除最近文件
+  const handleRemoveRecentFile = useCallback(
+    async (id: string) => {
+      await removeRecentPlay(id)
+    },
+    [removeRecentPlay]
+  )
+
+  // 处理清空最近文件列表
+  const handleClearRecentFiles = useCallback(async () => {
+    await clearRecentPlays()
+  }, [clearRecentPlays])
 
   // 格式化最后打开时间
   const formatLastOpened = (timestamp: number): string => {
@@ -103,18 +178,18 @@ export function HomePage({
   }
 
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedFilePath, setSelectedFilePath] = useState('')
+  const [selectedFileId, setSelectedFileId] = useState('')
   const [selectedFileName, setSelectedFileName] = useState('')
 
   const handleRemove = (): void => {
-    onRemoveRecentFile(selectedFilePath)
+    handleRemoveRecentFile(selectedFileId)
     setIsModalOpen(false)
-    setSelectedFilePath('')
+    setSelectedFileId('')
     setSelectedFileName('')
   }
 
-  const showDeleteConfirm = (filePath: string, fileName: string): void => {
-    setSelectedFilePath(filePath)
+  const showDeleteConfirm = (id: string, fileName: string): void => {
+    setSelectedFileId(id)
     setSelectedFileName(fileName)
     setIsModalOpen(true)
   }
@@ -133,7 +208,7 @@ export function HomePage({
           type="primary"
           size="large"
           icon={<PlusOutlined />}
-          onClick={onVideoFileSelect}
+          onClick={handleVideoFileSelect}
           className={styles.addVideoButton}
         >
           <span>添加视频</span>
@@ -148,11 +223,11 @@ export function HomePage({
               <ClockCircleOutlined className={styles.titleIcon} />
               最近观看
             </Title>
-            {recentFiles.length > 0 && (
+            {recentPlays.length > 0 && (
               <Button
                 type="text"
                 size="small"
-                onClick={onClearRecentFiles}
+                onClick={handleClearRecentFiles}
                 className={styles.clearButton}
               >
                 清空列表
@@ -160,7 +235,7 @@ export function HomePage({
             )}
           </div>
 
-          {recentFiles.length === 0 ? (
+          {recentPlays.length === 0 ? (
             <Empty
               image={<VideoCameraOutlined className={styles.emptyIcon} />}
               description={
@@ -173,54 +248,61 @@ export function HomePage({
             />
           ) : (
             <Row gutter={[24, 24]} className={styles.videoGrid}>
-              {recentFiles.slice(0, 8).map((item) => (
-                <Col xs={12} sm={8} md={6} lg={4} xl={3} key={item.filePath}>
-                  <Card
-                    className={styles.videoCard}
-                    hoverable
-                    cover={
-                      <div className={styles.videoPoster}>
-                        <div
-                          className={styles.posterPlaceholder}
-                          style={{ background: generatePosterPlaceholder(item.fileName) }}
-                        >
-                          <VideoCameraOutlined className={styles.posterIcon} />
-                        </div>
-                        <div className={styles.playOverlay}>
-                          <PlayCircleOutlined className={styles.playIcon} />
-                        </div>
-                        <div className={styles.deleteButton}>
-                          <Tooltip title="删除记录">
-                            <Button
-                              type="text"
-                              size="small"
-                              icon={<DeleteOutlined />}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                showDeleteConfirm(item.filePath, item.fileName)
-                              }}
-                              className={styles.deleteIcon}
-                            />
-                          </Tooltip>
-                        </div>
-                        {item.duration && (
-                          <div className={styles.durationBadge}>{formatTime(item.duration)}</div>
-                        )}
-                      </div>
-                    }
-                    onClick={() => handleOpenRecentFile(item)}
+              {recentPlays.slice(0, 8).map((item) => (
+                <Col xs={12} sm={8} md={6} lg={4} xl={3} key={item.id}>
+                  <div
+                    onClick={() => {
+                      console.log('卡片被点击了！', item.fileName)
+                      handleOpenRecentFile(item)
+                    }}
+                    style={{ cursor: 'pointer' }}
                   >
-                    <div className={styles.videoInfo}>
-                      <Tooltip title={item.fileName}>
-                        <Text strong ellipsis className={styles.videoTitle}>
-                          {item.fileName.replace(/\.[^/.]+$/, '')}
+                    <Card
+                      className={styles.videoCard}
+                      hoverable
+                      cover={
+                        <div className={styles.videoPoster}>
+                          <div
+                            className={styles.posterPlaceholder}
+                            style={{ background: generatePosterPlaceholder(item.fileName) }}
+                          >
+                            <VideoCameraOutlined className={styles.posterIcon} />
+                          </div>
+                          <div className={styles.playOverlay}>
+                            <PlayCircleOutlined className={styles.playIcon} />
+                          </div>
+                          <div className={styles.deleteButton}>
+                            <Tooltip title="删除记录">
+                              <Button
+                                type="text"
+                                size="small"
+                                icon={<DeleteOutlined />}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  showDeleteConfirm(item.id, item.fileName)
+                                }}
+                                className={styles.deleteIcon}
+                              />
+                            </Tooltip>
+                          </div>
+                          {item.duration && (
+                            <div className={styles.durationBadge}>{formatTime(item.duration)}</div>
+                          )}
+                        </div>
+                      }
+                    >
+                      <div className={styles.videoInfo}>
+                        <Tooltip title={item.fileName}>
+                          <Text strong ellipsis className={styles.videoTitle}>
+                            {item.fileName.replace(/\.[^/.]+$/, '')}
+                          </Text>
+                        </Tooltip>
+                        <Text type="secondary" className={styles.lastWatched}>
+                          {formatLastOpened(item.lastOpenedAt)}
                         </Text>
-                      </Tooltip>
-                      <Text type="secondary" className={styles.lastWatched}>
-                        {formatLastOpened(item.lastOpenedAt)}
-                      </Text>
-                    </div>
-                  </Card>
+                      </div>
+                    </Card>
+                  </div>
                 </Col>
               ))}
             </Row>

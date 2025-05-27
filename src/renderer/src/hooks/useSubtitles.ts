@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { message } from 'antd'
 import { parseSubtitles } from '../utils/subtitleParser'
 import { SubtitleState } from '../types'
-import type { SubtitleItem } from '../types/shared'
+import type { SubtitleItem } from '@types_/shared'
 
 interface UseSubtitlesReturn extends SubtitleState {
   handleSubtitleUpload: (file: File) => boolean
@@ -100,17 +100,21 @@ export function useSubtitles(): UseSubtitlesReturn {
       currentSubtitleIndex: number,
       isAutoScrollEnabled: boolean
     ): void => {
+      console.log('🔄 开始恢复字幕状态:', {
+        subtitlesCount: subtitles.length,
+        currentSubtitleIndex,
+        isAutoScrollEnabled,
+        firstSubtitle: subtitles[0]
+      })
+
       setState({
         subtitles,
         showSubtitles: true,
         currentSubtitleIndex,
         isAutoScrollEnabled
       })
-      console.log('🔄 恢复字幕状态:', {
-        subtitlesCount: subtitles.length,
-        currentSubtitleIndex,
-        isAutoScrollEnabled
-      })
+
+      console.log('✅ 字幕状态恢复完成')
     },
     []
   )

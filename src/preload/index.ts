@@ -1,6 +1,11 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import type { PlayItem, StoreSettings, ApiResponse, ApiResponseWithCount } from '../types/shared'
+import type {
+  RecentPlayItem,
+  StoreSettings,
+  ApiResponse,
+  ApiResponseWithCount
+} from '../types/shared'
 
 // 文件系统 API
 const fileSystemAPI = {
@@ -89,15 +94,17 @@ const dictionaryAPI = {
 // 存储 API
 const storeAPI = {
   // 获取所有最近播放项
-  getRecentPlays: (): Promise<PlayItem[]> => ipcRenderer.invoke('store:get-recent-plays'),
+  getRecentPlays: (): Promise<RecentPlayItem[]> => ipcRenderer.invoke('store:get-recent-plays'),
 
   // 添加或更新最近播放项
-  addRecentPlay: (item: Omit<PlayItem, 'id' | 'lastOpenedAt'>): Promise<ApiResponse> =>
+  addRecentPlay: (item: Omit<RecentPlayItem, 'id' | 'lastOpenedAt'>): Promise<ApiResponse> =>
     ipcRenderer.invoke('store:add-recent-play', item),
 
   // 更新最近播放项
-  updateRecentPlay: (id: string, updates: Partial<Omit<PlayItem, 'id'>>): Promise<ApiResponse> =>
-    ipcRenderer.invoke('store:update-recent-play', id, updates),
+  updateRecentPlay: (
+    id: string,
+    updates: Partial<Omit<RecentPlayItem, 'id'>>
+  ): Promise<ApiResponse> => ipcRenderer.invoke('store:update-recent-play', id, updates),
 
   // 删除最近播放项
   removeRecentPlay: (id: string): Promise<ApiResponse> =>
@@ -107,7 +114,7 @@ const storeAPI = {
   clearRecentPlays: (): Promise<ApiResponse> => ipcRenderer.invoke('store:clear-recent-plays'),
 
   // 根据文件路径获取最近播放项
-  getRecentPlayByPath: (filePath: string): Promise<PlayItem | null> =>
+  getRecentPlayByPath: (filePath: string): Promise<RecentPlayItem | null> =>
     ipcRenderer.invoke('store:get-recent-play-by-path', filePath),
 
   // 获取设置
@@ -122,7 +129,7 @@ const storeAPI = {
     ipcRenderer.invoke('store:remove-multiple-recent-plays', ids),
 
   // 搜索最近播放项
-  searchRecentPlays: (query: string): Promise<PlayItem[]> =>
+  searchRecentPlays: (query: string): Promise<RecentPlayItem[]> =>
     ipcRenderer.invoke('store:search-recent-plays', query)
 }
 

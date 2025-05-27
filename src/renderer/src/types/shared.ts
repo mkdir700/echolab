@@ -1,10 +1,4 @@
-export interface SubtitleItem {
-  startTime: number
-  endTime: number
-  text: string
-  englishText?: string
-  chineseText?: string
-}
+// SubtitleItem 已移动到 src/types/shared.ts 中统一定义
 
 export interface VideoState {
   videoFilePath: string
