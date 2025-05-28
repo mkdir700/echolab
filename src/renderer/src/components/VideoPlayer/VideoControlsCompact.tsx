@@ -10,15 +10,16 @@ import {
   ThunderboltOutlined,
   SettingOutlined,
   ReloadOutlined,
-  FastForwardOutlined,
   VerticalAlignTopOutlined,
   VerticalAlignBottomOutlined,
   FullscreenOutlined,
   LeftOutlined,
   RightOutlined,
-  TranslationOutlined
+  TranslationOutlined,
+  PauseCircleFilled
 } from '@ant-design/icons'
-import type { DisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
+import type { DisplayMode } from '@renderer/types'
+import type { VideoControlsProps } from '@renderer/types'
 
 // 导入样式
 import styles from './VideoControlsCompact.module.css'
@@ -34,33 +35,6 @@ const DISPLAY_MODE_CONFIG = {
   bilingual: { label: '双语', color: '#fa8c16' }
 }
 
-interface VideoControlsCompactProps {
-  duration: number
-  currentTime: number
-  isVideoLoaded: boolean
-  isPlaying: boolean
-  videoError: string | null
-  playbackRate: number
-  volume: number
-  isLooping: boolean
-  autoSkipSilence: boolean
-  subtitlePosition: 'top' | 'bottom'
-  displayMode: DisplayMode
-  onSeek: (value: number) => void
-  onStepBackward: () => void
-  onPlayPause: () => void
-  onStepForward: () => void
-  onPlaybackRateChange: (value: number) => void
-  onVolumeChange: (value: number) => void
-  onLoopToggle: () => void
-  onAutoSkipToggle: () => void
-  onSubtitlePositionToggle: () => void
-  onFullscreenToggle: () => void
-  onPreviousSubtitle: () => void
-  onNextSubtitle: () => void
-  onDisplayModeChange: (mode: DisplayMode) => void
-}
-
 export function VideoControlsCompact({
   duration,
   currentTime,
@@ -70,6 +44,7 @@ export function VideoControlsCompact({
   playbackRate,
   volume,
   isLooping,
+  autoPause,
   autoSkipSilence,
   subtitlePosition,
   displayMode,
@@ -86,7 +61,7 @@ export function VideoControlsCompact({
   onPreviousSubtitle,
   onNextSubtitle,
   onDisplayModeChange
-}: VideoControlsCompactProps): React.JSX.Element {
+}: VideoControlsProps): React.JSX.Element {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showSubtitleModeSelector, setShowSubtitleModeSelector] = useState(false)
@@ -150,7 +125,7 @@ export function VideoControlsCompact({
         {/* 左侧功能按钮 */}
         <div className={styles.leftControls}>
           {/* 循环播放 */}
-          <Tooltip title={isLooping ? '关闭循环播放' : '开启循环播放'}>
+          <Tooltip title={isLooping ? '关闭单句循环' : '开启单句循环'}>
             <Button
               icon={<ReloadOutlined />}
               onClick={onLoopToggle}
@@ -161,10 +136,10 @@ export function VideoControlsCompact({
             />
           </Tooltip>
 
-          {/* 自动跳过无对话 */}
-          <Tooltip title={autoSkipSilence ? '关闭自动跳过' : '开启自动跳过无对话'}>
+          {/* 自动暂停 */}
+          <Tooltip title={autoPause ? '关闭自动暂停' : '开启自动暂停'}>
             <Button
-              icon={<FastForwardOutlined />}
+              icon={<PauseCircleFilled />}
               onClick={onAutoSkipToggle}
               type="text"
               className={`${styles.controlBtn} ${autoSkipSilence ? styles.activeBtn : ''}`}

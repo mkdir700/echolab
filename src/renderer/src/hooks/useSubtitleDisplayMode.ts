@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react'
-
-export type DisplayMode = 'none' | 'original' | 'chinese' | 'english' | 'bilingual'
+import { DisplayMode } from '@renderer/types'
 
 interface UseSubtitleDisplayModeReturn {
   displayMode: DisplayMode

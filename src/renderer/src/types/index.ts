@@ -20,21 +20,34 @@ export interface SubtitleListItemProps {
   formatTime: (time: number) => string
 }
 
+export type DisplayMode = 'none' | 'original' | 'chinese' | 'english' | 'bilingual'
+
 export interface VideoControlsProps {
-  isPlaying: boolean
-  currentTime: number
   duration: number
+  currentTime: number
+  isVideoLoaded: boolean
+  isPlaying: boolean
+  videoError: string | null
   playbackRate: number
   volume: number
-  isVideoLoaded: boolean
-  videoError: string | null
-  onPlayPause: () => void
-  onSeek: (time: number) => void
+  isLooping: boolean
+  autoPause: boolean
+  autoSkipSilence: boolean
+  subtitlePosition: 'top' | 'bottom'
+  displayMode: DisplayMode
+  onSeek: (value: number) => void
   onStepBackward: () => void
+  onPlayPause: () => void
   onStepForward: () => void
-  onPlaybackRateChange: (rate: number) => void
-  onVolumeChange: (volume: number) => void
-  formatTime: (time: number) => string
+  onPlaybackRateChange: (value: number) => void
+  onVolumeChange: (value: number) => void
+  onLoopToggle: () => void
+  onAutoSkipToggle: () => void
+  onSubtitlePositionToggle: () => void
+  onFullscreenToggle: () => void
+  onPreviousSubtitle: () => void
+  onNextSubtitle: () => void
+  onDisplayModeChange: (mode: DisplayMode) => void
 }
 
 export interface VideoPlayerProps {

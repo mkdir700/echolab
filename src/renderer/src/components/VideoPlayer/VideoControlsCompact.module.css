@@ -112,12 +112,12 @@
   color: var(--accent-color) !important;
 }
 
-.controlBtn:focus {
+/* .controlBtn:focus {
   background: var(--hover-bg) !important;
   color: var(--accent-color) !important;
   outline: none;
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
-}
+} */
 
 .controlBtn:active {
   background: var(--active-bg) !important;

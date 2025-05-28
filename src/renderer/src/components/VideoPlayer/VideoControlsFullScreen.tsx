@@ -19,37 +19,16 @@ import {
   RightOutlined
 } from '@ant-design/icons'
 import { VideoProgressBar } from './VideoProgressBar'
+import type { VideoControlsProps as VideoControlsPropsType } from '@renderer/types'
 
 // 导入样式
-import styles from './VideoControls.module.css'
+import styles from './VideoControlsFullScreen.module.css'
 
 const { Text } = Typography
 
-interface VideoControlsProps {
+interface VideoControlsProps extends VideoControlsPropsType {
   showControls: boolean
-  duration: number
-  currentTime: number
-  isVideoLoaded: boolean
-  isPlaying: boolean
-  videoError: string | null
-  playbackRate: number
-  volume: number
-  isLooping: boolean
-  autoSkipSilence: boolean
-  subtitlePosition: 'top' | 'bottom'
   isFullscreen: boolean
-  onSeek: (value: number) => void
-  onStepBackward: () => void
-  onPlayPause: () => void
-  onStepForward: () => void
-  onPlaybackRateChange: (value: number) => void
-  onVolumeChange: (value: number) => void
-  onLoopToggle: () => void
-  onAutoSkipToggle: () => void
-  onSubtitlePositionToggle: () => void
-  onFullscreenToggle: () => void
-  onPreviousSubtitle: () => void
-  onNextSubtitle: () => void
 }
 
 export function VideoControls({
