@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { useRecentPlays } from './useRecentPlays'
+import { useRecentPlayList } from './useRecentPlayList'
 import type { SubtitleItem } from '@types_/shared'
 
 interface UsePlayStateSaverProps {
@@ -37,7 +37,7 @@ export function usePlayStateSaver({
   currentSubtitleIndex,
   getCurrentSubtitleIndex
 }: UsePlayStateSaverProps): UsePlaySateSaverReturn {
-  const { getRecentPlayByPath, updateRecentPlay } = useRecentPlays()
+  const { getRecentPlayByPath, updateRecentPlay } = useRecentPlayList()
   const saveProgressRef = useRef<((force?: boolean) => Promise<void>) | null>(null)
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { RecentPlayItem, StoreSettings } from '@renderer/types'
 
-export interface UseRecentPlaysReturn {
+export interface UseRecentPlayListReturn {
   // 状态
   recentPlays: RecentPlayItem[]
   settings: StoreSettings
@@ -20,7 +20,7 @@ export interface UseRecentPlaysReturn {
   searchRecentPlays: (query: string) => Promise<RecentPlayItem[]>
 }
 
-export function useRecentPlays(): UseRecentPlaysReturn {
+export function useRecentPlayList(): UseRecentPlayListReturn {
   const [recentPlays, setRecentPlays] = useState<RecentPlayItem[]>([])
   const [settings, setSettings] = useState<StoreSettings>({ maxRecentItems: 20 })
   const [loading, setLoading] = useState(true)

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { useRecentPlays } from './useRecentPlays'
+import { useRecentPlayList } from './useRecentPlayList'
 import { FileSystemHelper } from '@renderer/utils/fileSystemHelper'
 import { parseSubtitles } from '@renderer/utils/subtitleParser'
 import type { SubtitleItem } from '@types_/shared'
@@ -37,7 +37,6 @@ interface UsePlayStateInitializerReturn {
  * @param props 参数
  * @param props.playingVideoContext 播放视频上下文
  * @param props.subtitles 字幕数据
- * @param props.showSubtitleModal 是否显示字幕模态框
  * @param props.restoreVideoState 恢复视频状态
  * @param props.restoreSubtitles 恢复字幕数据
  * @param props.savePlayStateRef 保存播放状态的函数引用
@@ -45,12 +44,11 @@ interface UsePlayStateInitializerReturn {
 export function usePlayStateInitializer({
   playingVideoContext,
   subtitles,
-  showSubtitleModal: externalShowSubtitleModal,
   restoreVideoState,
   restoreSubtitles,
   savePlayStateRef
 }: UsePlayStateInitializerProps): UsePlayStateInitializerReturn {
-  const { getRecentPlayByPath, addRecentPlay } = useRecentPlays()
+  const { getRecentPlayByPath, addRecentPlay } = useRecentPlayList()
 
   const [pendingVideoInfo, setPendingVideoInfo] = useState<{
     filePath: string
@@ -77,8 +75,7 @@ export function usePlayStateInitializer({
       originalFilePath: playingVideoContext.originalFilePath,
       videoFile: playingVideoContext.videoFile,
       videoFileName: playingVideoContext.videoFileName,
-      subtitlesLength: subtitles.length,
-      externalShowSubtitleModal
+      subtitlesLength: subtitles.length
     })
 
     // region 检测并加载同名字幕文件
@@ -187,7 +184,7 @@ export function usePlayStateInitializer({
       }
 
       // 如果没有保存的字幕数据，则自动检测并导入同名字幕文件
-      if (subtitles.length === 0 && !externalShowSubtitleModal) {
+      if (subtitles.length === 0) {
         const found = await detectAndLoadSubtitles(playingVideoContext.originalFilePath)
 
         if (!found) {
@@ -202,7 +199,7 @@ export function usePlayStateInitializer({
     // endregion
 
     loadPlayState()
-  }, [playingVideoContext, subtitles.length, externalShowSubtitleModal, savePlayStateRef])
+  }, [playingVideoContext, subtitles.length, savePlayStateRef])
 
   return {
     pendingVideoInfo,
