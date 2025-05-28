@@ -9,7 +9,6 @@ import { SubtitleLoadModal } from '@renderer/components/SubtitleLoadModal'
 import { useVideoPlayer } from '@renderer/hooks/useVideoPlayer'
 import { useSubtitleListContext } from '@renderer/hooks/useSubtitleListContext'
 import { usePlayingVideoContext } from '@renderer/hooks/usePlayingVideoContext'
-import { useSidebarResize } from '@renderer/hooks/useSidebarResize'
 import { useSubtitleDisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
 import { useSubtitleControl } from '@renderer/hooks/useSubtitleControl'
 import { useKeyboardShortcuts } from '@renderer/hooks/useKeyboardShortcuts'
@@ -18,6 +17,7 @@ import { usePlayStateInitializer } from '@renderer/hooks/usePlayStateInitializer
 
 import type { SubtitleItem } from '@types_/shared'
 import styles from './PlayPage.module.css'
+import { Splitter } from 'antd'
 
 interface PlayPageProps {
   onBack: () => void
@@ -33,8 +33,6 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   const subtitleListContext = useSubtitleListContext()
   // 播放视频上下文
   const playingVideoContext = usePlayingVideoContext()
-  // 侧边栏调整
-  const sidebarResize = useSidebarResize(containerRef)
   // 字幕显示模式
   const subtitleDisplayMode = useSubtitleDisplayMode()
 
@@ -180,102 +178,99 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
       <PlayPageHeader videoFileName={playingVideoContext.videoFileName} onBack={handleBack} />
 
       <div className={styles.playPageContent}>
-        <div
-          className={styles.mainContentArea}
-          style={{ width: `calc(100% - ${sidebarResize.sidebarWidth}px)` }}
-        >
-          {/* 视频播放区域 - 占据主要空间 */}
-          <div className={styles.videoPlayerSection}>
-            <VideoPlayer
-              videoFile={playingVideoContext.videoFile}
-              playerRef={videoPlayer.playerRef}
-              isPlaying={videoPlayer.isPlaying}
-              volume={videoPlayer.volume}
-              playbackRate={videoPlayer.playbackRate}
-              currentTime={videoPlayer.currentTime}
-              duration={videoPlayer.duration}
-              isVideoLoaded={videoPlayer.isVideoLoaded}
-              videoError={videoPlayer.videoError}
-              currentSubtitle={subtitleListContext.getCurrentSubtitle(videoPlayer.currentTime)}
-              displayMode={subtitleDisplayMode.displayMode}
-              onProgress={videoPlayer.handleProgress}
-              onDuration={videoPlayer.handleVideoDuration}
-              onReady={videoPlayer.handleVideoReady}
-              onError={videoPlayer.handleVideoError}
-              onSeek={handleEnhancedSeek}
-              onStepBackward={videoPlayer.handleStepBackward}
-              onPlayPause={videoPlayer.handlePlayPause}
-              onStepForward={videoPlayer.handleStepForward}
-              onPlaybackRateChange={videoPlayer.handlePlaybackRateChange}
-              onVolumeChange={videoPlayer.handleVolumeChange}
-              onFullscreenChange={setIsFullscreen}
-              onFullscreenToggleReady={handleFullscreenToggleReady}
-            />
-          </div>
-
-          {/* 视频控制区域 - 仅在非全屏模式下显示 */}
-          {playingVideoContext.videoFile && !isFullscreen && (
-            <div className={styles.videoControlsSection}>
-              <VideoControlsCompact
-                duration={videoPlayer.duration}
-                currentTime={videoPlayer.currentTime}
-                isVideoLoaded={videoPlayer.isVideoLoaded}
-                isPlaying={videoPlayer.isPlaying}
-                videoError={videoPlayer.videoError}
-                playbackRate={videoPlayer.playbackRate}
-                volume={videoPlayer.volume}
-                isLooping={subtitleControl.isSingleLoop}
-                autoPause={subtitleControl.isAutoPause}
-                autoSkipSilence={false} // TODO: 需要从配置文件中读取
-                subtitlePosition="bottom"
-                displayMode={subtitleDisplayMode.displayMode}
-                onSeek={handleEnhancedSeek}
-                onStepBackward={videoPlayer.handleStepBackward}
-                onPlayPause={videoPlayer.handlePlayPause}
-                onStepForward={videoPlayer.handleStepForward}
-                onPlaybackRateChange={videoPlayer.handlePlaybackRateChange}
-                onVolumeChange={videoPlayer.handleVolumeChange}
-                onLoopToggle={subtitleControl.toggleSingleLoop}
-                onAutoSkipToggle={subtitleControl.toggleAutoPause}
-                onSubtitlePositionToggle={() => {}}
-                onFullscreenToggle={handleFullscreenToggle}
-                onPreviousSubtitle={subtitleControl.goToPreviousSubtitle}
-                onNextSubtitle={subtitleControl.goToNextSubtitle}
-                onDisplayModeChange={subtitleDisplayMode.setDisplayMode}
-              />
-            </div>
-          )}
-        </div>
-
         {/* 分割线 - 更细更现代 */}
-        <div
-          className={`${styles.resizeHandle} ${sidebarResize.isDragging ? styles.dragging : ''}`}
-          onMouseDown={sidebarResize.handleMouseDown}
-        />
+        <Splitter style={{ boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
+          <Splitter.Panel defaultSize="70%" min="50%" max="70%">
+            <div className={styles.mainContentArea}>
+              {/* 视频播放区域 - 占据主要空间 */}
+              <div className={styles.videoPlayerSection}>
+                <VideoPlayer
+                  videoFile={playingVideoContext.videoFile}
+                  playerRef={videoPlayer.playerRef}
+                  isPlaying={videoPlayer.isPlaying}
+                  volume={videoPlayer.volume}
+                  playbackRate={videoPlayer.playbackRate}
+                  currentTime={videoPlayer.currentTime}
+                  duration={videoPlayer.duration}
+                  isVideoLoaded={videoPlayer.isVideoLoaded}
+                  videoError={videoPlayer.videoError}
+                  currentSubtitle={subtitleListContext.getCurrentSubtitle(videoPlayer.currentTime)}
+                  displayMode={subtitleDisplayMode.displayMode}
+                  onProgress={videoPlayer.handleProgress}
+                  onDuration={videoPlayer.handleVideoDuration}
+                  onReady={videoPlayer.handleVideoReady}
+                  onError={videoPlayer.handleVideoError}
+                  onSeek={handleEnhancedSeek}
+                  onStepBackward={videoPlayer.handleStepBackward}
+                  onPlayPause={videoPlayer.handlePlayPause}
+                  onStepForward={videoPlayer.handleStepForward}
+                  onPlaybackRateChange={videoPlayer.handlePlaybackRateChange}
+                  onVolumeChange={videoPlayer.handleVolumeChange}
+                  onFullscreenChange={setIsFullscreen}
+                  onFullscreenToggleReady={handleFullscreenToggleReady}
+                />
+              </div>
 
-        {/* 字幕列表区域 - 无缝集成 */}
-        <div className={styles.sidebarSection} style={{ width: `${sidebarResize.sidebarWidth}px` }}>
-          <SidebarSection currentTime={videoPlayer.currentTime} onSeek={handleEnhancedSeek} />
-          {/* 调试信息 */}
-          {process.env.NODE_ENV === 'development' && (
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '10px',
-                right: '10px',
-                background: 'rgba(0,0,0,0.8)',
-                color: 'white',
-                padding: '5px',
-                fontSize: '10px',
-                borderRadius: '3px',
-                zIndex: 1000
-              }}
-            >
-              字幕数量: {subtitleListContext.subtitles.length} | 当前索引:{' '}
-              {subtitleListContext.currentSubtitleIndex}
-            </div>
-          )}
-        </div>
+              {/* 视频控制区域 - 仅在非全屏模式下显示 */}
+              {playingVideoContext.videoFile && !isFullscreen && (
+                <div className={styles.videoControlsSection}>
+                  <VideoControlsCompact
+                    duration={videoPlayer.duration}
+                    currentTime={videoPlayer.currentTime}
+                    isVideoLoaded={videoPlayer.isVideoLoaded}
+                    isPlaying={videoPlayer.isPlaying}
+                    videoError={videoPlayer.videoError}
+                    playbackRate={videoPlayer.playbackRate}
+                    volume={videoPlayer.volume}
+                    isLooping={subtitleControl.isSingleLoop}
+                    autoPause={subtitleControl.isAutoPause}
+                    autoSkipSilence={false} // TODO: 需要从配置文件中读取
+                    subtitlePosition="bottom"
+                    displayMode={subtitleDisplayMode.displayMode}
+                    onSeek={handleEnhancedSeek}
+                    onStepBackward={videoPlayer.handleStepBackward}
+                    onPlayPause={videoPlayer.handlePlayPause}
+                    onStepForward={videoPlayer.handleStepForward}
+                    onPlaybackRateChange={videoPlayer.handlePlaybackRateChange}
+                    onVolumeChange={videoPlayer.handleVolumeChange}
+                    onLoopToggle={subtitleControl.toggleSingleLoop}
+                    onAutoSkipToggle={subtitleControl.toggleAutoPause}
+                    onSubtitlePositionToggle={() => {}}
+                    onFullscreenToggle={handleFullscreenToggle}
+                    onPreviousSubtitle={subtitleControl.goToPreviousSubtitle}
+                    onNextSubtitle={subtitleControl.goToNextSubtitle}
+                    onDisplayModeChange={subtitleDisplayMode.setDisplayMode}
+                  />
+                </div>
+              )}
+            </div>{' '}
+          </Splitter.Panel>
+          <Splitter.Panel>
+            {/* 字幕列表区域 - 无缝集成 */}
+            <div className={styles.sidebarSection}>
+              <SidebarSection currentTime={videoPlayer.currentTime} onSeek={handleEnhancedSeek} />
+              {/* 调试信息 */}
+              {process.env.NODE_ENV === 'development' && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    right: '10px',
+                    background: 'rgba(0,0,0,0.8)',
+                    color: 'white',
+                    padding: '5px',
+                    fontSize: '10px',
+                    borderRadius: '3px',
+                    zIndex: 1000
+                  }}
+                >
+                  字幕数量: {subtitleListContext.subtitles.length} | 当前索引:{' '}
+                  {subtitleListContext.currentSubtitleIndex}
+                </div>
+              )}
+            </div>{' '}
+          </Splitter.Panel>
+        </Splitter>
       </div>
 
       {/* 字幕检查Modal - 移入PlayPage */}

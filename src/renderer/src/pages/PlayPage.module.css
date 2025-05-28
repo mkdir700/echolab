@@ -14,16 +14,15 @@
 /* 播放页面内容区域 - 包含视频和侧边栏 */
 .playPageContent {
   display: flex;
-  flex: 1;
   height: 0; /* 确保flex子元素不会超出容器 */
   min-height: 0;
+  flex: 1;
 }
 
 /* 主内容区域 - 视频和控制器 */
 .mainContentArea {
   display: flex;
   flex-direction: column;
-  flex: 2; /* 修改为2，与侧边栏形成2:1比例 */
   min-width: 0;
   height: 100%;
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -60,73 +59,6 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 分割线 - 现代化设计 */
-.resizeHandle {
-  width: 1px;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(255, 255, 255, 0.06) 20%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.06) 80%,
-    transparent 100%
-  );
-  cursor: col-resize;
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  user-select: none;
-  z-index: 10;
-}
-
-.resizeHandle::before {
-  content: '';
-  position: absolute;
-  left: -4px;
-  right: -4px;
-  top: 0;
-  bottom: 0;
-  background: transparent;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.resizeHandle:hover {
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(102, 126, 234, 0.2) 20%,
-    rgba(102, 126, 234, 0.4) 50%,
-    rgba(102, 126, 234, 0.2) 80%,
-    transparent 100%
-  );
-  width: 2px;
-  transform: scaleY(1.02);
-}
-
-.resizeHandle:hover::before {
-  background: rgba(102, 126, 234, 0.1);
-  border-radius: 2px;
-}
-
-.resizeHandle.dragging {
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(102, 126, 234, 0.3) 20%,
-    rgba(102, 126, 234, 0.6) 50%,
-    rgba(102, 126, 234, 0.3) 80%,
-    transparent 100%
-  );
-  width: 3px;
-  transform: scaleY(1.05);
-  box-shadow: 
-    0 0 20px rgba(102, 126, 234, 0.3),
-    0 0 40px rgba(102, 126, 234, 0.1);
-}
-
-.resizeHandle.dragging::before {
-  background: rgba(102, 126, 234, 0.15);
-  border-radius: 3px;
-}
 
 /* 侧边栏区域 - 无缝集成 */
 .sidebarSection {
@@ -134,10 +66,7 @@
   flex-direction: column;
   height: 100%;
   background: var(--darker-bg);
-  flex: 1; /* 明确设置为1，与主内容区域形成2:1比例 */
   flex-shrink: 0;
-  min-width: 280px;
-  max-width: 600px;
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   /* 移除所有边距和边框 */
   padding: 0;
@@ -203,13 +132,7 @@
 @media (prefers-reduced-motion: reduce) {
   .mainContentArea,
   .sidebarSection,
-  .resizeHandle,
   .videoControlsSection {
     transition: none;
-  }
-  
-  .resizeHandle:hover,
-  .resizeHandle.dragging {
-    transform: none;
   }
 } 
