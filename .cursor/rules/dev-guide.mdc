@@ -144,6 +144,169 @@ pnpm typecheck   # TypeScript 类型检查
 - 定期运行 `pnpm typecheck:web` 和 `pnpm typecheck:node`
 - 确保主进程和渲染进程类型一致性
 
+## React Hook 性能优化最佳实践
+
+### 1. useEffect 依赖优化
+
+#### 问题描述
+React 不建议将函数作为 useEffect 的依赖，因为函数在每次渲染时都会重新创建，导致 effect 不必要地重新执行。
+
+#### 解决方案
+
+**方案一：使用 useRef 存储函数引用**
+```typescript
+// ❌ 不好的做法 - 函数作为依赖
+useEffect(() => {
+  initialize();
+}, [restoreVideoState, restoreSubtitles, getRecentPlayByPath]);
+
+// ✅ 好的做法 - 使用 ref 存储函数引用
+const restoreVideoStateRef = useRef(restoreVideoState);
+const restoreSubtitlesRef = useRef(restoreSubtitles);
+
+// 更新 ref 的值
+restoreVideoStateRef.current = restoreVideoState;
+restoreSubtitlesRef.current = restoreSubtitles;
+
+useEffect(() => {
+  const initialize = async () => {
+    // 使用 ref.current 调用函数
+    restoreVideoStateRef.current(currentTime, playbackRate, volume);
+  };
+  initialize();
+}, [originalFilePath, videoFile]); // 只依赖基本数据类型
+```
+
+**方案二：将函数移到 useEffect 内部**
+```typescript
+// ✅ 最佳做法 - 函数定义在 effect 内部
+useEffect(() => {
+  const detectAndLoadSubtitles = async (videoPath: string) => {
+    // 函数逻辑
+  };
+  
+  const initialize = async () => {
+    await detectAndLoadSubtitles(originalFilePath);
+  };
+  
+  initialize();
+}, [originalFilePath, videoFile]); // 无函数依赖
+```
+
+### 2. useCallback 使用指南
+
+#### 何时使用 useCallback
+
+1. **防止子组件不必要重渲染**
+```typescript
+// 子组件使用 React.memo 时
+const Child = React.memo(({ onClick }) => {
+  return <button onClick={onClick}>Click</button>;
+});
+
+function Parent() {
+  const handleClick = useCallback(() => {
+    console.log('clicked');
+  }, []); // 稳定的函数引用
+  
+  return <Child onClick={handleClick} />;
+}
+```
+
+2. **作为其他 Hook 的依赖**
+```typescript
+const fetchData = useCallback(() => {
+  return api.getData(userId);
+}, [userId]);
+
+useEffect(() => {
+  fetchData();
+}, [fetchData]); // 安全的函数依赖
+```
+
+3. **传递给自定义 Hook**
+```typescript
+const handleSearch = useCallback(() => {
+  performSearch(query);
+}, [query]);
+
+useDebounce(handleSearch, 500);
+```
+
+#### 何时不需要 useCallback
+
+1. **函数不作为 props 传递**
+2. **子组件未使用 React.memo**
+3. **函数仅在组件内部使用**
+4. **函数创建成本很低**
+
+#### 性能考虑
+
+- useCallback 本身有内存和计算成本
+- 只在确实需要时使用
+- 优先考虑代码结构重构而非过度优化
+
+### 3. 代码重构原则
+
+#### 优先级顺序
+1. **重构代码结构** - 将函数移到合适位置
+2. **使用 useRef** - 存储函数引用避免依赖
+3. **使用 useCallback** - 最后的优化手段
+
+#### 实际案例
+在 `usePlayStateInitializer` Hook 中：
+- 原始问题：多个函数作为 useEffect 依赖
+- 解决方案：结合使用 useRef 和函数内部定义
+- 结果：依赖数组只包含基本数据类型和稳定引用
+
+### 4. 依赖数组最佳实践
+
+#### 理想的依赖数组
+```typescript
+useEffect(() => {
+  // effect 逻辑
+}, [
+  // 基本数据类型
+  originalFilePath,    // string
+  videoFile,          // string
+  subtitles.length,   // number
+  isEnabled,          // boolean
+  
+  // 稳定引用
+  saveStateRef        // ref 对象
+]);
+```
+
+#### 避免的依赖类型
+- 函数引用（除非使用 useCallback 优化）
+- 对象引用（除非使用 useMemo 优化）
+- 数组引用（除非使用 useMemo 优化）
+
+### 5. 性能优化检查清单
+
+- [ ] useEffect 依赖数组中无函数引用
+- [ ] 使用 useRef 存储外部函数引用
+- [ ] 考虑将函数移到 effect 内部
+- [ ] 仅在必要时使用 useCallback
+- [ ] 子组件使用 React.memo 时才优化 props 函数
+- [ ] 依赖数组尽量包含基本数据类型
+- [ ] 避免过度优化，保持代码可读性
+
+### 6. 调试技巧
+
+#### 检查 effect 执行频率
+```typescript
+useEffect(() => {
+  console.log('Effect executed:', { originalFilePath, videoFile });
+  // effect 逻辑
+}, [originalFilePath, videoFile]);
+```
+
+#### 使用 React DevTools Profiler
+- 监控组件重渲染频率
+- 识别性能瓶颈
+- 验证优化效果
+
 ## 总结
 
 **关键要点：**
@@ -153,3 +316,291 @@ pnpm typecheck   # TypeScript 类型检查
 4. 🔍 **类型安全**：严格的 TypeScript 配置和定期检查
 
 遵循这些规则可以确保代码库的类型安全性和可维护性。
+
+## Modal 组件样式规范
+
+### 概述
+为了确保应用中所有 Modal 组件的视觉一致性和用户体验，我们建立了统一的 Modal 样式系统。所有 Modal 相关的基础样式都集中在 `src/renderer/src/styles/antd-theme.css` 中管理。
+
+### 样式架构
+
+#### 1. 基础样式（全局）
+所有 Modal 共享的基础样式定义在 `antd-theme.css` 中：
+- 遮罩层样式（背景模糊、透明度）
+- 容器样式（背景渐变、边框、阴影、圆角）
+- 头部样式（背景、边框、装饰线）
+- 主体和底部样式
+- 关闭按钮样式
+- 按钮统一样式（primary、default、dangerous）
+
+#### 2. 变体样式（主题化）
+通过 CSS 类名区分不同类型的 Modal：
+
+```css
+/* 删除确认 Modal */
+.delete-modal
+
+/* 字幕加载 Modal */
+.subtitle-modal
+
+/* 转换指南 Modal */
+.conversion-guide-modal
+
+/* 设置 Modal */
+.settings-modal
+```
+
+每种变体都有独特的主题色彩：
+- 删除确认：红色主题 (`rgba(255, 77, 79, *)`)
+- 字幕加载：蓝色主题 (`rgba(102, 126, 234, *)`)
+- 转换指南：天蓝色主题 (`rgba(24, 144, 255, *)`)
+- 设置：紫色主题 (`rgba(139, 92, 246, *)`)
+
+### 使用规范
+
+#### 1. Modal 组件使用
+```tsx
+// ✅ 正确使用
+<Modal
+  title={<div className={styles.modalTitle}>标题</div>}
+  className="delete-modal" // 使用统一的类名
+  // ... 其他属性
+>
+  <div className={styles.modalContent}>
+    {/* 内容 */}
+  </div>
+</Modal>
+
+// ❌ 错误使用
+<Modal
+  className={styles.customModal} // 避免使用组件特有的样式类
+>
+```
+
+#### 2. 样式文件组织
+- **全局 Modal 样式**：`src/renderer/src/styles/antd-theme.css`
+- **组件特有样式**：各组件的 `.module.css` 文件中只包含该组件特有的样式
+- **避免重复**：不要在组件样式文件中重复定义 Modal 基础样式
+
+#### 3. 类名命名规范
+- 使用 kebab-case 命名：`delete-modal`、`subtitle-modal`
+- 类名应该描述 Modal 的功能或用途
+- 避免使用组件名作为类名前缀
+
+### CSS 变量系统
+
+#### Modal 专用变量
+```css
+:root {
+  --modal-bg: linear-gradient(145deg, var(--darker-bg) 0%, rgba(26, 26, 26, 0.95) 100%);
+  --modal-border: rgba(102, 126, 234, 0.2);
+  --modal-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(102, 126, 234, 0.1);
+  --modal-header-bg: rgba(102, 126, 234, 0.05);
+  --modal-header-border: rgba(102, 126, 234, 0.2);
+  --modal-footer-border: rgba(255, 255, 255, 0.08);
+  --modal-close-bg: rgba(255, 255, 255, 0.05);
+  --modal-close-hover-bg: rgba(255, 255, 255, 0.1);
+}
+```
+
+### 响应式设计
+
+Modal 样式包含完整的响应式支持：
+- 移动端适配（宽度、内边距调整）
+- 按钮尺寸适配
+- 关闭按钮位置调整
+
+### 最佳实践
+
+#### 1. 新增 Modal 类型
+1. 在 `antd-theme.css` 中添加新的变体样式
+2. 选择合适的主题色彩
+3. 在组件中使用对应的类名
+4. 更新本文档
+
+#### 2. 自定义样式
+- 优先使用 CSS 变量进行主题定制
+- 组件特有样式放在对应的 `.module.css` 文件中
+- 避免使用 `!important`，除非必要
+
+#### 3. 维护原则
+- 保持样式的一致性和可维护性
+- 定期检查和清理重复的样式代码
+- 确保新增功能遵循现有的设计规范
+
+### 文件结构
+```
+src/renderer/src/styles/
+├── antd-theme.css          # Modal 基础样式和变体
+├── components.css          # 其他组件样式
+└── global.css             # 全局样式
+
+src/renderer/src/components/
+└── [ComponentName]/
+    ├── ComponentName.tsx
+    └── ComponentName.module.css  # 组件特有样式
+```
+
+### 注意事项
+1. 修改 Modal 基础样式时要考虑对所有 Modal 的影响
+2. 新增变体样式时要确保与现有设计风格一致
+3. 测试不同屏幕尺寸下的显示效果
+4. 保持代码的可读性和可维护性
+
+## React Context 最佳实践
+
+### 三文件分离模式
+
+为了避免性能问题和循环依赖，我们采用三文件分离的 Context 组织模式：
+
+#### 1. 类型定义文件 (`*-context.ts`)
+```typescript
+// src/renderer/src/contexts/subtitle-list-context.ts
+import { createContext } from 'react'
+import type { SubtitleItem } from '@types_/shared'
+
+export interface SubtitleListContextType {
+  // 状态
+  subtitles: SubtitleItem[]
+  showSubtitles: boolean
+  currentSubtitleIndex: number
+  
+  // 操作方法
+  handleSubtitleUpload: (file: File) => boolean
+  toggleSubtitles: () => void
+  getCurrentSubtitleIndex: (currentTime: number) => number
+  getCurrentSubtitle: (currentTime: number) => SubtitleItem | null
+  setAutoScrollEnabled: (enabled: boolean) => void
+  setCurrentSubtitleIndex: (index: number) => void
+  restoreSubtitles: (subtitles: SubtitleItem[], currentSubtitleIndex: number) => void
+}
+
+export const SubtitleListContext = createContext<SubtitleListContextType | null>(null)
+```
+
+#### 2. Provider 组件文件 (`*Context.tsx`)
+```typescript
+// src/renderer/src/contexts/SubtitleListContext.tsx
+import React from 'react'
+import { useSubtitleList } from '../hooks/useSubtitleList'
+import { SubtitleListContext, type SubtitleListContextType } from './subtitle-list-context'
+
+export function SubtitleListProvider({
+  children
+}: {
+  children: React.ReactNode
+}): React.JSX.Element {
+  const value: SubtitleListContextType = useSubtitleList()
+
+  return <SubtitleListContext.Provider value={value}>{children}</SubtitleListContext.Provider>
+}
+```
+
+#### 3. 自定义 Hook 文件 (`use*Context.ts`)
+```typescript
+// src/renderer/src/hooks/useSubtitleListContext.ts
+import { useContext } from 'react'
+import {
+  SubtitleListContext,
+  type SubtitleListContextType
+} from '../contexts/subtitle-list-context'
+
+export function useSubtitleListContext(): SubtitleListContextType {
+  const context = useContext(SubtitleListContext)
+  if (!context) {
+    throw new Error('useSubtitleListContext 必须在 SubtitleListProvider 内部使用')
+  }
+
+  return context
+}
+```
+
+### Context 性能优化策略
+
+#### 1. 避免屏蔽获取 (Prop Drilling)
+- 使用 Context 直接在需要的组件中获取状态
+- 减少不必要的 props 传递
+- 提高组件的可维护性
+
+#### 2. 合理的 Provider 层级
+```typescript
+// App.tsx - Provider 嵌套结构
+<PlaybackSettingsProvider>
+  <ShortcutProvider>
+    <PlayingVideoProvider>
+      <SubtitleListProvider>
+        {/* 应用内容 */}
+      </SubtitleListProvider>
+    </PlayingVideoProvider>
+  </ShortcutProvider>
+</PlaybackSettingsProvider>
+```
+
+#### 3. Hook 内部使用 Context
+```typescript
+// 优化前：通过参数传递
+const subtitleControl = useSubtitleControl({
+  subtitlesLength: subtitles.length,
+  getSubtitle: (index) => subtitles[index],
+  getAllSubtitles: () => subtitles,
+  // ... 其他参数
+})
+
+// 优化后：Hook 内部使用 Context
+const subtitleControl = useSubtitleControl({
+  currentSubtitleIndex,
+  currentTime,
+  isPlaying,
+  isVideoLoaded,
+  onSeek,
+  onPause
+})
+
+// Hook 内部
+export function useSubtitleControl(params) {
+  const { subtitles } = useSubtitleListContext()
+  // 直接使用 context 中的数据
+}
+```
+
+### 组件优化示例
+
+#### 优化前：通过 Props 传递
+```typescript
+// SidebarSection 接收 subtitles 作为 prop
+<SidebarSection
+  subtitles={subtitleList.subtitles}
+  // ... 其他 props
+/>
+```
+
+#### 优化后：直接使用 Context
+```typescript
+// SidebarSection 内部使用 context
+export function SidebarSection(props) {
+  const { subtitles } = useSubtitleListContext()
+  // 直接使用 context 中的数据
+}
+
+// 调用时不需要传递 subtitles
+<SidebarSection
+  // ... 其他 props（不包括 subtitles）
+/>
+```
+
+### 最佳实践总结
+
+1. **三文件分离**：类型定义、Provider 组件、自定义 Hook 分别放在不同文件
+2. **类型安全**：使用 TypeScript 确保 Context 类型安全
+3. **错误处理**：在自定义 Hook 中检查 Context 是否存在
+4. **性能优化**：让 Hook 直接使用 Context，减少参数传递
+5. **组件解耦**：组件直接使用 Context，减少 props 依赖
+
+### 命名规范
+
+- Context 类型：`*ContextType`
+- Context 实例：`*Context`
+- Provider 组件：`*Provider`
+- 自定义 Hook：`use*Context`
+
+这种模式确保了代码的可维护性、性能和类型安全。
