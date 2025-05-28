@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { Layout } from 'antd'
 
 // 导入组件
-import { AppHeader } from '@renderer/components/AppHeader'
+import { AppHeader } from '@renderer/components/AppHeader/AppHeader'
 import { HomePage } from '@renderer/pages/HomePage'
 import { PlayPage } from '@renderer/pages/PlayPage'
 import { FavoritesPage } from '@renderer/pages/FavoritesPage'

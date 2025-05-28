@@ -1,8 +1,8 @@
 import React from 'react'
 import { Layout, Menu, Typography } from 'antd'
-import { HomeOutlined, HeartOutlined, InfoCircleOutlined, SettingOutlined } from '@ant-design/icons'
+import { HomeOutlined, SettingOutlined } from '@ant-design/icons'
 import { AppHeaderProps, PageType, NavigationItem } from '@renderer/types'
-import styles from './AppHeader/AppHeader.module.css'
+import styles from './AppHeader.module.css'
 
 const { Header } = Layout
 const { Title } = Typography
@@ -10,8 +10,8 @@ const { Title } = Typography
 // 导航菜单配置
 const navigationItems: NavigationItem[] = [
   { key: 'home', label: '首页', icon: <HomeOutlined /> },
-  { key: 'favorites', label: '收藏', icon: <HeartOutlined /> },
-  { key: 'about', label: '关于', icon: <InfoCircleOutlined /> },
+  // { key: 'favorites', label: '收藏', icon: <HeartOutlined /> },
+  // { key: 'about', label: '关于', icon: <InfoCircleOutlined /> },
   { key: 'settings', label: '设置', icon: <SettingOutlined /> }
 ]
 
@@ -32,14 +32,12 @@ export function AppHeader({ currentPage, onPageChange }: AppHeaderProps): React.
           onClick={({ key }) => onPageChange(key as PageType)}
           style={{
             backgroundColor: 'transparent',
-            borderBottom: 'none',
-            minWidth: 300
+            borderBottom: 'none'
           }}
           items={navigationItems.map((item) => ({
             key: item.key,
             icon: item.icon,
-            label: item.label,
-            style: { color: '#ffffff' }
+            label: item.label
           }))}
         />
       </div>
