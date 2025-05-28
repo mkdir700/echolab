@@ -92,25 +92,4 @@
   top: 0;
   bottom: 0;
   background: transparent;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .main-container {
-    flex-direction: column;
-  }
-  
-  .left-section {
-    width: 100% !important;
-  }
-
-  .resize-handle {
-    display: none;
-  }
-
-  .sidebar-section {
-    width: 100% !important;
-    padding: var(--spacing-lg);
-    max-height: 40vh;
-  }
 } 

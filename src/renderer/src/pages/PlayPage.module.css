@@ -23,7 +23,7 @@
 .mainContentArea {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 2; /* 修改为2，与侧边栏形成2:1比例 */
   min-width: 0;
   height: 100%;
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -134,6 +134,7 @@
   flex-direction: column;
   height: 100%;
   background: var(--darker-bg);
+  flex: 1; /* 明确设置为1，与主内容区域形成2:1比例 */
   flex-shrink: 0;
   min-width: 280px;
   max-width: 600px;
@@ -163,44 +164,6 @@
     transparent 100%
   );
   z-index: 1;
-}
-
-/* 响应式设计 */
-@media (max-width: 1024px) {
-  .playPageContainer {
-    flex-direction: column;
-  }
-  
-  .mainContentArea {
-    width: 100% !important;
-    height: 60%;
-  }
-  
-  .sidebarSection {
-    width: 100% !important;
-    height: 40%;
-    max-height: 40vh;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-  }
-  
-  .sidebarSection::before {
-    display: none;
-  }
-  
-  .resizeHandle {
-    display: none;
-  }
-}
-
-@media (max-width: 768px) {
-  .mainContentArea {
-    height: 65%;
-  }
-  
-  .sidebarSection {
-    height: 35%;
-    max-height: 35vh;
-  }
 }
 
 /* 深色主题优化 */

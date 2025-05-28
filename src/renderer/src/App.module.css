@@ -149,25 +149,4 @@
   opacity: 1;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .mainContainer {
-    flex-direction: column;
-  }
-  
-  .leftSection {
-    width: 100% !important;
-  }
-
-  .resizeHandle {
-    display: none;
-  }
-
-  .sidebarSection {
-    width: 100% !important;
-    padding: var(--spacing-lg);
-    max-height: 40vh;
-  }
 } 

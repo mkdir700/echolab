@@ -48,11 +48,11 @@ const FORBIDDEN_KEYS = new Set([
 // 快捷键配置数据 - 从新的管理系统获取
 const SHORTCUT_CONFIGS = Object.values(DEFAULT_SHORTCUTS)
 
-// 快捷键分类
-const SHORTCUT_CATEGORIES = {
-  playback: { name: '播放控制', color: '#667eea' },
-  subtitle: { name: '字幕控制', color: '#52c41a' }
-}
+// // 快捷键分类
+// const SHORTCUT_CATEGORIES = {
+//   playback: { name: '播放控制', color: '#667eea' },
+//   subtitle: { name: '字幕控制', color: '#52c41a' }
+// }
 
 interface ShortcutItemProps {
   config: (typeof DEFAULT_SHORTCUTS)[keyof typeof DEFAULT_SHORTCUTS]
@@ -185,12 +185,6 @@ function ShortcutItem({
           <Text strong style={{ color: 'var(--text-primary)' }}>
             {config.name}
           </Text>
-          <Tag
-            color={SHORTCUT_CATEGORIES[config.category].color}
-            style={{ marginLeft: 8, fontSize: '10px' }}
-          >
-            {SHORTCUT_CATEGORIES[config.category].name}
-          </Tag>
         </div>
         <Text style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{config.description}</Text>
       </div>

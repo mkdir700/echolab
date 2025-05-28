@@ -26,6 +26,7 @@
 .settings-content {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0px;
 }
 
 /* 设置侧边栏 */
@@ -38,6 +39,10 @@
     0 2px 8px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
+}
+
+.settings-sidebar .ant-card-body {
+  padding: 0px !important;
 }
 
 .settings-nav {
@@ -103,7 +108,6 @@
 
 .settings-section-card .ant-card-body {
   background: transparent !important;
-  padding: var(--spacing-xl);
 }
 
 /* 快捷键相关样式 */
