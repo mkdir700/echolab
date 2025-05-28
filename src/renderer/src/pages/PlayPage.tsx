@@ -11,10 +11,8 @@ import { useSubtitleListContext } from '@renderer/hooks/useSubtitleListContext'
 import { usePlayingVideoContext } from '@renderer/hooks/usePlayingVideoContext'
 import { useSidebarResize } from '@renderer/hooks/useSidebarResize'
 import { useSubtitleDisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
-import { useAutoScroll } from '@renderer/hooks/useAutoScroll'
 import { useSubtitleControl } from '@renderer/hooks/useSubtitleControl'
 import { useKeyboardShortcuts } from '@renderer/hooks/useKeyboardShortcuts'
-import { usePlaybackSettingsContext } from '@renderer/hooks/usePlaybackSettingsContext'
 import { usePlayStateSaver } from '@renderer/hooks/usePlayStateSaver'
 import { usePlayStateInitializer } from '@renderer/hooks/usePlayStateInitializer'
 
@@ -35,8 +33,6 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   const subtitleListContext = useSubtitleListContext()
   // 播放视频上下文
   const playingVideoContext = usePlayingVideoContext()
-  // 播放设置上下文
-  const playbackSettingsContext = usePlaybackSettingsContext()
   // 侧边栏调整
   const sidebarResize = useSidebarResize(containerRef)
   // 字幕显示模式
@@ -67,6 +63,28 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   // 计算当前字幕索引
   const currentSubtitleIndex = subtitleListContext.getCurrentSubtitleIndex(videoPlayer.currentTime)
 
+  // 增强的进度条拖动处理函数
+  const handleEnhancedSeek = useCallback(
+    (time: number): void => {
+      // 首先执行原始的视频跳转
+      videoPlayer.handleSeek(time)
+
+      // 计算目标时间点的字幕索引
+      const targetSubtitleIndex = subtitleListContext.getSubtitleIndexForTime(time)
+
+      if (targetSubtitleIndex !== -1) {
+        console.log('🎯 进度条拖动：目标字幕索引', targetSubtitleIndex, '时间:', time)
+
+        // 使用 setTimeout 确保视频跳转完成后再更新字幕索引
+        setTimeout(() => {
+          subtitleListContext.setCurrentSubtitleIndex(targetSubtitleIndex)
+          console.log('✅ 字幕索引已更新为:', targetSubtitleIndex)
+        }, 50) // 50ms 延迟，确保视频跳转完成
+      }
+    },
+    [videoPlayer, subtitleListContext]
+  )
+
   // 字幕控制 Hook - 在 PlayPage 中管理
   const subtitleControl = useSubtitleControl({
     currentSubtitleIndex,
@@ -75,14 +93,6 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
     isVideoLoaded: videoPlayer.isVideoLoaded,
     onSeek: videoPlayer.handleSeek,
     onPause: videoPlayer.handlePlayPause
-  })
-
-  // 自动滚动 Hook
-  const autoScroll = useAutoScroll({
-    currentSubtitleIndex,
-    subtitlesLength: subtitleListContext.subtitles.length,
-    isAutoScrollEnabled: playbackSettingsContext.playbackSettings.isAutoScrollEnabled,
-    onAutoScrollChange: playbackSettingsContext.setAutoScrollEnabled
   })
 
   // 快捷键处理 - 在 PlayPage 中处理字幕控制相关的快捷键
@@ -192,7 +202,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
               onDuration={videoPlayer.handleVideoDuration}
               onReady={videoPlayer.handleVideoReady}
               onError={videoPlayer.handleVideoError}
-              onSeek={videoPlayer.handleSeek}
+              onSeek={handleEnhancedSeek}
               onStepBackward={videoPlayer.handleStepBackward}
               onPlayPause={videoPlayer.handlePlayPause}
               onStepForward={videoPlayer.handleStepForward}
@@ -219,7 +229,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
                 autoSkipSilence={false} // TODO: 需要从配置文件中读取
                 subtitlePosition="bottom"
                 displayMode={subtitleDisplayMode.displayMode}
-                onSeek={videoPlayer.handleSeek}
+                onSeek={handleEnhancedSeek}
                 onStepBackward={videoPlayer.handleStepBackward}
                 onPlayPause={videoPlayer.handlePlayPause}
                 onStepForward={videoPlayer.handleStepForward}
@@ -245,16 +255,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
 
         {/* 字幕列表区域 - 无缝集成 */}
         <div className={styles.sidebarSection} style={{ width: `${sidebarResize.sidebarWidth}px` }}>
-          <SidebarSection
-            isAutoScrollEnabled={
-              playbackSettingsContext.playbackSettings?.isAutoScrollEnabled ?? true
-            }
-            currentSubtitleIndex={subtitleListContext.currentSubtitleIndex}
-            currentTime={videoPlayer.currentTime}
-            subtitleListRef={autoScroll.subtitleListRef}
-            onSeek={videoPlayer.handleSeek}
-            onCenterCurrentSubtitle={autoScroll.handleCenterCurrentSubtitle}
-          />
+          <SidebarSection currentTime={videoPlayer.currentTime} onSeek={handleEnhancedSeek} />
           {/* 调试信息 */}
           {process.env.NODE_ENV === 'development' && (
             <div

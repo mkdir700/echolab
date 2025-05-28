@@ -13,6 +13,7 @@ export interface SubtitleListContextType {
   handleSubtitleUpload: (file: File) => boolean
   toggleSubtitles: () => void
   getCurrentSubtitleIndex: (currentTime: number) => number
+  getSubtitleIndexForTime: (currentTime: number) => number
   getCurrentSubtitle: (currentTime: number) => SubtitleItem | null
   setAutoScrollEnabled: (enabled: boolean) => void
   setCurrentSubtitleIndex: (index: number) => void

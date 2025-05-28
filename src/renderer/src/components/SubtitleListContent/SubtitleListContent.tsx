@@ -3,30 +3,33 @@ import { Button, List, Space, Typography } from 'antd'
 import { MessageOutlined } from '@ant-design/icons'
 import { SubtitleListItem } from './SubtitleListItem'
 import { formatTime } from '@renderer/utils/helpers'
-import type { SubtitleItem } from '@renderer/types/shared'
 import styles from './SubtitleListContent.module.css'
-
+import { useSubtitleListContext } from '@renderer/hooks/useSubtitleListContext'
+import { useAutoScroll } from '@renderer/hooks/useAutoScroll'
+import { usePlaybackSettingsContext } from '@renderer/hooks/usePlaybackSettingsContext'
 const { Text } = Typography
 
 interface SubtitleListContentProps {
-  subtitles: SubtitleItem[]
-  isAutoScrollEnabled: boolean
-  currentSubtitleIndex: number
   currentTime: number
-  subtitleListRef: React.RefObject<HTMLDivElement | null>
   onSeek: (time: number) => void
-  onCenterCurrentSubtitle: () => void
 }
 
 export function SubtitleListContent({
-  subtitles,
-  isAutoScrollEnabled,
-  currentSubtitleIndex,
   currentTime,
-  subtitleListRef,
-  onSeek,
-  onCenterCurrentSubtitle
+  onSeek
 }: SubtitleListContentProps): React.JSX.Element {
+  const subtitleListContext = useSubtitleListContext()
+  const { subtitles, currentSubtitleIndex } = subtitleListContext
+  const playbackSettingsContext = usePlaybackSettingsContext()
+  // 自动滚动 Hook
+  const autoScroll = useAutoScroll({
+    currentSubtitleIndex,
+    subtitlesLength: subtitleListContext.subtitles.length,
+    isAutoScrollEnabled: playbackSettingsContext.playbackSettings.isAutoScrollEnabled,
+    onAutoScrollChange: playbackSettingsContext.setAutoScrollEnabled
+  })
+  const isAutoScrollEnabled = playbackSettingsContext.playbackSettings.isAutoScrollEnabled
+  const { subtitleListRef, handleCenterCurrentSubtitle } = autoScroll
   return (
     <div className={styles.subtitleListContainerNoHeader}>
       {subtitles.length > 0 && (
@@ -62,7 +65,7 @@ export function SubtitleListContent({
               <Button
                 size="small"
                 type="text"
-                onClick={onCenterCurrentSubtitle}
+                onClick={handleCenterCurrentSubtitle}
                 title={isAutoScrollEnabled ? '定位当前字幕' : '定位当前字幕并启用自动跟随'}
                 style={{
                   fontSize: 11,

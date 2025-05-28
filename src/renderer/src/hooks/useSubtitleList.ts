@@ -13,6 +13,7 @@ interface UseSubtitleListReturn extends SubtitleListState {
   handleSubtitleUpload: (file: File) => boolean
   toggleSubtitles: () => void
   getCurrentSubtitleIndex: (currentTime: number) => number
+  getSubtitleIndexForTime: (currentTime: number) => number
   getCurrentSubtitle: (currentTime: number) => SubtitleItem | null
   setAutoScrollEnabled: (enabled: boolean) => void
   setCurrentSubtitleIndex: (index: number) => void
@@ -68,6 +69,32 @@ export function useSubtitleList(): UseSubtitleListReturn {
     [state.subtitles]
   )
 
+  // 获取指定时间点的字幕索引（用于进度条拖动）
+  // 如果该时间点没有字幕，返回该时间点后最近的一条字幕索引
+  const getSubtitleIndexForTime = useCallback(
+    (currentTime: number): number => {
+      // 首先尝试找到当前时间点正在播放的字幕
+      const activeIndex = state.subtitles.findIndex(
+        (sub) => currentTime >= sub.startTime && currentTime <= sub.endTime
+      )
+
+      if (activeIndex !== -1) {
+        return activeIndex
+      }
+
+      // 如果没有正在播放的字幕，找到该时间点后最近的一条字幕
+      const nextIndex = state.subtitles.findIndex((sub) => sub.startTime > currentTime)
+
+      if (nextIndex !== -1) {
+        return nextIndex
+      }
+
+      // 如果没有找到后续字幕，返回最后一条字幕的索引
+      return state.subtitles.length > 0 ? state.subtitles.length - 1 : -1
+    },
+    [state.subtitles]
+  )
+
   // 获取当前字幕对象
   const getCurrentSubtitle = useCallback(
     (currentTime: number): SubtitleItem | null => {
@@ -118,6 +145,7 @@ export function useSubtitleList(): UseSubtitleListReturn {
     handleSubtitleUpload,
     toggleSubtitles,
     getCurrentSubtitleIndex,
+    getSubtitleIndexForTime,
     getCurrentSubtitle,
     setAutoScrollEnabled,
     setCurrentSubtitleIndex,

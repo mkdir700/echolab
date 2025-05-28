@@ -200,7 +200,6 @@
   min-height: 0;
   /* 启用滚动优化 */
   -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
   contain: size layout style paint;
 }
 
