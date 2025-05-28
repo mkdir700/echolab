@@ -9,7 +9,7 @@ import {
   DeleteOutlined
 } from '@ant-design/icons'
 import { useVideoPlayer } from '@renderer/hooks/useVideoPlayer'
-import { useRecentPlays } from '@renderer/hooks/useRecentPlays'
+import { useRecentPlayList } from '@renderer/hooks/useRecentPlayList'
 import { formatTime } from '@renderer/utils/helpers'
 import type { RecentPlayItem } from '@renderer/types'
 import styles from './HomePage.module.css'
@@ -56,7 +56,7 @@ const recommendedVideos = [
 export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element {
   // 使用自定义 Hooks
   const videoPlayer = useVideoPlayer()
-  const { recentPlays, removeRecentPlay, clearRecentPlays, addRecentPlay } = useRecentPlays()
+  const { recentPlays, removeRecentPlay, clearRecentPlays, addRecentPlay } = useRecentPlayList()
   const playingVideoContext = usePlayingVideoContext()
 
   // 处理视频文件选择(首次打开)
@@ -415,7 +415,7 @@ export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element
         okText="删除"
         cancelText="取消"
         okType="danger"
-        className={styles.deleteModal}
+        className="delete-modal"
         centered
         width={480}
       >

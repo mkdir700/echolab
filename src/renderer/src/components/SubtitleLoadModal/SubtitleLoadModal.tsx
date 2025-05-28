@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Modal, Button, Typography, Spin, Alert, message } from 'antd'
 import {
   FileTextOutlined,
   UploadOutlined,
   CheckCircleOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
+  CloseOutlined
 } from '@ant-design/icons'
 import { FileSystemHelper } from '@renderer/utils/fileSystemHelper'
 import { parseSubtitles } from '@renderer/utils/subtitleParser'
-import type { SubtitleItem } from '@renderer/types/shared'
+import type { SubtitleItem } from '@types_/shared'
 import styles from './SubtitleLoadModal.module.css'
 
 const { Text } = Typography
@@ -39,9 +40,24 @@ export function SubtitleLoadModal({
   const [subtitleFiles, setSubtitleFiles] = useState<SubtitleFileInfo[]>([])
   const [selectedFile, setSelectedFile] = useState<SubtitleFileInfo | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [loadingMessage, setLoadingMessage] = useState<string>('')
+
+  // 用于取消文件读取操作的引用
+  const cancelTokenRef = useRef<{ cancelled: boolean }>({ cancelled: false })
+
+  // 重置状态
+  const resetState = useCallback(() => {
+    setLoading(false)
+    setChecking(false)
+    setSubtitleFiles([])
+    setSelectedFile(null)
+    setUploadError(null)
+    setLoadingMessage('')
+    cancelTokenRef.current = { cancelled: false }
+  }, [])
 
   // 检查同目录下的字幕文件
-  const checkSubtitleFiles = async (): Promise<void> => {
+  const checkSubtitleFiles = useCallback(async (): Promise<void> => {
     if (!videoFilePath) return
 
     setChecking(true)
@@ -79,17 +95,36 @@ export function SubtitleLoadModal({
     } finally {
       setChecking(false)
     }
-  }
+  }, [videoFilePath])
 
   // 加载选中的字幕文件
   const loadSelectedSubtitle = async (): Promise<void> => {
     if (!selectedFile) return
 
     setLoading(true)
+    setLoadingMessage(`正在加载字幕文件：${selectedFile.name}`)
+    cancelTokenRef.current = { cancelled: false }
+
     try {
       const content = await FileSystemHelper.readSubtitleFile(selectedFile.path)
+
+      // 检查是否被取消
+      if (cancelTokenRef.current.cancelled) {
+        return
+      }
+
       if (!content) {
         throw new Error('无法读取字幕文件内容')
+      }
+
+      setLoadingMessage('正在解析字幕内容...')
+
+      // 模拟解析延迟，让用户看到进度
+      await new Promise((resolve) => setTimeout(resolve, 500))
+
+      // 再次检查是否被取消
+      if (cancelTokenRef.current.cancelled) {
+        return
       }
 
       const subtitles = parseSubtitles(content, selectedFile.name)
@@ -97,27 +132,46 @@ export function SubtitleLoadModal({
         throw new Error('字幕文件解析失败或为空')
       }
 
+      setLoadingMessage('字幕加载完成！')
       message.success(`成功加载字幕文件：${selectedFile.name}，共 ${subtitles.length} 条字幕`)
-      onSubtitlesLoaded(subtitles)
+
+      // 延迟一下让用户看到成功消息
+      await new Promise((resolve) => setTimeout(resolve, 800))
+
+      if (!cancelTokenRef.current.cancelled) {
+        onSubtitlesLoaded(subtitles)
+        // 不需要手动关闭，因为父组件会处理
+      }
     } catch (error) {
-      console.error('加载字幕文件失败:', error)
-      message.error(`加载字幕文件失败：${(error as Error).message}`)
+      if (!cancelTokenRef.current.cancelled) {
+        console.error('加载字幕文件失败:', error)
+        message.error(`加载字幕文件失败：${(error as Error).message}`)
+      }
     } finally {
-      setLoading(false)
+      if (!cancelTokenRef.current.cancelled) {
+        setLoading(false)
+        setLoadingMessage('')
+      }
     }
   }
 
   // 处理手动选择字幕文件
   const handleManualFileSelect = (): void => {
+    setUploadError(null)
+
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.srt,.vtt,.json'
+
     input.onchange = async (event) => {
       const file = (event.target as HTMLInputElement).files?.[0]
-      if (!file) return
+      if (!file) {
+        return
+      }
 
       setLoading(true)
-      setUploadError(null)
+      setLoadingMessage(`正在加载字幕文件：${file.name}`)
+      cancelTokenRef.current = { cancelled: false }
 
       try {
         const content = await new Promise<string>((resolve, reject) => {
@@ -127,30 +181,75 @@ export function SubtitleLoadModal({
           reader.readAsText(file)
         })
 
+        // 检查是否被取消
+        if (cancelTokenRef.current.cancelled) {
+          return
+        }
+
+        setLoadingMessage('正在解析字幕内容...')
+
+        // 模拟解析延迟
+        await new Promise((resolve) => setTimeout(resolve, 500))
+
+        if (cancelTokenRef.current.cancelled) {
+          return
+        }
+
         const subtitles = parseSubtitles(content, file.name)
         if (subtitles.length === 0) {
           throw new Error('字幕文件解析失败或为空')
         }
 
+        setLoadingMessage('字幕加载完成！')
         message.success(`成功加载字幕文件：${file.name}，共 ${subtitles.length} 条字幕`)
-        onSubtitlesLoaded(subtitles)
+
+        // 延迟一下让用户看到成功消息
+        await new Promise((resolve) => setTimeout(resolve, 800))
+
+        if (!cancelTokenRef.current.cancelled) {
+          onSubtitlesLoaded(subtitles)
+        }
       } catch (error) {
-        console.error('加载字幕文件失败:', error)
-        const errorMessage = `加载字幕文件失败：${(error as Error).message}`
-        setUploadError(errorMessage)
+        if (!cancelTokenRef.current.cancelled) {
+          console.error('加载字幕文件失败:', error)
+          const errorMessage = `加载字幕文件失败：${(error as Error).message}`
+          setUploadError(errorMessage)
+        }
       } finally {
-        setLoading(false)
+        if (!cancelTokenRef.current.cancelled) {
+          setLoading(false)
+          setLoadingMessage('')
+        }
       }
     }
+
     input.click()
+  }
+
+  // 取消加载操作
+  const handleCancelLoading = (): void => {
+    cancelTokenRef.current.cancelled = true
+    setLoading(false)
+    setLoadingMessage('')
+    message.info('已取消字幕加载操作')
+  }
+
+  // 处理模态框关闭
+  const handleModalCancel = (): void => {
+    if (loading) {
+      handleCancelLoading()
+    }
+    resetState()
+    onCancel()
   }
 
   // 当Modal显示时检查字幕文件
   useEffect(() => {
     if (visible && videoFilePath) {
+      resetState()
       checkSubtitleFiles()
     }
-  }, [visible, videoFilePath])
+  }, [visible, videoFilePath, checkSubtitleFiles, resetState])
 
   return (
     <Modal
@@ -161,12 +260,32 @@ export function SubtitleLoadModal({
         </div>
       }
       open={visible}
-      onCancel={onCancel}
+      onCancel={handleModalCancel}
       footer={null}
       width={600}
-      className={styles.subtitleModal}
+      className="subtitle-modal"
+      maskClosable={!loading} // loading时不允许点击遮罩关闭
+      closable={!loading} // loading时隐藏关闭按钮
     >
       <div className={styles.modalContent}>
+        {/* Loading 蒙版 */}
+        {loading && (
+          <div className={styles.loadingOverlay}>
+            <div className={styles.loadingContent}>
+              <Spin size="large" />
+              <Text className={styles.loadingText}>{loadingMessage}</Text>
+              <Button
+                type="default"
+                icon={<CloseOutlined />}
+                onClick={handleCancelLoading}
+                className={styles.cancelButton}
+              >
+                取消
+              </Button>
+            </div>
+          </div>
+        )}
+
         {checking ? (
           <div className={styles.checkingSection}>
             <Spin size="large" />
@@ -206,14 +325,18 @@ export function SubtitleLoadModal({
                   <Button
                     type="primary"
                     size="large"
-                    loading={loading}
                     onClick={loadSelectedSubtitle}
-                    disabled={!selectedFile}
+                    disabled={!selectedFile || loading}
                     className={styles.loadButton}
                   >
                     加载选中的字幕文件
                   </Button>
-                  <Button size="large" onClick={onSkip} className={styles.skipButton}>
+                  <Button
+                    size="large"
+                    onClick={onSkip}
+                    className={styles.skipButton}
+                    disabled={loading}
+                  >
                     稍后添加
                   </Button>
                 </div>
@@ -245,13 +368,18 @@ export function SubtitleLoadModal({
                     type="primary"
                     size="large"
                     icon={<UploadOutlined />}
-                    loading={loading}
                     onClick={handleManualFileSelect}
                     className={styles.uploadButton}
+                    disabled={loading}
                   >
                     手动添加字幕文件
                   </Button>
-                  <Button size="large" onClick={onSkip} className={styles.skipButton}>
+                  <Button
+                    size="large"
+                    onClick={onSkip}
+                    className={styles.skipButton}
+                    disabled={loading}
+                  >
                     稍后添加
                   </Button>
                 </div>

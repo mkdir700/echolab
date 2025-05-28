@@ -194,25 +194,4 @@
   border-radius: var(--border-radius) !important;
   box-shadow: var(--shadow-lg) !important;
   backdrop-filter: blur(20px);
-}
-
-/* 模态框样式 */
-.modal .ant-modal-content {
-  background: var(--card-bg) !important;
-  border: 1px solid var(--card-border) !important;
-  border-radius: var(--border-radius) !important;
-  backdrop-filter: blur(20px);
-}
-
-.modal .ant-modal-header {
-  background: transparent !important;
-  border-bottom: 1px solid var(--card-border) !important;
-}
-
-.modal .ant-modal-title {
-  color: var(--text-primary) !important;
-}
-
-.modal .ant-modal-body {
-  color: var(--text-primary) !important;
 } 

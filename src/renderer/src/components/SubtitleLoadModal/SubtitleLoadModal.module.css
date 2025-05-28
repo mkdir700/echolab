@@ -1,75 +1,4 @@
-/* SubtitleLoadModal 现代化样式 */
-
-.subtitleModal {
-  /* Modal 整体样式 - 确保深色主题 */
-}
-
-.subtitleModal :global(.ant-modal-mask) {
-  background: rgba(0, 0, 0, 0.7) !important;
-  backdrop-filter: blur(6px) !important;
-}
-
-.subtitleModal :global(.ant-modal-content) {
-  background: linear-gradient(145deg, var(--darker-bg) 0%, rgba(26, 26, 26, 0.95) 100%) !important;
-  border: 1px solid rgba(102, 126, 234, 0.2) !important;
-  border-radius: var(--border-radius-xl) !important;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.5),
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(102, 126, 234, 0.1) !important;
-  backdrop-filter: blur(20px) !important;
-  overflow: hidden;
-  position: relative;
-}
-
-.subtitleModal :global(.ant-modal-content)::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.8), transparent);
-}
-
-.subtitleModal :global(.ant-modal-header) {
-  background: rgba(102, 126, 234, 0.05) !important;
-  border-bottom: 1px solid rgba(102, 126, 234, 0.2) !important;
-  padding: var(--spacing-xl) var(--spacing-2xl) !important;
-  position: relative;
-}
-
-.subtitleModal :global(.ant-modal-header)::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: var(--spacing-2xl);
-  right: var(--spacing-2xl);
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
-}
-
-.subtitleModal :global(.ant-modal-body) {
-  padding: 0 !important;
-  background: transparent !important;
-}
-
-.subtitleModal :global(.ant-modal-close) {
-  color: var(--text-secondary) !important;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-radius: 50% !important;
-  width: 32px !important;
-  height: 32px !important;
-  top: 16px !important;
-  right: 16px !important;
-  transition: all 0.3s ease !important;
-}
-
-.subtitleModal :global(.ant-modal-close):hover {
-  background: rgba(255, 77, 79, 0.2) !important;
-  color: #ff4d4f !important;
-  transform: scale(1.1) !important;
-}
+/* SubtitleLoadModal 特有样式 */
 
 /* Modal 标题 */
 .modalTitle {
@@ -551,11 +480,6 @@
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .subtitleModal {
-    width: 95% !important;
-    max-width: 500px !important;
-  }
-
   .modalContent {
     padding: var(--spacing-xl);
   }
@@ -615,5 +539,116 @@
 }
 
 .subtitleList::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #7c93f0, var(--accent-color));
+  background: rgba(102, 126, 234, 0.6);
+}
+
+/* Loading 蒙版样式 */
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.loadingContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-3xl);
+  background: linear-gradient(145deg, var(--darker-bg) 0%, rgba(26, 26, 26, 0.95) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: var(--border-radius-xl);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6),
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(102, 126, 234, 0.2);
+  backdrop-filter: blur(20px);
+  position: relative;
+  min-width: 300px;
+  text-align: center;
+}
+
+.loadingContent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.8), transparent);
+}
+
+.loadingContent :global(.ant-spin) {
+  color: var(--accent-color) !important;
+}
+
+.loadingContent :global(.ant-spin-dot-item) {
+  background-color: var(--accent-color) !important;
+}
+
+.loadingText {
+  color: var(--text-primary) !important;
+  font-size: var(--font-size-lg) !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  max-width: 250px;
+  word-wrap: break-word;
+}
+
+.cancelButton {
+  background: rgba(255, 77, 79, 0.1) !important;
+  border: 1px solid rgba(255, 77, 79, 0.3) !important;
+  border-radius: var(--border-radius) !important;
+  color: #ff4d4f !important;
+  font-weight: 500 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-width: 100px;
+}
+
+.cancelButton:hover {
+  background: rgba(255, 77, 79, 0.2) !important;
+  border-color: #ff4d4f !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(255, 77, 79, 0.3) !important;
+}
+
+.cancelButton:active {
+  transform: translateY(0) !important;
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+  .loadingContent {
+    min-width: 280px;
+    padding: var(--spacing-2xl);
+    margin: var(--spacing-lg);
+  }
+
+  .loadingText {
+    font-size: var(--font-size-base) !important;
+    max-width: 200px;
+  }
+
+  .cancelButton {
+    min-width: 80px;
+    font-size: var(--font-size-sm) !important;
+  }
 } 
