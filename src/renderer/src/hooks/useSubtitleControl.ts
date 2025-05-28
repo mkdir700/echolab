@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import type { SubtitleItem } from '@renderer/types/shared'
+import type { SubtitleItem } from '@types_/shared'
+import { useSubtitleListContext } from './useSubtitleListContext'
 
 interface SubtitleControlState {
   isSingleLoop: boolean // 是否开启单句循环
@@ -16,33 +17,33 @@ interface UseSubtitleControlReturn extends SubtitleControlState {
 }
 
 interface UseSubtitleControlParams {
-  subtitlesLength: number
-  getSubtitle: (index: number) => SubtitleItem | undefined
   currentSubtitleIndex: number
   currentTime: number
   isPlaying: boolean
   isVideoLoaded: boolean
   onSeek: (time: number) => void
   onPause: () => void // 添加暂停回调
-  // 新增：获取所有字幕的函数，用于时间查找
-  getAllSubtitles: () => SubtitleItem[]
 }
 
 export function useSubtitleControl({
-  subtitlesLength,
-  getSubtitle,
   currentSubtitleIndex,
   currentTime,
   isPlaying,
   isVideoLoaded,
   onSeek,
-  onPause,
-  getAllSubtitles
+  onPause
 }: UseSubtitleControlParams): UseSubtitleControlReturn {
+  const { subtitles } = useSubtitleListContext()
+
   const [state, setState] = useState<SubtitleControlState>({
     isSingleLoop: false,
     isAutoPause: false
   })
+
+  // 从 context 获取字幕数据
+  const subtitlesLength = subtitles.length
+  const getSubtitle = useCallback((index: number) => subtitles[index], [subtitles])
+  const getAllSubtitles = useCallback(() => subtitles, [subtitles])
 
   // 用于单句循环的固定字幕索引和字幕对象
   const singleLoopSubtitleRef = useRef<SubtitleItem | null>(null)

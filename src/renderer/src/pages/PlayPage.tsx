@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { VideoPlayer } from '@renderer/components/VideoPlayer/VideoPlayer'
 import { VideoControlsCompact } from '@renderer/components/VideoPlayer/VideoControlsCompact'
 import { SidebarSection } from '@renderer/components/SidebarSection'
@@ -7,7 +7,7 @@ import { SubtitleLoadModal } from '@renderer/components/SubtitleLoadModal'
 
 // 导入所需的 hooks
 import { useVideoPlayer } from '@renderer/hooks/useVideoPlayer'
-import { useSubtitleList } from '@renderer/hooks/useSubtitleList'
+import { useSubtitleListContext } from '@renderer/hooks/useSubtitleListContext'
 import { usePlayingVideoContext } from '@renderer/hooks/usePlayingVideoContext'
 import { useSidebarResize } from '@renderer/hooks/useSidebarResize'
 import { useSubtitleDisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
@@ -32,7 +32,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   // 视频播放器
   const videoPlayer = useVideoPlayer()
   // 字幕列表
-  const subtitleList = useSubtitleList()
+  const subtitleListContext = useSubtitleListContext()
   // 播放视频上下文
   const playingVideoContext = usePlayingVideoContext()
   // 播放设置上下文
@@ -48,57 +48,39 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
     videoFile: playingVideoContext.videoFile || null,
     currentTime: videoPlayer.currentTime,
     duration: videoPlayer.duration,
-    subtitles: subtitleList.subtitles,
-    currentSubtitleIndex: subtitleList.currentSubtitleIndex,
-    getCurrentSubtitleIndex: subtitleList.getCurrentSubtitleIndex
+    subtitles: subtitleListContext.subtitles,
+    currentSubtitleIndex: subtitleListContext.currentSubtitleIndex,
+    getCurrentSubtitleIndex: subtitleListContext.getCurrentSubtitleIndex
   })
 
   // 使用播放状态初始化 hook
   const { pendingVideoInfo, setPendingVideoInfo, showSubtitleModal, setShowSubtitleModal } =
     usePlayStateInitializer({
       playingVideoContext: playingVideoContext,
-      subtitles: subtitleList.subtitles,
+      subtitles: subtitleListContext.subtitles,
       showSubtitleModal: false, // 初始值
       restoreVideoState: videoPlayer.restoreVideoState,
-      restoreSubtitles: subtitleList.restoreSubtitles,
+      restoreSubtitles: subtitleListContext.restoreSubtitles,
       savePlayStateRef
     })
 
   // 计算当前字幕索引
-  const currentSubtitleIndex = subtitleList.getCurrentSubtitleIndex(videoPlayer.currentTime)
-
-  // 缓存字幕长度，避免频繁重新计算
-  const subtitlesLength = useMemo(() => {
-    return subtitleList.subtitles.length
-  }, [subtitleList.subtitles.length])
-
-  // 缓存获取字幕的函数，避免频繁重新创建
-  const getSubtitle = useCallback(
-    (index: number) => {
-      return subtitleList.subtitles[index]
-    },
-    [subtitleList.subtitles]
-  )
+  const currentSubtitleIndex = subtitleListContext.getCurrentSubtitleIndex(videoPlayer.currentTime)
 
   // 字幕控制 Hook - 在 PlayPage 中管理
   const subtitleControl = useSubtitleControl({
-    subtitlesLength,
     currentSubtitleIndex,
     currentTime: videoPlayer.currentTime,
     isPlaying: videoPlayer.isPlaying,
     isVideoLoaded: videoPlayer.isVideoLoaded,
     onSeek: videoPlayer.handleSeek,
-    onPause: videoPlayer.handlePlayPause,
-    // 传递获取字幕的函数而不是整个数组
-    getSubtitle,
-    // 传递获取所有字幕的函数，用于时间查找
-    getAllSubtitles: () => subtitleList.subtitles
+    onPause: videoPlayer.handlePlayPause
   })
 
   // 自动滚动 Hook
   const autoScroll = useAutoScroll({
     currentSubtitleIndex,
-    subtitlesLength: subtitleList.subtitles.length,
+    subtitlesLength: subtitleListContext.subtitles.length,
     isAutoScrollEnabled: playbackSettingsContext.playbackSettings.isAutoScrollEnabled,
     onAutoScrollChange: playbackSettingsContext.setAutoScrollEnabled
   })
@@ -119,10 +101,10 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
 
   // 同步当前字幕索引 - 在 PlayPage 中处理
   useEffect(() => {
-    if (currentSubtitleIndex !== subtitleList.currentSubtitleIndex) {
-      subtitleList.setCurrentSubtitleIndex(currentSubtitleIndex)
+    if (currentSubtitleIndex !== subtitleListContext.currentSubtitleIndex) {
+      subtitleListContext.setCurrentSubtitleIndex(currentSubtitleIndex)
     }
-  }, [currentSubtitleIndex, subtitleList])
+  }, [currentSubtitleIndex, subtitleListContext])
 
   // 全屏状态管理
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -158,7 +140,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   const handleSubtitlesLoaded = useCallback(
     async (loadedSubtitles: SubtitleItem[]) => {
       // 加载字幕到应用状态
-      subtitleList.restoreSubtitles(loadedSubtitles, 0)
+      subtitleListContext.restoreSubtitles(loadedSubtitles, 0)
       setShowSubtitleModal(false)
       setPendingVideoInfo(null)
 
@@ -168,7 +150,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
         await savePlayStateRef.current(true)
       }
     },
-    [savePlayStateRef, setPendingVideoInfo, setShowSubtitleModal, subtitleList]
+    [savePlayStateRef, setPendingVideoInfo, setShowSubtitleModal, subtitleListContext]
   )
 
   // endregion
@@ -204,7 +186,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
               duration={videoPlayer.duration}
               isVideoLoaded={videoPlayer.isVideoLoaded}
               videoError={videoPlayer.videoError}
-              currentSubtitle={subtitleList.getCurrentSubtitle(videoPlayer.currentTime)}
+              currentSubtitle={subtitleListContext.getCurrentSubtitle(videoPlayer.currentTime)}
               displayMode={subtitleDisplayMode.displayMode}
               onProgress={videoPlayer.handleProgress}
               onDuration={videoPlayer.handleVideoDuration}
@@ -263,11 +245,10 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
         {/* 字幕列表区域 - 无缝集成 */}
         <div className={styles.sidebarSection} style={{ width: `${sidebarResize.sidebarWidth}px` }}>
           <SidebarSection
-            subtitles={subtitleList.subtitles}
             isAutoScrollEnabled={
               playbackSettingsContext.playbackSettings?.isAutoScrollEnabled ?? true
             }
-            currentSubtitleIndex={subtitleList.currentSubtitleIndex}
+            currentSubtitleIndex={subtitleListContext.currentSubtitleIndex}
             currentTime={videoPlayer.currentTime}
             subtitleListRef={autoScroll.subtitleListRef}
             onSeek={videoPlayer.handleSeek}
@@ -288,8 +269,8 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
                 zIndex: 1000
               }}
             >
-              字幕数量: {subtitleList.subtitles.length} | 当前索引:{' '}
-              {subtitleList.currentSubtitleIndex}
+              字幕数量: {subtitleListContext.subtitles.length} | 当前索引:{' '}
+              {subtitleListContext.currentSubtitleIndex}
             </div>
           )}
         </div>

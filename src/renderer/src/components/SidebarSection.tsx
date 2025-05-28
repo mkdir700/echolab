@@ -1,11 +1,9 @@
 import React from 'react'
 import { SubtitleListContent } from './SubtitleListContent/SubtitleListContent'
-import type { SubtitleItem } from '../types/shared'
+import { useSubtitleListContext } from '../hooks/useSubtitleListContext'
 import styles from './SidebarSection.module.css'
 
 interface SidebarSectionProps {
-  sidebarWidth: number
-  subtitles: SubtitleItem[]
   isAutoScrollEnabled: boolean
   currentSubtitleIndex: number
   currentTime: number
@@ -15,14 +13,15 @@ interface SidebarSectionProps {
 }
 
 export function SidebarSection({
-  subtitles,
   isAutoScrollEnabled,
   currentSubtitleIndex,
   currentTime,
   subtitleListRef,
   onSeek,
   onCenterCurrentSubtitle
-}: Omit<SidebarSectionProps, 'sidebarWidth'>): React.JSX.Element {
+}: SidebarSectionProps): React.JSX.Element {
+  const { subtitles } = useSubtitleListContext()
+
   return (
     <div className={styles.sidebarContainer}>
       <SubtitleListContent

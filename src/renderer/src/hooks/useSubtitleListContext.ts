@@ -1,0 +1,14 @@
+import { useContext } from 'react'
+import {
+  SubtitleListContext,
+  type SubtitleListContextType
+} from '../contexts/subtitle-list-context'
+
+export function useSubtitleListContext(): SubtitleListContextType {
+  const context = useContext(SubtitleListContext)
+  if (!context) {
+    throw new Error('useSubtitleListContext 必须在 SubtitleListProvider 内部使用')
+  }
+
+  return context
+}
