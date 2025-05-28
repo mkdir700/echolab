@@ -62,7 +62,7 @@
 /* 字幕覆盖层样式 - 嵌入在视频内部，YouTube 风格 */
 .subtitleOverlay {
   position: absolute;
-  bottom: 10%; /* 距离视频底部10%的位置 */
+  bottom: 0%;
   left: 0;
   right: 0;
   z-index: 10; /* 在视频上方，但在控制器下方 */
@@ -95,19 +95,4 @@
     min-height: 150px;
   }
 
-  .subtitleOverlay {
-    bottom: 12%; /* 移动端稍微提高字幕位置 */
-    padding: 0 var(--spacing-md);
-  }
 }
-
-@media (max-width: 480px) {
-  .videoSection {
-    padding: var(--spacing-md);
-  }
-
-  .subtitleOverlay {
-    bottom: 15%; /* 小屏幕进一步提高字幕位置，避免与控制器重叠 */
-    padding: 0 var(--spacing-sm);
-  }
-} 
