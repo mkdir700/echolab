@@ -10,8 +10,8 @@ import { AboutPage } from '@renderer/pages/AboutPage'
 import { SettingsPage } from '@renderer/pages/SettingsPage'
 
 import { ShortcutProvider } from '@renderer/contexts/ShortcutContext'
-import { PlayingVideoProvider } from '@renderer/contexts/PlayingVideoContext'
 import { PlaybackSettingsProvider } from '@renderer/contexts/PlaybackSettingsContext'
+import { PlayingVideoProvider } from '@renderer/contexts/PlayingVideoContext'
 
 // 导入类型
 import { PageType } from '@renderer/types'

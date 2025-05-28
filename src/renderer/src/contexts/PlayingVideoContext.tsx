@@ -1,5 +1,5 @@
 import React from 'react'
-import { useFileUpload } from '../hooks/useFileUpload'
+import { useFileUpload } from '../hooks/useVideoUpload'
 import { PlayingVideoContext, type PlayingVideoContextType } from './playing-video-context'
 
 export function PlayingVideoProvider({

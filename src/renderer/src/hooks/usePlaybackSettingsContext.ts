@@ -2,7 +2,7 @@ import { useContext } from 'react'
 import {
   PlaybackSettingsContext,
   type PlaybackSettingsContextType
-} from './playback-settings-context'
+} from '../contexts/playback-settings-context'
 
 export function usePlaybackSettingsContext(): PlaybackSettingsContextType {
   const context = useContext(PlaybackSettingsContext)

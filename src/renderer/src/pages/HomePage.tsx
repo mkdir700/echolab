@@ -9,11 +9,11 @@ import {
   DeleteOutlined
 } from '@ant-design/icons'
 import { useVideoPlayer } from '@renderer/hooks/useVideoPlayer'
-import { usePlayingVideoContext } from '@renderer/contexts/usePlayingVideoContext'
 import { useRecentPlays } from '@renderer/hooks/useRecentPlays'
 import { formatTime } from '@renderer/utils/helpers'
 import type { RecentPlayItem } from '@renderer/types'
 import styles from './HomePage.module.css'
+import { usePlayingVideoContext } from '@renderer/hooks/usePlayingVideoContext'
 
 const { Title, Text } = Typography
 
@@ -56,22 +56,48 @@ const recommendedVideos = [
 export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element {
   // 使用自定义 Hooks
   const videoPlayer = useVideoPlayer()
-  const fileUpload = usePlayingVideoContext()
   const { recentPlays, removeRecentPlay, clearRecentPlays, addRecentPlay } = useRecentPlays()
+  const playingVideoContext = usePlayingVideoContext()
 
-  // 处理视频文件选择
+  // 处理视频文件选择(首次打开)
   const handleVideoFileSelect = useCallback(async (): Promise<boolean> => {
-    const success = await fileUpload.handleVideoFileSelect(videoPlayer.resetVideoState)
-    if (success) {
-      onNavigateToPlay()
+    const result = await playingVideoContext.handleVideoFileSelect(videoPlayer.resetVideoState)
+    if (!result.success) {
+      console.error('❌ 无法选择视频文件')
+      return false
     }
-    return success
-  }, [fileUpload, videoPlayer.resetVideoState, onNavigateToPlay])
 
-  // 处理打开最近文件
-  const handleOpenRecentFile = useCallback(
+    // 文件选择成功后，handleVideoFileSelect 已经通过 setVideoFile 设置了视频文件
+    // 现在我们需要添加到最近播放记录
+    const { filePath, fileName } = result
+
+    if (filePath && fileName) {
+      // 更新最近播放记录
+      await addRecentPlay({
+        filePath: filePath,
+        fileName: fileName,
+        duration: 0,
+        currentTime: 0,
+        subtitleFile: '',
+        subtitleIndex: 0,
+        subtitles: []
+      })
+    }
+
+    console.log('🎬 导航前检查 playingVideoContext 状态:', {
+      videoFile: playingVideoContext.videoFile,
+      originalFilePath: playingVideoContext.originalFilePath,
+      videoFileName: playingVideoContext.videoFileName
+    })
+
+    onNavigateToPlay()
+    return result.success
+  }, [playingVideoContext, videoPlayer.resetVideoState, addRecentPlay, onNavigateToPlay])
+
+  // 处理打开项目
+  const handleOpenResouce = useCallback(
     async (item: RecentPlayItem) => {
-      console.log('🎬 开始处理最近文件:', item)
+      console.log('🎬 开始处理视频:', item)
       try {
         // 检查文件是否存在
         console.log('🔍 检查文件是否存在:', item.filePath)
@@ -105,8 +131,9 @@ export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element
         }
 
         console.log('🔗 生成的视频文件 URL:', fileUrl)
+
         // 设置视频文件
-        fileUpload.setVideoFile(fileUrl, item.fileName, item.filePath)
+        playingVideoContext.setVideoFile(fileUrl, item.fileName, item.filePath)
 
         // 如果有保存的播放时间，恢复播放位置
         if (item.currentTime && item.currentTime > 0) {
@@ -132,11 +159,11 @@ export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element
         return false
       }
     },
-    [videoPlayer, fileUpload, removeRecentPlay, addRecentPlay, onNavigateToPlay]
+    [playingVideoContext, addRecentPlay, onNavigateToPlay, removeRecentPlay, videoPlayer]
   )
 
   // 处理移除最近文件
-  const handleRemoveRecentFile = useCallback(
+  const handleRemoveResouce = useCallback(
     async (id: string) => {
       await removeRecentPlay(id)
     },
@@ -144,7 +171,7 @@ export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element
   )
 
   // 处理清空最近文件列表
-  const handleClearRecentFiles = useCallback(async () => {
+  const handleClearResouces = useCallback(async () => {
     await clearRecentPlays()
   }, [clearRecentPlays])
 
@@ -182,7 +209,7 @@ export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element
   const [selectedFileName, setSelectedFileName] = useState('')
 
   const handleRemove = (): void => {
-    handleRemoveRecentFile(selectedFileId)
+    handleRemoveResouce(selectedFileId)
     setIsModalOpen(false)
     setSelectedFileId('')
     setSelectedFileName('')
@@ -227,7 +254,7 @@ export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element
               <Button
                 type="text"
                 size="small"
-                onClick={handleClearRecentFiles}
+                onClick={handleClearResouces}
                 className={styles.clearButton}
               >
                 清空列表
@@ -253,7 +280,7 @@ export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element
                   <div
                     onClick={() => {
                       console.log('卡片被点击了！', item.fileName)
-                      handleOpenRecentFile(item)
+                      handleOpenResouce(item)
                     }}
                     style={{ cursor: 'pointer' }}
                   >

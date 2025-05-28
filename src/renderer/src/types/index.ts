@@ -1,26 +1,9 @@
 // SubtitleItem 现在从共享类型中导入
 import type { SubtitleItem } from '@types_/shared'
 
-export interface VideoPlayerState {
-  isPlaying: boolean
-  currentTime: number
-  duration: number
-  playbackRate: number
-  volume: number
-  isVideoLoaded: boolean
-  videoError: string | null
-}
-
 export interface VideoFileState {
   videoFile: string | null
   videoFileName: string
-}
-
-export interface SubtitleState {
-  subtitles: SubtitleItem[]
-  showSubtitles: boolean
-  currentSubtitleIndex: number
-  isAutoScrollEnabled: boolean
 }
 
 export interface UIState {

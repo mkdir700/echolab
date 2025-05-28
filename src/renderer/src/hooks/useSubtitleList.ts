@@ -1,29 +1,29 @@
 import { useState, useCallback } from 'react'
 import { message } from 'antd'
 import { parseSubtitles } from '../utils/subtitleParser'
-import { SubtitleState } from '../types'
 import type { SubtitleItem } from '@types_/shared'
 
-interface UseSubtitlesReturn extends SubtitleState {
+interface SubtitleListState {
+  subtitles: SubtitleItem[]
+  showSubtitles: boolean
+  currentSubtitleIndex: number
+}
+
+interface UseSubtitleListReturn extends SubtitleListState {
   handleSubtitleUpload: (file: File) => boolean
   toggleSubtitles: () => void
   getCurrentSubtitleIndex: (currentTime: number) => number
   getCurrentSubtitle: (currentTime: number) => SubtitleItem | null
   setAutoScrollEnabled: (enabled: boolean) => void
   setCurrentSubtitleIndex: (index: number) => void
-  restoreSubtitles: (
-    subtitles: SubtitleItem[],
-    currentSubtitleIndex: number,
-    isAutoScrollEnabled: boolean
-  ) => void
+  restoreSubtitles: (subtitles: SubtitleItem[], currentSubtitleIndex: number) => void
 }
 
-export function useSubtitles(): UseSubtitlesReturn {
-  const [state, setState] = useState<SubtitleState>({
+export function useSubtitleList(): UseSubtitleListReturn {
+  const [state, setState] = useState<SubtitleListState>({
     subtitles: [],
     showSubtitles: true,
-    currentSubtitleIndex: -1,
-    isAutoScrollEnabled: true
+    currentSubtitleIndex: -1
   })
 
   // 字幕文件上传处理
@@ -95,23 +95,17 @@ export function useSubtitles(): UseSubtitlesReturn {
 
   // 恢复字幕状态
   const restoreSubtitles = useCallback(
-    (
-      subtitles: SubtitleItem[],
-      currentSubtitleIndex: number,
-      isAutoScrollEnabled: boolean
-    ): void => {
+    (subtitles: SubtitleItem[], currentSubtitleIndex: number): void => {
       console.log('🔄 开始恢复字幕状态:', {
         subtitlesCount: subtitles.length,
         currentSubtitleIndex,
-        isAutoScrollEnabled,
         firstSubtitle: subtitles[0]
       })
 
       setState({
         subtitles,
         showSubtitles: true,
-        currentSubtitleIndex,
-        isAutoScrollEnabled
+        currentSubtitleIndex
       })
 
       console.log('✅ 字幕状态恢复完成')

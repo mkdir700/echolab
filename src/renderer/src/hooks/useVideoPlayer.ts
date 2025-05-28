@@ -1,9 +1,18 @@
 import { useState, useCallback, useRef } from 'react'
 import { message } from 'antd'
 import ReactPlayer from 'react-player'
-import { VideoPlayerState } from '../types'
 import { SEEK_STEP, PLAYBACK_RATES, VOLUME_SETTINGS } from '../constants'
 import { getMediaErrorMessage } from '../utils/helpers'
+
+interface VideoPlayerState {
+  isPlaying: boolean
+  currentTime: number
+  duration: number
+  playbackRate: number
+  volume: number
+  isVideoLoaded: boolean
+  videoError: string | null
+}
 
 interface UseVideoPlayerReturn extends VideoPlayerState {
   playerRef: React.RefObject<ReactPlayer | null>
