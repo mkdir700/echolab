@@ -3,14 +3,14 @@ import ReactPlayer from 'react-player'
 import { VideoPlaceholder } from './VideoPlaceholder'
 import { LoadingIndicator } from '../LoadingIndicator'
 import { ErrorIndicator } from '../ErrorIndicator'
-import { VideoControls } from './VideoControlsFullScreen'
+import { VideoControlsFullScreen } from './VideoControlsFullScreen'
 import { Subtitle } from './Subtitle'
 import { useFullscreen } from '@renderer/hooks/useFullscreen'
-import type { SubtitleItem } from '@renderer/types/shared'
-import type { DisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
 
 // 导入样式
 import styles from './VideoPlayer.module.css'
+import { SubtitleItem } from '@types_/shared'
+import { DisplayMode } from '@renderer/types'
 
 interface VideoPlayerProps {
   videoFile: string | null
@@ -251,7 +251,7 @@ export function VideoPlayer({
                 onMouseEnter={handleUserInteractionStart}
                 onMouseLeave={handleUserInteractionEnd}
               >
-                <VideoControls
+                <VideoControlsFullScreen
                   showControls={showControls}
                   duration={duration}
                   currentTime={currentTime}
@@ -261,8 +261,10 @@ export function VideoPlayer({
                   playbackRate={playbackRate}
                   volume={volume}
                   isLooping={false}
+                  autoPause={false}
                   autoSkipSilence={false}
                   subtitlePosition="bottom"
+                  displayMode={displayMode}
                   isFullscreen={isFullscreen}
                   onSeek={onSeek}
                   onStepBackward={onStepBackward}
@@ -276,6 +278,7 @@ export function VideoPlayer({
                   onFullscreenToggle={toggleFullscreen}
                   onPreviousSubtitle={() => {}}
                   onNextSubtitle={() => {}}
+                  onDisplayModeChange={() => {}}
                 />
               </div>
             )}

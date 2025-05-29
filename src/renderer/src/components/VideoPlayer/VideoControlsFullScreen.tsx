@@ -31,7 +31,7 @@ interface VideoControlsProps extends VideoControlsPropsType {
   isFullscreen: boolean
 }
 
-export function VideoControls({
+export function VideoControlsFullScreen({
   showControls,
   duration,
   currentTime,
