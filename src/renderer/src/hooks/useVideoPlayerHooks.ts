@@ -136,6 +136,30 @@ export const useVideoStateRefs = (): {
 }
 
 // 需要控制播放器的组件使用这个
+/**
+ * 提供视频播放器控制功能的 Hook。
+ *
+ * @returns {Object} 包含控制视频播放的各种方法和状态引用。
+ *
+ * @property {Function} play - 播放视频。
+ * @property {Function} pause - 暂停视频。
+ * @property {Function} toggle - 切换播放/暂停状态。
+ * @property {Function} seekTo - 跳转到指定时间。
+ * @property {Function} stepForward - 向前跳跃固定时间。
+ * @property {Function} stepBackward - 向后跳跃固定时间。
+ * @property {Function} restart - 重头开始播放视频。
+ * @property {Function} setDragging - 设置拖动状态。
+ * @property {Function} updateTime - 更新当前播放时间。
+ * @property {Function} setPlaying - 设置播放状态。
+ * @property {Function} setDuration - 设置视频时长。
+ * @property {Function} setVideoLoaded - 设置视频加载状态。
+ * @property {Function} setVideoError - 设置视频错误信息。
+ * @property {Function} setPlaybackRate - 设置播放速度。
+ * @property {Function} setVolume - 设置音量。
+ * @property {Function} resetVideoState - 重置视频状态。
+ * @property {Function} restoreVideoState - 恢复视频状态。
+ * @property {React.RefObject<boolean>} isDraggingRef - 拖动状态的引用。
+ */
 export const useVideoControls = (): {
   play: () => void
   pause: () => void

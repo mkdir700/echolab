@@ -54,7 +54,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
   const { pendingVideoInfo, setPendingVideoInfo, showSubtitleModal, setShowSubtitleModal } =
     usePlayStateInitializer({
       playingVideoContext: playingVideoContext,
-      subtitles: subtitleListContext.subtitles,
+      subtitles: subtitleListContext.subtitleItemsRef.current,
       showSubtitleModal: false, // 初始值
       restoreVideoState: restoreVideoState,
       restoreSubtitles: subtitleListContext.restoreSubtitles,
@@ -145,7 +145,7 @@ export const PlayPage = React.memo<PlayPageProps>(function PlayPage({ onBack }) 
               {/* 视频播放区域 - 占据主要空间 */}
               <div className={styles.videoPlayerSection}>
                 <VideoSection
-                  displayMode={subtitleDisplayMode.displayMode}
+                  displayModeRef={subtitleDisplayMode.displayModeRef}
                   isFullscreen={isFullscreen}
                   onFullscreenChange={setIsFullscreen}
                   onFullscreenToggleReady={() => {}}

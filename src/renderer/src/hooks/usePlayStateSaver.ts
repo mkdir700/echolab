@@ -73,13 +73,13 @@ export function usePlayStateSaver({
         force ||
         Math.abs(currentTimeValue - lastSavedTime) > 2 ||
         actualCurrentSubtitleIndex !== lastSavedSubtitleIndex ||
-        subtitleListContext.subtitles.length !== lastSavedSubtitlesLength
+        subtitleListContext.subtitleItemsRef.current.length !== lastSavedSubtitlesLength
       ) {
         console.log('保存播放进度:', {
           recentId,
           currentTime: currentTimeValue,
           subtitleIndex: actualCurrentSubtitleIndex,
-          subtitlesCount: subtitleListContext.subtitles.length,
+          subtitlesCount: subtitleListContext.subtitleItemsRef.current.length,
           filePath: originalFilePath
         })
 
@@ -89,13 +89,15 @@ export function usePlayStateSaver({
           subtitleIndex: currentSubtitleIndex,
           duration: durationValue > 0 ? durationValue : undefined,
           subtitles:
-            subtitleListContext.subtitles.length > 0 ? subtitleListContext.subtitles : undefined
+            subtitleListContext.subtitleItemsRef.current.length > 0
+              ? subtitleListContext.subtitleItemsRef.current
+              : undefined
         })
 
         if (success) {
           lastSavedTime = currentTimeValue
           lastSavedSubtitleIndex = actualCurrentSubtitleIndex
-          lastSavedSubtitlesLength = subtitleListContext.subtitles.length
+          lastSavedSubtitlesLength = subtitleListContext.subtitleItemsRef.current.length
         } else {
           console.error('保存播放进度失败')
         }
@@ -118,7 +120,14 @@ export function usePlayStateSaver({
         saveProgress(true)
       }
     }
-  }, [originalFilePath, videoFile, subtitleListContext, getRecentPlayByPath, updateRecentPlay])
+  }, [
+    originalFilePath,
+    videoFile,
+    subtitleListContext,
+    getRecentPlayByPath,
+    updateRecentPlay,
+    currentTimeRef
+  ])
 
   return {
     savePlayStateRef: saveProgressRef

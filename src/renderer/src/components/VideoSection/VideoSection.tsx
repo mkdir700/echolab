@@ -19,7 +19,7 @@ import type { DisplayMode } from '@renderer/types'
 import styles from './VideoSection.module.css'
 
 interface VideoSectionProps {
-  displayMode: DisplayMode
+  displayModeRef: React.RefObject<DisplayMode>
   isFullscreen: boolean
   onFullscreenChange: (isFullscreen: boolean) => void
   onFullscreenToggleReady: (toggleFn: () => void) => void
@@ -27,7 +27,7 @@ interface VideoSectionProps {
 }
 
 export function VideoSection({
-  displayMode,
+  displayModeRef,
   isFullscreen,
   onFullscreenChange,
   onFullscreenToggleReady,
@@ -145,7 +145,7 @@ export function VideoSection({
           isVideoLoaded={isVideoLoaded}
           videoError={videoError}
           currentSubtitle={subtitleListContext.getCurrentSubtitle(currentTime)}
-          displayMode={displayMode}
+          displayModeRef={displayModeRef}
           onProgress={handleProgress}
           onDuration={handleVideoDuration}
           onReady={handleVideoReady}
@@ -176,7 +176,7 @@ export function VideoSection({
             autoPause={subtitleControl.isAutoPause}
             autoSkipSilence={false}
             subtitlePosition="bottom"
-            displayMode={displayMode}
+            displayModeRef={displayModeRef}
             onSeek={seekTo}
             onStepBackward={stepBackward}
             onPlayPause={toggle}
