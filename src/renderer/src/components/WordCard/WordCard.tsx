@@ -224,13 +224,14 @@ export function WordCard({ word, targetElement, onClose }: WordCardProps): React
 
     // 计算卡片的理想位置（以单词中心为基准）
     let cardLeft = targetCenterX - cardWidth / 2
-    let cardTop = (targetTopY - cardHeight / 2 - arrowHeight - gap) * 0.95
+    // 1. Calculate the initial `cardTop` to be above the word.
+    let cardTop = targetRect.top - cardHeight - arrowHeight - gap
 
     // 边界检测和调整
     const minLeft = 10
     const maxLeft = window.innerWidth - cardWidth - 10
-    const minTop = 10
-    const maxTop = window.innerHeight - cardHeight - 10
+    const minTop = 10 // minTop for the card
+    const maxTop = window.innerHeight - cardHeight - 10 // maxTop to prevent overflow from bottom
 
     // 调整水平位置
     if (cardLeft < minLeft) {
@@ -240,12 +241,14 @@ export function WordCard({ word, targetElement, onClose }: WordCardProps): React
     }
 
     // 调整垂直位置
+    // 2. If this `cardTop` is less than `minTop`, set `cardTop = minTop`.
     if (cardTop < minTop) {
-      // 如果上方空间不足，显示在单词下方
-      cardTop = targetTopY + 30
+      cardTop = minTop
     } else if (cardTop > maxTop) {
+      // If the card is too high and goes off the bottom of the screen
       cardTop = maxTop
     }
+    // 3. Removed the logic that flips the card below the word.
 
     // 计算小三角相对于卡片的位置
     const arrowLeft = targetCenterX - cardLeft
