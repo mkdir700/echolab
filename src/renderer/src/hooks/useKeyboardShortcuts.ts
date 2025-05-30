@@ -2,18 +2,19 @@ import { useEffect } from 'react'
 import { VOLUME_SETTINGS } from '../constants'
 import { useShortcuts } from './useShortcuts'
 import { matchesShortcut as matchesShortcutUtil } from '../utils/shortcutMatcher'
+import { ReactCallback } from '@renderer/types/shared'
 
 interface UseKeyboardShortcutsProps {
-  onPlayPause: () => void
-  onStepBackward: () => void
-  onStepForward: () => void
-  onToggleSubtitleMode?: () => void
-  onVolumeChange: (volume: number) => void
+  onPlayPause: ReactCallback<() => void>
+  onStepBackward: ReactCallback<() => void>
+  onStepForward: ReactCallback<() => void>
+  onToggleSubtitleMode?: ReactCallback<() => void>
+  onVolumeChange: ReactCallback<(volume: number) => void>
   currentVolume: number
-  onToggleSingleLoop?: () => void
-  onToggleAutoPause?: () => void
-  onGoToPreviousSubtitle?: () => void
-  onGoToNextSubtitle?: () => void
+  onToggleSingleLoop?: ReactCallback<() => void>
+  onToggleAutoPause?: ReactCallback<() => void>
+  onGoToPreviousSubtitle?: ReactCallback<() => void>
+  onGoToNextSubtitle?: ReactCallback<() => void>
 }
 
 export function useKeyboardShortcuts({

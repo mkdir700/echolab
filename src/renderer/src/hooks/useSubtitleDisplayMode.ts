@@ -1,11 +1,13 @@
 import { useState, useCallback } from 'react'
 import { DisplayMode } from '@renderer/types'
+import { ReactCallback } from '@renderer/types/shared'
 
 interface UseSubtitleDisplayModeReturn {
   displayMode: DisplayMode
-  setDisplayMode: (mode: DisplayMode) => void
-  toggleDisplayMode: () => void
-  restoreDisplayMode: (mode: DisplayMode) => void
+  setDisplayMode: ReactCallback<(mode: DisplayMode) => void>
+  /** 被 useCallback 包装的字幕显示模式切换回调函数 */
+  toggleDisplayMode: ReactCallback<() => void>
+  restoreDisplayMode: ReactCallback<(mode: DisplayMode) => void>
 }
 
 export function useSubtitleDisplayMode(

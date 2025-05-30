@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { useRecentPlayList } from './useRecentPlayList'
-import type { SubtitleItem } from '@types_/shared'
+import { type ISubtitleListContextType } from '@renderer/contexts/subtitle-list-context'
 
 interface UsePlayStateSaverProps {
   /** 原始文件路径 */
@@ -11,17 +11,12 @@ interface UsePlayStateSaverProps {
   currentTime: number
   /** 视频总时长 */
   duration: number
-  /** 字幕列表 */
-  subtitles: SubtitleItem[]
-  /** 当前字幕索引 */
-  currentSubtitleIndex: number
-  /** 获取当前字幕索引的函数 */
-  getCurrentSubtitleIndex: (time: number) => number
+  subtitleListContext: ISubtitleListContextType
 }
 
 interface UsePlaySateSaverReturn {
   /** 保存进度的函数引用，可以在组件外部调用 */
-  saveProgressRef: React.RefObject<((force?: boolean) => Promise<void>) | null>
+  savePlayStateRef: React.RefObject<((force?: boolean) => Promise<void>) | null>
 }
 
 /**
@@ -33,12 +28,18 @@ export function usePlayStateSaver({
   videoFile,
   currentTime,
   duration,
-  subtitles,
-  currentSubtitleIndex,
-  getCurrentSubtitleIndex
+  subtitleListContext
 }: UsePlayStateSaverProps): UsePlaySateSaverReturn {
   const { getRecentPlayByPath, updateRecentPlay } = useRecentPlayList()
   const saveProgressRef = useRef<((force?: boolean) => Promise<void>) | null>(null)
+
+  // 使用 ref 来跟踪当前时间，避免频繁的重新渲染
+  const currentTimeRef = useRef(currentTime)
+  const durationRef = useRef(duration)
+
+  // 更新 ref 的值
+  currentTimeRef.current = currentTime
+  durationRef.current = duration
 
   useEffect(() => {
     // 只有当有原始文件路径时才保存进度（本地文件）
@@ -54,6 +55,10 @@ export function usePlayStateSaver({
     async function saveProgress(force = false): Promise<void> {
       if (!originalFilePath) return
 
+      // 使用 ref 获取最新的时间值
+      const currentTimeValue = currentTimeRef.current
+      const durationValue = durationRef.current
+
       // 查找当前视频的 recentPlay 项（使用原始文件路径）
       if (!recentId) {
         const recent = await getRecentPlayByPath(originalFilePath)
@@ -66,35 +71,37 @@ export function usePlayStateSaver({
       }
 
       // 计算当前实际的字幕索引
-      const actualCurrentSubtitleIndex = getCurrentSubtitleIndex(currentTime)
+      const actualCurrentSubtitleIndex =
+        subtitleListContext.getCurrentSubtitleIndex(currentTimeValue)
 
       // 只在进度有明显变化时才保存，或强制保存
       if (
         force ||
-        Math.abs(currentTime - lastSavedTime) > 2 ||
+        Math.abs(currentTimeValue - lastSavedTime) > 2 ||
         actualCurrentSubtitleIndex !== lastSavedSubtitleIndex ||
-        subtitles.length !== lastSavedSubtitlesLength
+        subtitleListContext.subtitles.length !== lastSavedSubtitlesLength
       ) {
         console.log('保存播放进度:', {
           recentId,
-          currentTime: currentTime,
+          currentTime: currentTimeValue,
           subtitleIndex: actualCurrentSubtitleIndex,
-          subtitlesCount: subtitles.length,
+          subtitlesCount: subtitleListContext.subtitles.length,
           filePath: originalFilePath
         })
 
+        const currentSubtitleIndex = subtitleListContext.getCurrentSubtitleIndex(currentTimeValue)
         const success = await updateRecentPlay(recentId, {
-          currentTime: currentTime,
-          subtitleIndex:
-            actualCurrentSubtitleIndex >= 0 ? actualCurrentSubtitleIndex : currentSubtitleIndex,
-          duration: duration > 0 ? duration : undefined,
-          subtitles: subtitles.length > 0 ? subtitles : undefined
+          currentTime: currentTimeValue,
+          subtitleIndex: currentSubtitleIndex,
+          duration: durationValue > 0 ? durationValue : undefined,
+          subtitles:
+            subtitleListContext.subtitles.length > 0 ? subtitleListContext.subtitles : undefined
         })
 
         if (success) {
-          lastSavedTime = currentTime
+          lastSavedTime = currentTimeValue
           lastSavedSubtitleIndex = actualCurrentSubtitleIndex
-          lastSavedSubtitlesLength = subtitles.length
+          lastSavedSubtitlesLength = subtitleListContext.subtitles.length
         } else {
           console.error('保存播放进度失败')
         }
@@ -120,16 +127,13 @@ export function usePlayStateSaver({
   }, [
     originalFilePath,
     videoFile,
-    currentTime,
-    duration,
-    currentSubtitleIndex,
-    subtitles,
-    getCurrentSubtitleIndex,
+    // 移除 currentTime 和 duration 依赖，改用 ref
+    subtitleListContext,
     getRecentPlayByPath,
     updateRecentPlay
   ])
 
   return {
-    saveProgressRef
+    savePlayStateRef: saveProgressRef
   }
 }

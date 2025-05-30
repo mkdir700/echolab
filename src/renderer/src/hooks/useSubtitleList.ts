@@ -5,13 +5,10 @@ import type { SubtitleItem } from '@types_/shared'
 
 interface SubtitleListState {
   subtitles: SubtitleItem[]
-  showSubtitles: boolean
-  currentSubtitleIndex: number
 }
 
 interface UseSubtitleListReturn extends SubtitleListState {
   handleSubtitleUpload: (file: File) => boolean
-  toggleSubtitles: () => void
   getCurrentSubtitleIndex: (currentTime: number) => number
   getSubtitleIndexForTime: (currentTime: number) => number
   getCurrentSubtitle: (currentTime: number) => SubtitleItem | null
@@ -22,9 +19,7 @@ interface UseSubtitleListReturn extends SubtitleListState {
 
 export function useSubtitleList(): UseSubtitleListReturn {
   const [state, setState] = useState<SubtitleListState>({
-    subtitles: [],
-    showSubtitles: true,
-    currentSubtitleIndex: -1
+    subtitles: []
   })
 
   // 字幕文件上传处理
@@ -49,14 +44,6 @@ export function useSubtitleList(): UseSubtitleListReturn {
     }
     reader.readAsText(file)
     return false
-  }, [])
-
-  // 切换字幕显示
-  const toggleSubtitles = useCallback((): void => {
-    setState((prev) => ({
-      ...prev,
-      showSubtitles: !prev.showSubtitles
-    }))
   }, [])
 
   // 获取当前字幕索引
@@ -130,9 +117,7 @@ export function useSubtitleList(): UseSubtitleListReturn {
       })
 
       setState({
-        subtitles,
-        showSubtitles: true,
-        currentSubtitleIndex
+        subtitles
       })
 
       console.log('✅ 字幕状态恢复完成')
@@ -143,7 +128,6 @@ export function useSubtitleList(): UseSubtitleListReturn {
   return {
     ...state,
     handleSubtitleUpload,
-    toggleSubtitles,
     getCurrentSubtitleIndex,
     getSubtitleIndexForTime,
     getCurrentSubtitle,

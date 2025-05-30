@@ -8,28 +8,25 @@ import styles from './SubtitleListContent.module.css'
 import { useSubtitleListContext } from '@renderer/hooks/useSubtitleListContext'
 import { useAutoScroll } from '@renderer/hooks/useAutoScroll'
 import { usePlaybackSettingsContext } from '@renderer/hooks/usePlaybackSettingsContext'
+import { useVideoPlayerContext } from '@renderer/hooks/useVideoPlayerContext'
 
 const { Text } = Typography
-
-interface SubtitleListContentProps {
-  currentTime: number
-  onSeek: (time: number) => void
-}
 
 // 虚拟列表项高度（估算值，可以根据实际内容调整）
 const ITEM_HEIGHT = 80
 
-export function SubtitleListContent({
-  currentTime,
-  onSeek
-}: SubtitleListContentProps): React.JSX.Element {
+export function SubtitleListContent(): React.JSX.Element {
   const subtitleListContext = useSubtitleListContext()
-  const { subtitles, currentSubtitleIndex } = subtitleListContext
+  const videoPlayerContext = useVideoPlayerContext()
+  const { subtitles, getSubtitleIndexForTime } = subtitleListContext
   const playbackSettingsContext = usePlaybackSettingsContext()
 
   // 为虚拟列表创建一个单独的 ref
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const virtualListRef = useRef<any>(null)
+  const currentTime = videoPlayerContext.currentTime
+  const handleSeek = videoPlayerContext.handleSeek
+  const currentSubtitleIndex = getSubtitleIndexForTime(currentTime)
 
   // 自动滚动 Hook
   const autoScroll = useAutoScroll({
@@ -149,7 +146,7 @@ export function SubtitleListContent({
                   item={item}
                   index={item.index}
                   isActive={isActive}
-                  onSeek={onSeek}
+                  onSeek={handleSeek}
                   formatTime={formatTime}
                 />
               )

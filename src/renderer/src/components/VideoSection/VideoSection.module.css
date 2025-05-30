@@ -1,0 +1,15 @@
+.videoSectionContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.videoPlayerSection {
+  flex: 1;
+  min-height: 0;
+}
+
+.videoControlsSection {
+  flex-shrink: 0;
+} 

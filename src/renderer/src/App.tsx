@@ -13,6 +13,7 @@ import { ShortcutProvider } from '@renderer/contexts/ShortcutContext'
 import { PlaybackSettingsProvider } from '@renderer/contexts/PlaybackSettingsContext'
 import { PlayingVideoProvider } from '@renderer/contexts/PlayingVideoContext'
 import { SubtitleListProvider } from '@renderer/contexts/SubtitleListContext'
+import { VideoPlayerProvider } from '@renderer/contexts/VideoPlayerContext'
 
 // 导入类型
 import { PageType } from '@renderer/types'
@@ -31,6 +32,7 @@ function App(): React.JSX.Element {
 
   // 导航到播放页面
   const handleNavigateToPlay = useCallback(() => {
+    console.log('🎬 导航到播放页面')
     setCurrentPage('play')
   }, [])
 
@@ -54,16 +56,16 @@ function App(): React.JSX.Element {
           </div>
         )}
 
-        {/* 播放页面 - 始终挂载，通过 display 控制显示 */}
-        <div
-          className={styles.pageContainer}
-          style={{
-            display: currentPage === 'play' ? 'block' : 'none'
-          }}
-        >
-          {/* 只有在播放页面时才渲染PlayPage组件 */}
-          {currentPage === 'play' && <PlayPage onBack={handleBackToHome} />}
-        </div>
+        {/* 播放页面  */}
+        {currentPage === 'play' && (
+          <VideoPlayerProvider>
+            <SubtitleListProvider>
+              <div className={styles.pageContainer}>
+                <PlayPage onBack={handleBackToHome} />
+              </div>
+            </SubtitleListProvider>
+          </VideoPlayerProvider>
+        )}
 
         {/* 其他页面 - 条件渲染，覆盖在播放页面之上 */}
         {currentPage === 'favorites' && (
@@ -89,18 +91,16 @@ function App(): React.JSX.Element {
     <PlaybackSettingsProvider>
       <ShortcutProvider>
         <PlayingVideoProvider>
-          <SubtitleListProvider>
-            {currentPage === 'play' ? (
-              // 播放页面 - 全屏布局，不显示全局header
-              <div className={styles.playPageFullscreen}>{renderPageContent}</div>
-            ) : (
-              // 其他页面 - 标准布局，显示全局header
-              <Layout className={styles.appLayout}>
+          <Layout className={styles.appLayout}>
+            {currentPage !== 'play' ? (
+              <>
                 <AppHeader currentPage={currentPage} onPageChange={setCurrentPage} />
                 <Content className={styles.appContent}>{renderPageContent}</Content>
-              </Layout>
+              </>
+            ) : (
+              <div className={styles.playPageFullscreen}>{renderPageContent}</div>
             )}
-          </SubtitleListProvider>
+          </Layout>
         </PlayingVideoProvider>
       </ShortcutProvider>
     </PlaybackSettingsProvider>

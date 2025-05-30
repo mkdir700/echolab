@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import type { SubtitleItem } from '@types_/shared'
 import { useSubtitleListContext } from './useSubtitleListContext'
+import { ReactCallback } from '@renderer/types/shared'
 
 interface SubtitleControlState {
   isSingleLoop: boolean // 是否开启单句循环
@@ -8,12 +9,12 @@ interface SubtitleControlState {
 }
 
 interface UseSubtitleControlReturn extends SubtitleControlState {
-  toggleSingleLoop: () => void
-  toggleAutoPause: () => void
-  goToNextSubtitle: () => void
-  goToPreviousSubtitle: () => void
-  resetState: () => void
-  restoreState: (isSingleLoop: boolean, isAutoPause: boolean) => void
+  toggleSingleLoop: ReactCallback<() => void>
+  toggleAutoPause: ReactCallback<() => void>
+  goToNextSubtitle: ReactCallback<() => void>
+  goToPreviousSubtitle: ReactCallback<() => void>
+  resetState: ReactCallback<() => void>
+  restoreState: ReactCallback<(isSingleLoop: boolean, isAutoPause: boolean) => void>
 }
 
 interface UseSubtitleControlParams {
@@ -21,8 +22,8 @@ interface UseSubtitleControlParams {
   currentTime: number
   isPlaying: boolean
   isVideoLoaded: boolean
-  onSeek: (time: number) => void
-  onPause: () => void // 添加暂停回调
+  onSeek: ReactCallback<(time: number) => void>
+  onPause: ReactCallback<() => void> // 添加暂停回调
 }
 
 export function useSubtitleControl({
@@ -100,7 +101,6 @@ export function useSubtitleControl({
       const newSingleLoop = !prev.isSingleLoop
       const currentIndex = currentSubtitleIndexRef.current
       const currentSubtitle = getSubtitleRef.current(currentIndex)
-
       if (newSingleLoop) {
         if (currentIndex >= 0 && currentSubtitle) {
           // 情况1：当前有正在进行的字幕，锁定当前字幕

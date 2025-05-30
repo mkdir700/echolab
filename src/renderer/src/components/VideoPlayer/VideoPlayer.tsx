@@ -201,7 +201,7 @@ export function VideoPlayer({
               }}
               onClick={handleVideoClick}
               controls={false}
-              progressInterval={100}
+              progressInterval={300}
               style={{ cursor: 'pointer' }}
               config={{
                 file: {

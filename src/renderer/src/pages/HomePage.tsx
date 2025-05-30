@@ -71,6 +71,7 @@ export function HomePage({ onNavigateToPlay }: HomePageProps): React.JSX.Element
     // 现在我们需要添加到最近播放记录
     const { filePath, fileName } = result
 
+    console.log('🎬 文件选择成功:', { filePath, fileName })
     if (filePath && fileName) {
       // 更新最近播放记录
       await addRecentPlay({

@@ -3,11 +3,11 @@ import { useRecentPlayList } from './useRecentPlayList'
 import { FileSystemHelper } from '@renderer/utils/fileSystemHelper'
 import { parseSubtitles } from '@renderer/utils/subtitleParser'
 import type { SubtitleItem } from '@types_/shared'
-import type { PlayingVideoContextType } from '@renderer/contexts/playing-video-context'
+import type { IPlayingVideoContextType } from '@renderer/contexts/playing-video-context'
 
 interface UsePlayStateInitializerProps {
   /** 播放视频上下文 */
-  playingVideoContext: PlayingVideoContextType
+  playingVideoContext: IPlayingVideoContextType
   /** 字幕数据 */
   subtitles: SubtitleItem[]
   /** 是否显示提示导入字幕的模态框 */

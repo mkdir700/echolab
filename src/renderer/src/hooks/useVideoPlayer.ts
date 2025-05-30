@@ -3,6 +3,7 @@ import { message } from 'antd'
 import ReactPlayer from 'react-player'
 import { SEEK_STEP, PLAYBACK_RATES, VOLUME_SETTINGS } from '../constants'
 import { getMediaErrorMessage } from '../utils/helpers'
+import { ReactCallback } from '@renderer/types/shared'
 
 interface VideoPlayerState {
   isPlaying: boolean
@@ -14,23 +15,25 @@ interface VideoPlayerState {
   videoError: string | null
 }
 
-interface UseVideoPlayerReturn extends VideoPlayerState {
+export interface UseVideoPlayerReturn extends VideoPlayerState {
   playerRef: React.RefObject<ReactPlayer | null>
-  handlePlayPause: () => void
-  handleProgress: (progress: { played: number; playedSeconds: number }) => void
-  handleSeek: (value: number) => void
-  handlePlaybackRateChange: (value: number) => void
-  handleVolumeChange: (value: number) => void
-  handleStepBackward: () => void
-  handleStepForward: () => void
-  handleRestart: () => void
-  handleVideoReady: () => void
-  handleVideoError: (error: Error | MediaError | string | null) => void
-  handleVideoDuration: (duration: number) => void
-  resetVideoState: () => void
-  restoreVideoState: (currentTime: number, playbackRate: number, volume: number) => void
-  startLoadingTimeout: () => void
-  clearLoadingTimeout: () => void
+  handlePlayPause: ReactCallback<() => void>
+  handleProgress: ReactCallback<(progress: { played: number; playedSeconds: number }) => void>
+  handleSeek: ReactCallback<(value: number) => void>
+  handlePlaybackRateChange: ReactCallback<(value: number) => void>
+  handleVolumeChange: ReactCallback<(value: number) => void>
+  handleStepBackward: ReactCallback<() => void>
+  handleStepForward: ReactCallback<() => void>
+  handleRestart: ReactCallback<() => void>
+  handleVideoReady: ReactCallback<() => void>
+  handleVideoError: ReactCallback<(error: Error | MediaError | string | null) => void>
+  handleVideoDuration: ReactCallback<(duration: number) => void>
+  resetVideoState: ReactCallback<() => void>
+  restoreVideoState: ReactCallback<
+    (currentTime: number, playbackRate: number, volume: number) => void
+  >
+  startLoadingTimeout: ReactCallback<() => void>
+  clearLoadingTimeout: ReactCallback<() => void>
 }
 
 export function useVideoPlayer(): UseVideoPlayerReturn {
@@ -59,7 +62,7 @@ export function useVideoPlayer(): UseVideoPlayerReturn {
     } else {
       message.warning('视频正在加载中，请稍候...')
     }
-  }, [state.isVideoLoaded, state.videoError, state.isPlaying])
+  }, [state.isVideoLoaded, state.videoError])
 
   // 进度更新
   const handleProgress = useCallback(

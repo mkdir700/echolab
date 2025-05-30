@@ -3,11 +3,11 @@ import { Button, Typography, Tooltip } from 'antd'
 import { ArrowLeftOutlined, VideoCameraOutlined } from '@ant-design/icons'
 import { performanceMonitor } from '@renderer/utils/performance'
 import styles from './PlayPageHeader.module.css'
+import { usePlayingVideoContext } from '@renderer/contexts/usePlayingVideoContext'
 
 const { Text } = Typography
 
 interface PlayPageHeaderProps {
-  videoFileName: string
   onBack: () => void
 }
 
@@ -25,15 +25,15 @@ function truncateFileName(fileName: string, maxLength: number = 50): string {
 }
 
 // 使用React.memo优化组件，避免不必要的重渲染
-export const PlayPageHeader = React.memo<PlayPageHeaderProps>(function PlayPageHeader({
-  videoFileName,
-  onBack
-}) {
+export const PlayPageHeader = React.memo<PlayPageHeaderProps>(function PlayPageHeader({ onBack }) {
   // 优化的返回按钮点击处理
   const handleBackClick = useCallback(() => {
     performanceMonitor.start('page-transition-to-home')
     onBack()
   }, [onBack])
+
+  const playingVideoContext = usePlayingVideoContext()
+  const videoFileName = playingVideoContext.videoFileName
 
   return (
     <div className={styles.header}>

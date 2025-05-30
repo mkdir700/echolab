@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react'
 import { Typography } from 'antd'
-import type { SubtitleItem } from '@renderer/types/shared'
-import type { DisplayMode } from '@renderer/hooks/useSubtitleDisplayMode'
+import type { SubtitleItem } from '@types_/shared'
+import type { DisplayMode } from '@renderer/types'
 import { WordCard } from '@renderer/components/WordCard/WordCard'
 
 // 导入样式

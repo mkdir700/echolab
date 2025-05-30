@@ -11,15 +11,16 @@ import { FileSystemHelper } from '@renderer/utils/fileSystemHelper'
 import { parseSubtitles } from '@renderer/utils/subtitleParser'
 import type { SubtitleItem } from '@types_/shared'
 import styles from './SubtitleLoadModal.module.css'
+import { ReactCallback } from '@renderer/types/shared'
 
 const { Text } = Typography
 
 interface SubtitleLoadModalProps {
   visible: boolean
   videoFilePath: string
-  onCancel: () => void
-  onSkip: () => void
-  onSubtitlesLoaded: (subtitles: SubtitleItem[]) => void
+  onCancel: ReactCallback<() => void>
+  onSkip: ReactCallback<() => void>
+  onSubtitlesLoaded: ReactCallback<(subtitles: SubtitleItem[]) => void>
 }
 
 interface SubtitleFileInfo {
