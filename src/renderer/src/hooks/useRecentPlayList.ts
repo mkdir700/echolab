@@ -46,6 +46,9 @@ export function useRecentPlayList(): UseRecentPlayListReturn {
       volume: 1,
       playbackRate: 1,
       isSingleLoop: false,
+      loopSettings: {
+        count: -1 // 默认无限循环 / Default infinite loop
+      },
       isAutoPause: false
     },
     update: {
